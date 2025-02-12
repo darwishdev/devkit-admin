@@ -1,0 +1,7 @@
+docs/node_modules
+docs/dist
+devkit-admin/node_modules
+devkit-admin/dist
+devkit-admin/.env.local
+docs/.env.development
+

@@ -1,0 +1,24 @@
+@import "tailwindcss/base";
+@import "tailwindcss/components";
+@import "./primevue/tailwind.css";
+@import "tailwindcss/utilities";
+@import 'primeicons/primeicons.css';
+
+:root {
+	--surface-a: #ffffff;
+	--surface-b: #f8f9fa;
+	--p-content-max-width: 1160px;
+	--p-content-inline-spacing: 15rem;
+	--p-surface-0: var(--surface-a);
+	--header-height: 80px;
+	color-scheme: light;
+}
+
+.wrapper {
+	width: min(var(--p-content-max-width), 100% - (var(--p-content-inline-spacing) / 2.3));
+	margin-inline: auto;
+}
+
+* {
+	box-sizing: border-box;
+}
