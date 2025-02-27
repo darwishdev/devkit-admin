@@ -1,21 +1,17 @@
 import Dexie from 'dexie';
-import { CacheHelper } from './CacheHelper';
-import { IconHelper } from './IconHelper';
-export class DevkitStaticDB extends Dexie {
-  public cache: CacheHelper;
-  public iconHelper: IconHelper;
-  private cacheHelper!: Dexie.Table<{ key: string; value: any }, string>;
-  private icon!: Dexie.Table<{ key: string, value: string }, string>;
+import { type DBDropdownOptions } from './DbTypes';
+import { CacheHelper, DBCacheEntry } from './CacheHelper';
+export class DevkitAdminDB extends Dexie {
+  public dropdownHelper: CacheHelper<DBDropdownOptions>;
+  private dropdown!: Dexie.Table<DBCacheEntry<DBDropdownOptions>, string>;
   constructor() {
-    super(`DEVKIT_BASE`);
+    super(`DEVKIT_ADMIN`);
     this.version(1).stores({
-      cacheHelper: 'key',
-      icon: 'key',
+      dropdown: 'key',
     });
 
-    this.iconHelper = new IconHelper(this.icon);
-    this.cache = new CacheHelper(this.cacheHelper);
+    this.dropdownHelper = new CacheHelper<DBDropdownOptions>(this.dropdown);
   }
 }
 
-export default DevkitStaticDB;
+export default DevkitAdminDB;

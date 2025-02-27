@@ -3,6 +3,11 @@ import type { FormKitSchemaNode } from '@formkit/core'
 import type { IconFindRequest, IconFindResponse } from './api_types'
 import type { RouteLocationRaw } from 'vue-router'
 export type StringUnkownRecord = Record<string, unknown>
+export type CacheOptions = {
+	cacheKey: string
+	bypassCache?: boolean
+	cacheTimeout?: number
+}
 export type EndpointFunction<
 	TReq extends Record<string, unknown> = {},
 	TResp extends Record<string, unknown> = {}

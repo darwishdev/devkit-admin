@@ -8,15 +8,16 @@
   TFindCallbakResponse = unknown,
   TCallbakResponse = unknown
 ">
-import { h, inject, ref, resolveComponent } from 'vue';
+import { db } from '@/devkit_admin';
 import { type FormKitSchemaNode, type FormKitNode } from '@formkit/core'
+import { h, inject, ref, resolveComponent } from 'vue';
 import { useToast } from 'primevue';
 import { useRoute, useRouter } from 'vue-router';
 import { useMutation, useQueryClient } from '@tanstack/vue-query';
 import { useAppFormStoreWithKey } from '../store/AppFormStore';
 import { ObjectKeys, StringUnkownRecord } from 'devkit-apiclient';
 import { AppFormProps } from 'dist/types/pkg/types/types';
-import { AppFormSection } from '@/pkg/types/types';
+import { AppFormSection, FindHandlerFn, SubmitHandlerFn } from '@/pkg/types/types';
 const dialogRef = inject("dialogRef") as any;
 const formkitSchemaComp = resolveComponent('FormKitSchema')
 const queryClient = useQueryClient()
@@ -24,11 +25,11 @@ const formkitComp = resolveComponent('FormKit')
 const apiClient = inject<Record<string, Function>>('apiClient')
 const toast = useToast()
 const props = defineProps<AppFormProps<TKey, TFormRequest, TApiRequest, TApiResponse, TFindRequestPropName, TFindResponsePropName, TFindCallbakResponse, TCallbakResponse>>()
-const formStore = useAppFormStoreWithKey<TKey, TFormRequest, TApiRequest, TApiResponse, TFindRequestPropName, TFindResponsePropName, TFindCallbakResponse, TCallbakResponse>(props.context.formKey)
+const { submitHandler, options, formKey, findHandler, invalidateCaches } = props.context
+const formStore = useAppFormStoreWithKey<TKey, TFormRequest, TApiRequest, TApiResponse, TFindRequestPropName, TFindResponsePropName, TFindCallbakResponse, TCallbakResponse>(formKey)
 const route = useRoute()
 const init = () => {
   return new Promise<void>((resolve) => {
-    const findHandler = props.context.findHandler
     if (!findHandler) {
       resolve()
       return
@@ -37,37 +38,49 @@ const init = () => {
     const findHandlerRequest: any = {}
     const requestValue = findHandler.requestValue ? findHandler.requestValue : route.params[findHandler.routerParamName || 'id']
     findHandlerRequest[findHandler.requestPropertyName] = requestValue
-    findHandlerFn(findHandlerRequest).then((resp) => {
+    findHandlerFn(findHandlerRequest).then((resp: any) => {
       if (findHandler.responsePropertyName) {
         const propName = findHandler.responsePropertyName as string
         if (propName in resp) {
           const formValue = resp[propName]
           if (typeof formValue == 'object' && formValue) {
-            ObjectKeys(formValue).forEach((k) => formStore.initialFormValue[k as string] = formValue[k])
+            formStore.formValueRef = formValue
             resolve()
             return
           }
         }
-        ObjectKeys(resp).forEach((k) => formStore.initialFormValue[k] = resp[k])
+        formStore.formValueRef = resp
         resolve()
         return
       }
       resolve()
-    }).catch((e) => {
+    }).catch((e: Error) => {
       console.error("find handler failed", e)
       resolve()
     })
   })
 }
 await init()
+const mutationFn = (req: TApiRequest) => new Promise<TApiResponse>((resolve, reject) => {
+  if (typeof submitHandler.endpoint == 'string' && !apiClient) {
+    reject('apiclient is not provided')
+    return
+  }
+  const endpoint = typeof submitHandler.endpoint == 'string' ? apiClient![submitHandler.endpoint] as SubmitHandlerFn<TApiRequest, TApiResponse> : submitHandler.endpoint
+  endpoint(req).then((response: TApiResponse) => {
+    resolve(response)
+  }).catch((error: Error) => {
+    reject(error)
+  })
+})
 const submitMutation = useMutation({
-  mutationFn: (req: TApiRequest): Promise<TApiResponse> => formStore.submitMutationFunntion(props, req),
+  mutationFn: mutationFn,
   onSuccess: () => {
-    console.log("props", props.context.invalidateCaches)
-    if (props.context.submitHandler.redirectRoute) {
-      push(props.context.submitHandler.redirectRoute)
+    if (submitHandler.redirectRoute) {
+      push(submitHandler.redirectRoute)
     }
-    if (props.context.invalidateCaches) {
+    if (invalidateCaches) {
+      db.dropdownHelper.bulkDelete(invalidateCaches)
       queryClient.invalidateQueries({ queryKey: props.context.invalidateCaches })
     }
   },
@@ -99,8 +112,23 @@ const generateFormSchema = () => {
 const isBulkCreateRef = ref(false)
 const { push } = useRouter()
 
+
+function parseValidationError(errorMessage: string) {
+  const errorObject: Record<string, string> = {};
+
+  // Match errors in the format: "- input_name: error message"
+  const regex = /-\s(\w+):\s(.+?)\s\[/g;
+  let match;
+
+  while ((match = regex.exec(errorMessage)) !== null) {
+    const [, inputName, errorValue] = match;
+    errorObject[inputName] = errorValue;
+  }
+
+  return errorObject;
+}
 const handleError = (node: FormKitNode, error: any) => {
-  console.log("error is", error.message)
+  console.log("error is here from handlerRrorrr methoed", error.message)
   try {
     const errorObject: any = JSON.parse(error.rawMessage)
     node.setErrors(
@@ -109,6 +137,7 @@ const handleError = (node: FormKitNode, error: any) => {
     )
     console.log(errorObject)
   } catch (_err: any) {
+    console.log(error, "error from catch", parseValidationError(error))
     node.setErrors(
       [error.message],
     )
@@ -116,23 +145,17 @@ const handleError = (node: FormKitNode, error: any) => {
 }
 
 const formSubmitHandler = (req: TFormRequest, formNode: FormKitNode) => {
+
+  console.log("error is here from handlerRrorrr methoed", req)
   const handler = props.context.submitHandler
   const apiRequest: TApiRequest = handler.mapFunction ? handler.mapFunction(req) : req as unknown as TApiRequest
-  return new Promise((resolve) => {
-    console.log("reqis ", req)
+  return new Promise((resolve, reject) => {
+    console.log("reqis ", req, submitMutation)
 
-    submitMutation.mutateAsync(apiRequest).then(async (response: TApiResponse) => {
-      formNode.clearErrors()
-      formNode.reset()
-      if (handler.callback) {
-        await handler.callback(response)
-      }
-      const options = props.context.options
+    submitMutation.mutateAsync(apiRequest).then((response: TApiResponse) => {
       const defaultSummary = 'api_success_summary'
       const defaultContent = 'api_success_detail'
-      if (dialogRef) {
-        dialogRef.value.close()
-      }
+
       if (options) {
         if (!options.isSuccessNotificationHidden) {
           const summary = options.successMessageSummary ?? defaultSummary
@@ -140,8 +163,8 @@ const formSubmitHandler = (req: TFormRequest, formNode: FormKitNode) => {
           toast.add({ severity: 'success', summary, detail, life: 3000 });
         }
       }
-      if (!options) {
-        toast.add({ severity: 'success', summary: defaultSummary, detail: defaultContent, life: 3000 });
+      if (submitHandler.callback) {
+        submitHandler.callback(response)
       }
       if (!isBulkCreateRef.value) {
         if (handler.redirectRoute) {
@@ -150,8 +173,12 @@ const formSubmitHandler = (req: TFormRequest, formNode: FormKitNode) => {
           }
         }
       }
+      if (dialogRef) {
+        //  dialogRef.value.close()
+      }
       resolve(null)
     }).catch((e: Error) => {
+      console.log("error from the sbmithandler", e)
       handleError(formNode, e)
       resolve(null)
     })
@@ -161,7 +188,8 @@ const formSubmitHandler = (req: TFormRequest, formNode: FormKitNode) => {
 const renderAppForm = () => {
   return h(formkitComp, {
     type: "form",
-    value: formStore.initialFormValue,
+    modelValue: formStore.formValueRef,
+    "onUpdate:modelValue": (value: StringUnkownRecord) => formStore.formValueRef = value,
     onSubmit: formSubmitHandler
   }, {
     default: () => h(formkitSchemaComp, {

@@ -9,8 +9,8 @@ importers:
   .:
     dependencies:
       '@buf/ahmeddarwish_devkit-api.bufbuild_es':
-        specifier: 2.2.3-20250207021157-b3ea51709b07.1
-        version: 2.2.3-20250207021157-b3ea51709b07.1(@bufbuild/protobuf@2.2.3)
+        specifier: 2.2.3-20250227152819-06e97b5c888d.1
+        version: 2.2.3-20250227152819-06e97b5c888d.1(@bufbuild/protobuf@2.2.3)
       '@connectrpc/connect':
         specifier: ^2.0.0
         version: 2.0.1(@bufbuild/protobuf@2.2.3)
@@ -26,11 +26,14 @@ importers:
       '@tanstack/vue-query':
         specifier: ^5.66.0
         version: 5.66.0(vue@3.5.13(typescript@5.6.3))
+      devkit-apiclient:
+        specifier: ^1.0.12
+        version: 1.0.12(@connectrpc/connect-web@2.0.1(@bufbuild/protobuf@2.2.3)(@connectrpc/connect@2.0.1(@bufbuild/protobuf@2.2.3)))(@connectrpc/connect@2.0.1(@bufbuild/protobuf@2.2.3))
       devkit-base-components:
-        specifier: ^0.0.6
-        version: 0.0.6(devkit-apiclient@1.0.10)(dexie@4.0.11)(primevue@4.2.5(vue@3.5.13(typescript@5.6.3)))(tailwindcss-primeui@0.4.0(tailwindcss@3.4.17))(tailwindcss@3.4.17)(vue-i18n@10.0.5(vue@3.5.13(typescript@5.6.3)))(vue-router@4.5.0(vue@3.5.13(typescript@5.6.3)))(vue@3.5.13(typescript@5.6.3))
+        specifier: ^0.0.9
+        version: 0.0.9(devkit-apiclient@1.0.12(@connectrpc/connect-web@2.0.1(@bufbuild/protobuf@2.2.3)(@connectrpc/connect@2.0.1(@bufbuild/protobuf@2.2.3)))(@connectrpc/connect@2.0.1(@bufbuild/protobuf@2.2.3)))(dexie@4.0.11)(primevue@4.2.5(vue@3.5.13(typescript@5.6.3)))(tailwindcss-primeui@0.4.0(tailwindcss@3.4.17))(tailwindcss@3.4.17)(vue-i18n@10.0.5(vue@3.5.13(typescript@5.6.3)))(vue-router@4.5.0(vue@3.5.13(typescript@5.6.3)))(vue@3.5.13(typescript@5.6.3))
       dexie:
-        specifier: ^4.0.10
+        specifier: ^4.0.11
         version: 4.0.11
       pinia:
         specifier: ^2.3.1
@@ -44,6 +47,9 @@ importers:
       tailwindcss-primeui:
         specifier: ^0.4.0
         version: 0.4.0(tailwindcss@3.4.17)
+      ts-transformer-keys:
+        specifier: ^0.4.4
+        version: 0.4.4(typescript@5.6.3)
       vue:
         specifier: ^3.5.13
         version: 3.5.13(typescript@5.6.3)
@@ -77,10 +83,13 @@ importers:
         version: 8.5.3(storybook@8.5.3)(vue@3.5.13(typescript@5.6.3))
       '@storybook/vue3-vite':
         specifier: ^8.4.7
-        version: 8.5.3(storybook@8.5.3)(vite@6.1.0(jiti@1.21.7)(yaml@2.7.0))(vue@3.5.13(typescript@5.6.3))
+        version: 8.5.3(storybook@8.5.3)(vite@6.1.0(@types/node@22.13.5)(jiti@1.21.7)(yaml@2.7.0))(vue@3.5.13(typescript@5.6.3))
+      '@types/node':
+        specifier: ^22.13.5
+        version: 22.13.5
       '@vitejs/plugin-vue':
         specifier: ^5.2.1
-        version: 5.2.1(vite@6.1.0(jiti@1.21.7)(yaml@2.7.0))(vue@3.5.13(typescript@5.6.3))
+        version: 5.2.1(vite@6.1.0(@types/node@22.13.5)(jiti@1.21.7)(yaml@2.7.0))(vue@3.5.13(typescript@5.6.3))
       '@vue/tsconfig':
         specifier: ^0.7.0
         version: 0.7.0(typescript@5.6.3)(vue@3.5.13(typescript@5.6.3))
@@ -101,7 +110,7 @@ importers:
         version: 5.6.3
       vite:
         specifier: ^6.0.5
-        version: 6.1.0(jiti@1.21.7)(yaml@2.7.0)
+        version: 6.1.0(@types/node@22.13.5)(jiti@1.21.7)(yaml@2.7.0)
       vue-tsc:
         specifier: ^2.2.0
         version: 2.2.0(typescript@5.6.3)
@@ -140,8 +149,8 @@ packages:
     resolution: {integrity: sha512-t8kDRGrKXyp6+tjUh7hw2RLyclsW4TRoRvRHtSyAX9Bb5ldlFh+90YAYY6awRXrlB4G5G2izNeGySpATlFzmOg==}
     engines: {node: '>=6.9.0'}
 
-  '@buf/ahmeddarwish_devkit-api.bufbuild_es@2.2.3-20250207021157-b3ea51709b07.1':
-    resolution: {tarball: https://buf.build/gen/npm/v1/@buf/ahmeddarwish_devkit-api.bufbuild_es/-/ahmeddarwish_devkit-api.bufbuild_es-2.2.3-20250207021157-b3ea51709b07.1.tgz}
+  '@buf/ahmeddarwish_devkit-api.bufbuild_es@2.2.3-20250227152819-06e97b5c888d.1':
+    resolution: {tarball: https://buf.build/gen/npm/v1/@buf/ahmeddarwish_devkit-api.bufbuild_es/-/ahmeddarwish_devkit-api.bufbuild_es-2.2.3-20250227152819-06e97b5c888d.1.tgz}
     peerDependencies:
       '@bufbuild/protobuf': ^2.2.3
 
@@ -729,6 +738,9 @@ packages:
   '@types/mdx@2.0.13':
     resolution: {integrity: sha512-+OWZQfAYyio6YkJb3HLxDrvnx6SWWDbC0zVPfBRzUk0/nqoDyf6dNxQi3eArPe8rJ473nobTMQ/8Zk+LxJ+Yuw==}
 
+  '@types/node@22.13.5':
+    resolution: {integrity: sha512-+lTU0PxZXn0Dr1NBtC7Y8cR21AJr87dLLU953CWA6pMxxv/UDc7jYAY90upcrie1nRcD6XNG5HOYEDtgW5TxAg==}
+
   '@types/react@19.0.8':
     resolution: {integrity: sha512-9P/o1IGdfmQxrujGbIMDyYaaCykhLKc0NGCtYcECNUr9UAaDe4gwvV9bR6tvd5Br1SG0j+PBpbKr2UYY8CwqSw==}
 
@@ -1039,14 +1051,17 @@ packages:
     resolution: {integrity: sha512-0je+qPKHEMohvfRTCEo3CrPG6cAzAYgmzKyxRiYSSDkS6eGJdyVJm7WaYA5ECaAD9wLB2T4EEeymA5aFVcYXCA==}
     engines: {node: '>=6'}
 
-  devkit-apiclient@1.0.10:
-    resolution: {integrity: sha512-44sK8L/v19jZZLnXSBGFSHcc2yZuKAMJXPCDkle8sS5cxToCmcwdBoAh25hntRNrWMMg/e5T88M7nQsCt0vIDg==}
+  devkit-apiclient@1.0.12:
+    resolution: {integrity: sha512-EyphGhlzfFY8X2VzzoFVFP7leujIOA4RUOljRHkoZwCsH5uOSo/xVppHGEdHFk+9ImGVKgGj/WG/8XI4JoxroA==}
+    peerDependencies:
+      '@connectrpc/connect': ^2.0.0
+      '@connectrpc/connect-web': ^2.0.0
 
-  devkit-base-components@0.0.6:
-    resolution: {integrity: sha512-2058kjzJOdxJcaGo13SaL6CxynPFVQKk7DK/E7ZbznqD3bWKDXuIqtLUhFm4Pg/zQ6HeUkGB3ySo0KyjDy5Rmw==}
+  devkit-base-components@0.0.9:
+    resolution: {integrity: sha512-lqoPQSmScOZKRhaA/WDIIof/zGD0TwxS4FEopf0dCZLUeBB6cQrbqj+9ApP3DOcGaQXQ/yMACzUeXOesEvbqtQ==}
     peerDependencies:
       devkit-apiclient: ^1.0.10
-      dexie: ^4.0.10
+      dexie: ^4.0.11
       primevue: ^4.2.2
       tailwindcss: ^3.0.0
       tailwindcss-primeui: ^0.4.0
@@ -1742,6 +1757,11 @@ packages:
   ts-map@1.0.3:
     resolution: {integrity: sha512-vDWbsl26LIcPGmDpoVzjEP6+hvHZkBkLW7JpvwbCv/5IYPJlsbzCVXY3wsCeAxAUeTclNOUZxnLdGh3VBD/J6w==}
 
+  ts-transformer-keys@0.4.4:
+    resolution: {integrity: sha512-LrqgvaFvar01/5mbunRyeLTSIkqoC2xfcpL/90aDY6vR07DGyH+UaYGdIEsUudnlAw2Sr0pxFgdZvE0QIyI4qA==}
+    peerDependencies:
+      typescript: '>=2.4.1'
+
   tslib@2.8.1:
     resolution: {integrity: sha512-oJFu94HQb+KVduSUQL7wnpmqnfmLsOA/nAh6b6EH0wCEoK0/mPeXU6c3wKDV83MkOuHPRHtSXKKU99IBazS/2w==}
 
@@ -1756,6 +1776,9 @@ packages:
     resolution: {integrity: sha512-hjcS1mhfuyi4WW8IWtjP7brDrG2cuDZukyrYrSauoXGNgx0S7zceP07adYkJycEr56BOUTNPzbInooiN3fn1qw==}
     engines: {node: '>=14.17'}
     hasBin: true
+
+  undici-types@6.20.0:
+    resolution: {integrity: sha512-Ny6QZ2Nju20vw1SRHe3d9jVu6gJ+4e3+MMpqu7pqE5HT6WsTSlce++GQmK5UXS8mzV8DSYHrQH+Xrf2jVcuKNg==}
 
   universalify@2.0.1:
     resolution: {integrity: sha512-gptHNQghINnc/vTGIk0SOFGFNXw7JVrlRUtConJRlvaw6DuX0wO5Jeko9sWrMBhh+PsYAZ7oXAiOnf/UKogyiw==}
@@ -1838,6 +1861,9 @@ packages:
 
   vue-component-type-helpers@2.2.0:
     resolution: {integrity: sha512-cYrAnv2me7bPDcg9kIcGwjJiSB6Qyi08+jLDo9yuvoFQjzHiPTzML7RnkJB1+3P6KMsX/KbCD4QE3Tv/knEllw==}
+
+  vue-component-type-helpers@2.2.4:
+    resolution: {integrity: sha512-F66p0XLbAu92BRz6kakHyAcaUSF7HWpWX/THCqL0TxySSj7z/nok5UUMohfNkkCm1pZtawsdzoJ4p1cjNqCx0Q==}
 
   vue-demi@0.14.10:
     resolution: {integrity: sha512-nMZBOwuzabUO0nLgIcc6rycZEebF6eeUfaiQx9+WSk8e29IbLvPU9feI6tqW4kTo3hvoYAJkMh8n8D0fuISphg==}
@@ -1955,7 +1981,7 @@ snapshots:
       '@babel/helper-string-parser': 7.25.9
       '@babel/helper-validator-identifier': 7.25.9
 
-  '@buf/ahmeddarwish_devkit-api.bufbuild_es@2.2.3-20250207021157-b3ea51709b07.1(@bufbuild/protobuf@2.2.3)':
+  '@buf/ahmeddarwish_devkit-api.bufbuild_es@2.2.3-20250227152819-06e97b5c888d.1(@bufbuild/protobuf@2.2.3)':
     dependencies:
       '@buf/bufbuild_protovalidate.bufbuild_es': 2.2.3-20240920164238-5a7b106cbb87.1(@bufbuild/protobuf@2.2.3)
       '@bufbuild/protobuf': 2.2.3
@@ -2361,13 +2387,13 @@ snapshots:
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
 
-  '@storybook/builder-vite@8.5.3(storybook@8.5.3)(vite@6.1.0(jiti@1.21.7)(yaml@2.7.0))':
+  '@storybook/builder-vite@8.5.3(storybook@8.5.3)(vite@6.1.0(@types/node@22.13.5)(jiti@1.21.7)(yaml@2.7.0))':
     dependencies:
       '@storybook/csf-plugin': 8.5.3(storybook@8.5.3)
       browser-assert: 1.2.1
       storybook: 8.5.3
       ts-dedent: 2.2.0
-      vite: 6.1.0(jiti@1.21.7)(yaml@2.7.0)
+      vite: 6.1.0(@types/node@22.13.5)(jiti@1.21.7)(yaml@2.7.0)
 
   '@storybook/components@8.5.3(storybook@8.5.3)':
     dependencies:
@@ -2443,15 +2469,15 @@ snapshots:
     dependencies:
       storybook: 8.5.3
 
-  '@storybook/vue3-vite@8.5.3(storybook@8.5.3)(vite@6.1.0(jiti@1.21.7)(yaml@2.7.0))(vue@3.5.13(typescript@5.6.3))':
+  '@storybook/vue3-vite@8.5.3(storybook@8.5.3)(vite@6.1.0(@types/node@22.13.5)(jiti@1.21.7)(yaml@2.7.0))(vue@3.5.13(typescript@5.6.3))':
     dependencies:
-      '@storybook/builder-vite': 8.5.3(storybook@8.5.3)(vite@6.1.0(jiti@1.21.7)(yaml@2.7.0))
+      '@storybook/builder-vite': 8.5.3(storybook@8.5.3)(vite@6.1.0(@types/node@22.13.5)(jiti@1.21.7)(yaml@2.7.0))
       '@storybook/vue3': 8.5.3(storybook@8.5.3)(vue@3.5.13(typescript@5.6.3))
       find-package-json: 1.2.0
       magic-string: 0.30.17
       storybook: 8.5.3
       typescript: 5.6.3
-      vite: 6.1.0(jiti@1.21.7)(yaml@2.7.0)
+      vite: 6.1.0(@types/node@22.13.5)(jiti@1.21.7)(yaml@2.7.0)
       vue-component-meta: 2.2.0(typescript@5.6.3)
       vue-docgen-api: 4.79.2(vue@3.5.13(typescript@5.6.3))
     transitivePeerDependencies:
@@ -2469,7 +2495,7 @@ snapshots:
       ts-dedent: 2.2.0
       type-fest: 2.19.0
       vue: 3.5.13(typescript@5.6.3)
-      vue-component-type-helpers: 2.2.0
+      vue-component-type-helpers: 2.2.4
 
   '@tanstack/match-sorter-utils@8.19.4':
     dependencies:
@@ -2520,15 +2546,19 @@ snapshots:
 
   '@types/mdx@2.0.13': {}
 
+  '@types/node@22.13.5':
+    dependencies:
+      undici-types: 6.20.0
+
   '@types/react@19.0.8':
     dependencies:
       csstype: 3.1.3
 
   '@types/uuid@9.0.8': {}
 
-  '@vitejs/plugin-vue@5.2.1(vite@6.1.0(jiti@1.21.7)(yaml@2.7.0))(vue@3.5.13(typescript@5.6.3))':
+  '@vitejs/plugin-vue@5.2.1(vite@6.1.0(@types/node@22.13.5)(jiti@1.21.7)(yaml@2.7.0))(vue@3.5.13(typescript@5.6.3))':
     dependencies:
-      vite: 6.1.0(jiti@1.21.7)(yaml@2.7.0)
+      vite: 6.1.0(@types/node@22.13.5)(jiti@1.21.7)(yaml@2.7.0)
       vue: 3.5.13(typescript@5.6.3)
 
   '@vitest/expect@2.0.5':
@@ -2842,11 +2872,14 @@ snapshots:
 
   dequal@2.0.3: {}
 
-  devkit-apiclient@1.0.10: {}
-
-  devkit-base-components@0.0.6(devkit-apiclient@1.0.10)(dexie@4.0.11)(primevue@4.2.5(vue@3.5.13(typescript@5.6.3)))(tailwindcss-primeui@0.4.0(tailwindcss@3.4.17))(tailwindcss@3.4.17)(vue-i18n@10.0.5(vue@3.5.13(typescript@5.6.3)))(vue-router@4.5.0(vue@3.5.13(typescript@5.6.3)))(vue@3.5.13(typescript@5.6.3)):
+  devkit-apiclient@1.0.12(@connectrpc/connect-web@2.0.1(@bufbuild/protobuf@2.2.3)(@connectrpc/connect@2.0.1(@bufbuild/protobuf@2.2.3)))(@connectrpc/connect@2.0.1(@bufbuild/protobuf@2.2.3)):
     dependencies:
-      devkit-apiclient: 1.0.10
+      '@connectrpc/connect': 2.0.1(@bufbuild/protobuf@2.2.3)
+      '@connectrpc/connect-web': 2.0.1(@bufbuild/protobuf@2.2.3)(@connectrpc/connect@2.0.1(@bufbuild/protobuf@2.2.3))
+
+  devkit-base-components@0.0.9(devkit-apiclient@1.0.12(@connectrpc/connect-web@2.0.1(@bufbuild/protobuf@2.2.3)(@connectrpc/connect@2.0.1(@bufbuild/protobuf@2.2.3)))(@connectrpc/connect@2.0.1(@bufbuild/protobuf@2.2.3)))(dexie@4.0.11)(primevue@4.2.5(vue@3.5.13(typescript@5.6.3)))(tailwindcss-primeui@0.4.0(tailwindcss@3.4.17))(tailwindcss@3.4.17)(vue-i18n@10.0.5(vue@3.5.13(typescript@5.6.3)))(vue-router@4.5.0(vue@3.5.13(typescript@5.6.3)))(vue@3.5.13(typescript@5.6.3)):
+    dependencies:
+      devkit-apiclient: 1.0.12(@connectrpc/connect-web@2.0.1(@bufbuild/protobuf@2.2.3)(@connectrpc/connect@2.0.1(@bufbuild/protobuf@2.2.3)))(@connectrpc/connect@2.0.1(@bufbuild/protobuf@2.2.3))
       dexie: 4.0.11
       primevue: 4.2.5(vue@3.5.13(typescript@5.6.3))
       tailwindcss: 3.4.17
@@ -3579,6 +3612,10 @@ snapshots:
 
   ts-map@1.0.3: {}
 
+  ts-transformer-keys@0.4.4(typescript@5.6.3):
+    dependencies:
+      typescript: 5.6.3
+
   tslib@2.8.1: {}
 
   tween-functions@1.2.0: {}
@@ -3586,6 +3623,8 @@ snapshots:
   type-fest@2.19.0: {}
 
   typescript@5.6.3: {}
+
+  undici-types@6.20.0: {}
 
   universalify@2.0.1: {}
 
@@ -3612,12 +3651,13 @@ snapshots:
 
   uuid@9.0.1: {}
 
-  vite@6.1.0(jiti@1.21.7)(yaml@2.7.0):
+  vite@6.1.0(@types/node@22.13.5)(jiti@1.21.7)(yaml@2.7.0):
     dependencies:
       esbuild: 0.24.2
       postcss: 8.5.1
       rollup: 4.34.6
     optionalDependencies:
+      '@types/node': 22.13.5
       fsevents: 2.3.3
       jiti: 1.21.7
       yaml: 2.7.0
@@ -3636,6 +3676,8 @@ snapshots:
       typescript: 5.6.3
 
   vue-component-type-helpers@2.2.0: {}
+
+  vue-component-type-helpers@2.2.4: {}
 
   vue-demi@0.14.10(vue@3.5.13(typescript@5.6.3)):
     dependencies:

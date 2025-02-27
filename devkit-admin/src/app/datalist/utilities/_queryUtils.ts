@@ -91,7 +91,7 @@ export type DeleteConfirmedParams<TRecord extends Record<string, unknown>> = {
   selectedRecords: TRecord[],
   apiClient: Record<string, Function>,
 }
-export const _deleteRecordsConfirmed = <TRecord extends Record<string, unknown>>({ errorCallback, dialogRef, callback, handler, selectedRecords, apiClient, rowIdentifier }: DeleteConfirmedParams<TRecord>) => {
+export const _deleteRecordsConfirmed = <TRecord extends Record<string, unknown>>({ errorCallback, callback, handler, selectedRecords, apiClient, rowIdentifier }: DeleteConfirmedParams<TRecord>) => {
   return new Promise((resolve, reject) => {
     const deleteRequest: Record<string, unknown> = {}
     const requestProperty = handler.requestProperty || "records"
@@ -99,9 +99,10 @@ export const _deleteRecordsConfirmed = <TRecord extends Record<string, unknown>>
       return row[rowIdentifier]
     })
     const deleteEndpointFn = apiClient[handler.endpoint]
+    console.log("resseeqq isss", deleteRequest)
     deleteEndpointFn(deleteRequest).then(() => {
       callback()
-      dialogRef.close()
+      // dialogRef.close()
       resolve(null)
     }).catch((err: unknown) => {
       errorCallback(err)
@@ -124,7 +125,7 @@ export const _createConfirmed = ({ formValue, errorCallback, dialogRef, callback
     const createEndpointFn = apiClient[handler.endpoint]
     createEndpointFn(formValue).then(() => {
       callback()
-      dialogRef.close()
+      // dialogRef.close()
       resolve(null)
     }).catch((err: unknown) => {
       errorCallback(err)

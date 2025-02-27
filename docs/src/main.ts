@@ -11,9 +11,8 @@ import { QueryClient } from '@tanstack/vue-query'
 import { DialogService } from 'primevue';
 import { ToastService } from 'primevue';
 import { createPinia } from 'pinia'
-import 'devkit-base-components/style';
-import { plugin, defaultConfig } from '@formkit/vue'
-import { rootClasses } from './formkit.theme'
+import { plugin } from '@formkit/vue'
+import formkitConfig from './formkit.config'
 import DevkitAdminPlugin, { type DevkitAdminConfig } from 'devkit-admin';
 import DevkitBaseComponentsPlugin, { type DevkitBaseConfig } from 'devkit-base-components';
 const pinia = createPinia()
@@ -40,21 +39,18 @@ const queryClient = new QueryClient({
 app.use(VueQueryPlugin, {
   queryClient
 })
-const formktiConfig = {
-  config: {
-    rootClasses,
-  }
-}
 app.use(pinia)
 app.use(ToastService)
 app.use(DialogService)
 app.use(DevkitBaseComponentsPlugin, baseConfig)
-app.use(plugin, defaultConfig(formktiConfig))
+app.use(plugin, formkitConfig())
 const i18n = createI18n({
   locale: 'en',
   fallbackLocale: 'en',
   messages: {
     en: {
+      "[internal] query has no destination for result data": "error from translation",
+      "userName": "translated placeholder",
       hello: "hello"
     },
     ar: {

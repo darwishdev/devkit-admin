@@ -1,6 +1,6 @@
 import { createApp } from 'vue'
 import { VueQueryPlugin } from '@tanstack/vue-query'
-import './assets/css/app.css'
+//import './assets/css/app.css'
 import PrimeVue from 'primevue/config';
 
 import ToastService from 'primevue/toastservice';

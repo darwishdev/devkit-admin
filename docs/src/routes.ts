@@ -3,6 +3,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import BaseAppIcon from './views/BaseAppIcon.vue'
 import BaseAppBtn from './views/BaseAppBtn.vue'
+import AppForm from './views/AppForm.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -12,7 +13,12 @@ const router = createRouter({
       component: BaseAppIcon,
     },
     {
-      path: '/button',
+      path: '/form',
+      component: AppForm,
+    },
+
+    {
+      path: '/',
       component: BaseAppBtn,
     }
   ]

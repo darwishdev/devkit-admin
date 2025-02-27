@@ -5,7 +5,7 @@ import type { DataTableMethods } from 'primevue'
 import type { QueryObserverResult, UseMutationReturnType } from '@tanstack/vue-query'
 import type { Store } from 'pinia'
 import type { DatalistAvailableActions, DatalistProps, DatalistRecords, DatalistRouter, DatalistSlots, PaginationParams } from '../types'
-import type { ApiListOptions, DatalisQueryReturnType, DatalistQueryResult } from '../utilities/_apiTypes'
+import type { ApiListOptions, DatalisQueryReturnType, DatalistQueryResult, DeleteHandler } from '../utilities/_apiTypes'
 import type { AppFormSection } from '@/pkg/types/types'
 import type { DatalistFiltersModel } from '../utilities/_filtersTypes'
 import { StringUnkownRecord } from 'devkit-apiclient'
@@ -22,7 +22,8 @@ export type DeleteRestoreVariant = {
   icon: string;
   label: string;
   empty: string;
-  severity: string;
+  severity: 'secondary' | 'success' | 'info' | 'warn' | 'help' | 'danger' | 'contrast' | undefined;
+
 }
 
 export type DatalistState<TReq, TRecord extends Record<string, unknown>> = {
@@ -54,7 +55,8 @@ export type DatalistGetters<TRecord extends Record<string, unknown>> = {
   deleteRestoreVariants: ComputedRef<DeleteRestoreVariant>;
 };
 export type DatalistDeleteMutation = UseMutationReturnType<void, unknown, {
-  close: Function;
+  close: Function
+  handler: DeleteHandler
 }, unknown>
 export type DatalistFetchParams<TReq, TRecord extends Record<string, unknown>> = {
   filtersValue: Record<string, unknown> | undefined
@@ -63,14 +65,14 @@ export type DatalistFetchParams<TReq, TRecord extends Record<string, unknown>> =
   deletedRecords?: TRecord[]
   options?: ApiListOptions
 }
+export type DatalistMutations = {
+  deleteMutation?: DatalistDeleteMutation
+}
 export type DatalistStoreInit<TReq, TRecord extends Record<string, unknown>> = {
   queryResult: QueryObserverResult<DatalisQueryReturnType<TRecord>, Error>,
   props: DatalistProps<TReq, TRecord>,
   slots: DatalistSlots<TReq, TRecord>,
-  mutaions: {
-    deleteResotreMutation: DatalistDeleteMutation
-    deleteMutation: DatalistDeleteMutation
-  }
+  mutaions?: DatalistMutations
 }
 export type DatalistActions<TReq, TRecord extends Record<string, unknown>> = {
   applyFilters: (filtersFormValue: Partial<Record<(keyof TRecord) | string, unknown>>) => void;
@@ -80,10 +82,11 @@ export type DatalistActions<TReq, TRecord extends Record<string, unknown>> = {
   assertValidDatalistQueryResult(
     result: DatalistQueryResult<TRecord, Error> | undefined
   ): asserts result is DatalistQueryResult<TRecord, Error> & { data: { options: ApiListOptions } }
-  deleteRestoreRecords: (row?: TRecord) => void;
-  deleteRestoreRecordsConfirmed: (dialog: { close: Function }) => Promise<void>
-  deleteRecordsConfirmed: (dialog: { close: Function }) => Promise<void>
-  deleteRecords: (row?: TRecord) => void;
+  // deleteRestoreRecordsConfirmed: (dialog: { close: Function }) => Promise<void>
+  deleteRecordsConfirmed: (props: { close: Function, handler: DeleteHandler }) => Promise<void>
+  // deleteRecords: (row?: TRecord) => void;
+  // deledatalistStore.deletmutatteRestoreRecords: (row?: TRecord) => void;
+  showDeleteDialog: (mutation: DatalistDeleteMutation, handlerType: 'delete' | 'deleteRestore', row?: TRecord) => void;
   exportRecords: () => void;
   init: (params: DatalistStoreInit<TReq, TRecord>) => Promise<void>
   presistFilters: (filtersFormValue: Record<(keyof TRecord) | string, unknown>) => void;

@@ -33,13 +33,13 @@ importers:
         specifier: ^12.5.0
         version: 12.5.0(typescript@5.7.3)
       devkit-apiclient:
-        specifier: ^1.0.10
-        version: 1.0.10
+        specifier: ^1.0.12
+        version: 1.0.12(@connectrpc/connect-web@2.0.1(@bufbuild/protobuf@2.2.3)(@connectrpc/connect@2.0.1(@bufbuild/protobuf@2.2.3)))(@connectrpc/connect@2.0.1(@bufbuild/protobuf@2.2.3))
       devkit-base-components:
-        specifier: 0.0.6
-        version: 0.0.6(devkit-apiclient@1.0.10)(dexie@4.0.11)(primevue@4.2.5(vue@3.5.13(typescript@5.7.3)))(tailwindcss-primeui@0.4.0(tailwindcss@3.4.17))(tailwindcss@3.4.17)(vue-i18n@10.0.5(vue@3.5.13(typescript@5.7.3)))(vue-router@4.5.0(vue@3.5.13(typescript@5.7.3)))(vue@3.5.13(typescript@5.7.3))
+        specifier: ^0.0.9
+        version: 0.0.9(devkit-apiclient@1.0.12(@connectrpc/connect-web@2.0.1(@bufbuild/protobuf@2.2.3)(@connectrpc/connect@2.0.1(@bufbuild/protobuf@2.2.3)))(@connectrpc/connect@2.0.1(@bufbuild/protobuf@2.2.3)))(dexie@4.0.11)(primevue@4.2.5(vue@3.5.13(typescript@5.7.3)))(tailwindcss-primeui@0.4.0(tailwindcss@3.4.17))(tailwindcss@3.4.17)(vue-i18n@10.0.5(vue@3.5.13(typescript@5.7.3)))(vue-router@4.5.0(vue@3.5.13(typescript@5.7.3)))(vue@3.5.13(typescript@5.7.3))
       dexie:
-        specifier: ^4.0.10
+        specifier: ^4.0.11
         version: 4.0.11
       pinia:
         specifier: ^2.3.1
@@ -70,7 +70,7 @@ importers:
         specifier: ^22.13.1
         version: 22.13.1
       '@vitejs/plugin-vue':
-        specifier: ^5.1.4
+        specifier: ^5.2.1
         version: 5.2.1(vite@6.0.7(@types/node@22.13.1)(jiti@1.21.7)(yaml@2.7.0))(vue@3.5.13(typescript@5.7.3))
       autoprefixer:
         specifier: ^10.4.20
@@ -91,7 +91,7 @@ importers:
         specifier: ^0.1.6
         version: 0.1.6
       vite-plugin-dts:
-        specifier: ^4.4.0
+        specifier: ^4.5.0
         version: 4.5.0(@types/node@22.13.1)(rollup@4.30.1)(typescript@5.7.3)(vite@6.0.7(@types/node@22.13.1)(jiti@1.21.7)(yaml@2.7.0))
       vite-plugin-static-copy:
         specifier: ^2.2.0
@@ -789,14 +789,17 @@ packages:
       supports-color:
         optional: true
 
-  devkit-apiclient@1.0.10:
-    resolution: {integrity: sha512-44sK8L/v19jZZLnXSBGFSHcc2yZuKAMJXPCDkle8sS5cxToCmcwdBoAh25hntRNrWMMg/e5T88M7nQsCt0vIDg==}
+  devkit-apiclient@1.0.12:
+    resolution: {integrity: sha512-EyphGhlzfFY8X2VzzoFVFP7leujIOA4RUOljRHkoZwCsH5uOSo/xVppHGEdHFk+9ImGVKgGj/WG/8XI4JoxroA==}
+    peerDependencies:
+      '@connectrpc/connect': ^2.0.0
+      '@connectrpc/connect-web': ^2.0.0
 
-  devkit-base-components@0.0.6:
-    resolution: {integrity: sha512-2058kjzJOdxJcaGo13SaL6CxynPFVQKk7DK/E7ZbznqD3bWKDXuIqtLUhFm4Pg/zQ6HeUkGB3ySo0KyjDy5Rmw==}
+  devkit-base-components@0.0.9:
+    resolution: {integrity: sha512-lqoPQSmScOZKRhaA/WDIIof/zGD0TwxS4FEopf0dCZLUeBB6cQrbqj+9ApP3DOcGaQXQ/yMACzUeXOesEvbqtQ==}
     peerDependencies:
       devkit-apiclient: ^1.0.10
-      dexie: ^4.0.10
+      dexie: ^4.0.11
       primevue: ^4.2.2
       tailwindcss: ^3.0.0
       tailwindcss-primeui: ^0.4.0
@@ -2059,11 +2062,14 @@ snapshots:
     dependencies:
       ms: 2.1.3
 
-  devkit-apiclient@1.0.10: {}
-
-  devkit-base-components@0.0.6(devkit-apiclient@1.0.10)(dexie@4.0.11)(primevue@4.2.5(vue@3.5.13(typescript@5.7.3)))(tailwindcss-primeui@0.4.0(tailwindcss@3.4.17))(tailwindcss@3.4.17)(vue-i18n@10.0.5(vue@3.5.13(typescript@5.7.3)))(vue-router@4.5.0(vue@3.5.13(typescript@5.7.3)))(vue@3.5.13(typescript@5.7.3)):
+  devkit-apiclient@1.0.12(@connectrpc/connect-web@2.0.1(@bufbuild/protobuf@2.2.3)(@connectrpc/connect@2.0.1(@bufbuild/protobuf@2.2.3)))(@connectrpc/connect@2.0.1(@bufbuild/protobuf@2.2.3)):
     dependencies:
-      devkit-apiclient: 1.0.10
+      '@connectrpc/connect': 2.0.1(@bufbuild/protobuf@2.2.3)
+      '@connectrpc/connect-web': 2.0.1(@bufbuild/protobuf@2.2.3)(@connectrpc/connect@2.0.1(@bufbuild/protobuf@2.2.3))
+
+  devkit-base-components@0.0.9(devkit-apiclient@1.0.12(@connectrpc/connect-web@2.0.1(@bufbuild/protobuf@2.2.3)(@connectrpc/connect@2.0.1(@bufbuild/protobuf@2.2.3)))(@connectrpc/connect@2.0.1(@bufbuild/protobuf@2.2.3)))(dexie@4.0.11)(primevue@4.2.5(vue@3.5.13(typescript@5.7.3)))(tailwindcss-primeui@0.4.0(tailwindcss@3.4.17))(tailwindcss@3.4.17)(vue-i18n@10.0.5(vue@3.5.13(typescript@5.7.3)))(vue-router@4.5.0(vue@3.5.13(typescript@5.7.3)))(vue@3.5.13(typescript@5.7.3)):
+    dependencies:
+      devkit-apiclient: 1.0.12(@connectrpc/connect-web@2.0.1(@bufbuild/protobuf@2.2.3)(@connectrpc/connect@2.0.1(@bufbuild/protobuf@2.2.3)))(@connectrpc/connect@2.0.1(@bufbuild/protobuf@2.2.3))
       dexie: 4.0.11
       primevue: 4.2.5(vue@3.5.13(typescript@5.7.3))
       tailwindcss: 3.4.17

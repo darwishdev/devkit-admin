@@ -1,11 +1,17 @@
 <script setup lang="ts">
 import { useI18n } from "vue-i18n";
+import Checkbox from 'primevue/checkbox';
 import type { AccountsSchemaUser, UserListRequest } from "@buf/ahmeddarwish_devkit-api.bufbuild_es/devkit/v1/accounts_user_pb";
 import { Datalist, type DatalistProps, ColumnText } from "devkit-admin";
 import { apiClient } from "../api/apiClient";
+import ToggleSwitch from 'primevue/toggleswitch';
 import type { DatalistColumns } from "../../../devkit-admin/dist/types/app/datalist/columns/_types";
 import type { AppFormSection } from "../../../devkit-admin/dist/types/pkg/types/types";
+import { ref } from 'vue';
+
 const { t } = useI18n()
+
+const checked = ref(false);
 const formSections: Record<string, AppFormSection> = {
   'user_info': {
     isTitleHidden: true,
@@ -20,41 +26,6 @@ const formSections: Record<string, AppFormSection> = {
         placeholder: t("userName"),
         label: t("userName")
       },
-      {
-        $formkit: 'text',
-        prefixIcon: "tools",
-        outerClass: "col-12 sm:col-6 md:col-5",
-        name: "userEmail",
-        validation: "required",
-        placeholder: t("userEmail"),
-        label: t("userEmail")
-      },
-      {
-        $formkit: 'text',
-        prefixIcon: "tools",
-        outerClass: "col-12 sm:col-6 md:col-5",
-        name: "userPhone",
-        placeholder: t("userPhone"),
-        label: t("userPhone")
-      },
-      {
-        $formkit: 'textarea',
-        prefixIcon: "text",
-        outerClass: "col-12 sm:col-6 md:col-7",
-        name: "userDescription",
-        placeholder: t("userDescription"),
-        label: t("userDescription")
-      },
-      {
-        $formkit: 'number',
-        prefixIcon: "text",
-        outerClass: "col-12 sm:col-6 md:col-7",
-        name: "userSecurityLevel",
-        number: "integer",
-        placeholder: t("securityLevel"),
-        label: t("userSecurityLevel")
-      },
-
     ]
   }
 }
@@ -119,7 +90,7 @@ const tableProps: DatalistProps<UserListRequest, AccountsSchemaUser> = {
   <h2>
     asd
   </h2>
-  <AppBtn label="asd" action="asd" />
+  <Checkbox v-model="checked" label="asdasdasdasdasd" />
   <Datalist :context="tableProps.context">
   </Datalist>
 </template>

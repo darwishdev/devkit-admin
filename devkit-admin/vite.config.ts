@@ -27,8 +27,24 @@ export default defineConfig({
 			formats: ['es'], // Only output ESM format
 		},
 		rollupOptions: {
-			external: ['vue', 'vue-router', 'primevue', 'pinia', "@formkit/vue", "@tanstack/vue-query", "primevue/dialogservice", "primevue/toastservice", "vue-i18n",
-				"vue-router", "primeicons"], // Externalize Vue
+			external: [
+				'vue',
+				'vue-router',
+				'primevue',
+				'pinia',
+				"@formkit/core",
+				"@formkit/vue",
+				"@tanstack/vue-query",
+				"@tanstack/query-persist-client-core",
+				"primevue/dialogservice",
+				"primevue/toastservice",
+				"vue-i18n",
+				"vue-router",
+				"devkit-base-components",
+				"devkit-apiclient",
+				"tailwindcss",
+				"primeicons"
+			], // Externalize Vue
 			output: {
 				globals: {
 					vue: 'Vue',

@@ -18,6 +18,7 @@ export type UpdateHandler = {
   endpoint: string
   findEndpoint: string
   findRequestProperty: string
+  findResponseProperty: string
 }
 
 export type DeleteHandler = {

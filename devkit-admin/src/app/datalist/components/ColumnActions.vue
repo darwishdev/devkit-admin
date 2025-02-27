@@ -1,26 +1,49 @@
 <script setup lang="ts" generic="TReq,TRecord extends Record<string, unknown> ">
-import { h, ref } from 'vue'; import {
+import { h, ref, VNode } from 'vue'; import {
   type
     ColumnActionsProps, type ColumnActionsSlots
 } from '../types';
 import { useDatalistStoreWithKey } from '../store/DatalisStore';
 import { Menu } from 'primevue';
 import { AppBtn } from 'devkit-base-components';
-const { datalistKey, deleteRestoreHandler, deleteHandler, recordData, isActionsDropdown } = defineProps<ColumnActionsProps<TRecord>>()
+const { datalistKey, deleteRestoreHandler, deleteHandler, recordData, isActionsDropdown, mutations } = defineProps<ColumnActionsProps<TRecord>>()
 const datalistStore = useDatalistStoreWithKey<TReq, TRecord>(datalistKey)
 const slots = defineSlots<ColumnActionsSlots<TRecord>>()
 const actionsMenuElementRef = ref()
 const actions = [
   slots.prependActions ? slots.prependActions({ data: recordData }) : undefined,
-  datalistStore.availableActions.view ? h(AppBtn, { label: 'view', action: () => datalistStore.viewRecord(recordData) }) : undefined,
-  datalistStore.availableActions.update ? h(AppBtn, { label: 'update', action: () => datalistStore.updateRecord(recordData) }) : undefined,
+  datalistStore.availableActions.view ? h(AppBtn, { useReset: true, label: 'view', action: () => datalistStore.viewRecord(recordData) }) : undefined,
+  datalistStore.availableActions.update ? h(AppBtn, { useReset: true, label: 'update', action: () => datalistStore.updateRecord(recordData) }) : undefined,
 ]
 const renderActions = () => {
   if (slots.actions) return h('div', { class: 'actions-btns__wrapper' }, slots.actions({ data: recordData }))
-  const deleteRestoreBtn = deleteRestoreHandler ? h(AppBtn, { ...datalistStore.deleteRestoreVariants, class: 'glass', disabled: false, action: () => datalistStore.deleteRestoreRecords(recordData), label: !isActionsDropdown ? '' : datalistStore.deleteRestoreVariants.label }) : undefined
-  const deleteBtn = datalistStore.isShowDeletedRef && deleteHandler ? h(AppBtn, { label: 'delete', action: () => datalistStore.deleteRecords(recordData) }) : undefined
+  const { deleteMutation } = mutations
+  const deleteActions: VNode[] = []
+  if (deleteMutation) {
+    const { availableActions, deleteRestoreVariants, showDeleteDialog } = datalistStore
+    const { delete: hasDeletePermission, deleteRestore: hasDeleteRestorePermission } = availableActions
+
+    if (hasDeletePermission) {
+      deleteActions.push(h(AppBtn, {
+        label: 'delete',
+        icon: 'trash',
+        action: () => showDeleteDialog(deleteMutation, 'delete', recordData)
+      }))
+    }
+    if (hasDeleteRestorePermission && datalistStore.isShowDeletedRef) {
+      const { label, severity, icon } = deleteRestoreVariants
+      deleteActions.push(h(AppBtn, {
+        label,
+        severity,
+        icon,
+        key: icon,
+        action: () => showDeleteDialog(deleteMutation, 'deleteRestore', recordData)
+      }))
+    }
+  }
+
   const appendActions = slots.appendActions ? slots.appendActions({ data: recordData }) : undefined
-  if (!isActionsDropdown) return h('div', { class: 'actions-btns__wrapper flex gap-2' }, [...actions, deleteRestoreBtn, deleteBtn, appendActions])
+  if (!isActionsDropdown) return h('div', { class: 'actions-btns__wrapper flex gap-2' }, [...actions, ...deleteActions, appendActions])
   return h('div', {
     class: 'actions-btns__wrapper'
   }, [
@@ -44,7 +67,7 @@ const renderActions = () => {
       popup: true
     },
       {
-        start: () => slots.dropdownActions ? slots.dropdownActions({ data: recordData }) : h('div', [actions, deleteRestoreBtn, deleteBtn, appendActions]),
+        start: () => slots.dropdownActions ? slots.dropdownActions({ data: recordData }) : h('div', [actions, ...deleteActions, appendActions]),
       }
     )
   ])

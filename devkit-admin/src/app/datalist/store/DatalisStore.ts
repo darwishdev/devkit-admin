@@ -13,7 +13,7 @@ import { _deleteRecordsConfirmed, _refetch, _datalistFetchWithArray, _datalistFe
 import { _constructColumns, _extractCardColumns, _extractColumns } from '../utilities/_columnUtils'
 import { _applyFilters, _presistFilters } from '../utilities/_filterUtils'
 import { _createRecord, _updateRecord, _viewRecord } from '../utilities/_crudUtils'
-import type { ApiListOptions, DatalisQueryReturnType, DatalistQueryResult } from '../utilities/_apiTypes'
+import type { ApiListOptions, DatalisQueryReturnType, DatalistQueryResult, DeleteHandler } from '../utilities/_apiTypes'
 import type { StringUnkownRecord, AppFormProps, AppFormSection, SubmitHandler } from '@/pkg/types/types'
 import type { DatalistFiltersModel } from '../utilities/_filtersTypes'
 import type { DatalistColumns } from '../columns/_types'
@@ -31,15 +31,12 @@ export const useDatalistStore = <TReq, TRecord extends Record<string, unknown>>(
     const paginationParams: Ref<PaginationParams> = ref({ lastRowValue: "2", sortFunction: "asc", sortColumn: "roleId", pageNumber: 2, isDeleted: false, pageSize: 10 })
     let useFilterPersist: boolean | undefined
     let debounceInMilliSeconds = 1000
-    let deleteResotreMutation: DatalistDeleteMutation | undefined
-    let deleteMutation: DatalistDeleteMutation | undefined
     const availableActions: DatalistAvailableActions = {}
     let datalistQueryResult: DatalistQueryResult<TRecord, Error> | undefined
     const datalistColumns: { props: ColumnProps, slots: Partial<ColumnSlots> }[] = []
     const tableElementRef: Ref<DataTableMethods | undefined> = ref()
     const modelSelectionRef: Ref<TRecord[]> = ref([])
     const isLoadingRef = ref(false)
-    const dialogErrorRef = ref('')
     const isShowDeletedRef = ref(false)
     const apiClient = inject('apiClient') as Record<string, Function>
     const modelFiltersRef: Ref<DatalistFiltersModel> = ref({})
@@ -146,8 +143,8 @@ export const useDatalistStore = <TReq, TRecord extends Record<string, unknown>>(
             modelFiltersRef.value[filter.input.name as string] = { matchMode: filter.matchMode, value: null }
           })
         }
-        deleteResotreMutation = mutaions.deleteResotreMutation
-        deleteMutation = mutaions.deleteMutation
+        // deleteResotreMutation = mutaions.deleteResotreMutation
+        // deleteMutation = mutaions.deleteMutation
         setTimeout(() => resolve(), 1)
       })
     }
@@ -211,20 +208,19 @@ export const useDatalistStore = <TReq, TRecord extends Record<string, unknown>>(
             // refetch()
           }
         }
-        console.log("recordrowid", record, rowIdentifier, record[rowIdentifier])
         if (!rowIdentifier) return
-        const formProps: AppFormProps<'update'> = {
+        const formProps: AppFormProps<`${string}_update`, StringUnkownRecord, StringUnkownRecord, StringUnkownRecord, typeof handler.findRequestProperty, typeof handler.findResponseProperty, unknown, unknown> = {
           context: {
             title: `${datalistKey}_update`,
             sections: formSections,
             invalidateCaches: [datalistKey],
             findHandler: {
-              endpoint: 'userFindForUpdate',
-              requestPropertyName: 'recordId',
-              responsePropertyName: 'request',
+              endpoint: handler.findEndpoint,
+              requestPropertyName: handler.findRequestProperty,
+              responsePropertyName: handler.findResponseProperty,
               requestValue: record[rowIdentifier]
             },
-            formKey: `update`,
+            formKey: `${datalistKey}_update`,
             submitHandler
           }
 
@@ -246,15 +242,20 @@ export const useDatalistStore = <TReq, TRecord extends Record<string, unknown>>(
       assertValidDatalistQueryResult(datalistQueryResult)
       AssertIsDefined(datalistQueryResult.data.options.createHandler, "options has no create handler")
       const handler = datalistQueryResult.data.options.createHandler
+      console.log("asd handler ir", handler)
       if (formSections) {
         const submitHandler: SubmitHandler<StringUnkownRecord, StringUnkownRecord> = {
-          endpoint: handler.endpoint
+          endpoint: handler.endpoint,
+          callback: () => {
+            console.log("callback from datalist")
+            refetch()
+          }
         }
         dialog.open(h(AppForm, {
           context: {
             title: `${datalistKey}_create`,
             sections: formSections,
-            invalidateCaches: [datalistKey],
+            // invalidateCaches: [datalistKey],
             formKey: `${datalistKey}_create`,
             submitHandler
           }
@@ -266,108 +267,74 @@ export const useDatalistStore = <TReq, TRecord extends Record<string, unknown>>(
     const setIsShowDeletedRef = (value: boolean) => {
       isLoadingRef.value = true
       useDebounceFn(() => {
-        console.log("calling the dbooo")
         isShowDeletedRef.value = value
         isLoadingRef.value = false
       }, debounceInMilliSeconds)()
     }
-    const deleteRestoreRecordsConfirmed = (dialog: { close: Function }): Promise<void> => {
-      console.log("confirmingngnng")
+
+    const deleteRecordsConfirmed = ({ close, handler }: { close: Function, handler: DeleteHandler }): Promise<void> => {
       return new Promise((resolve, reject) => {
-        assertValidDatalistQueryResult(datalistQueryResult)
-        AssertIsDefined(datalistQueryResult.data.options.deleteRestoreHandler, "options has no create handler")
-        if (modelSelectionRef.value.length == 0 || !rowIdentifier) {
-          reject("no selected records")
-          return
-        }
+        AssertIsDefined(rowIdentifier, 'row indentifier mus be passed to take this action')
         _deleteRecordsConfirmed(
           {
             dialogRef: { close: () => null },
-            handler: datalistQueryResult.data.options.deleteRestoreHandler,
+            handler: handler,
             rowIdentifier,
-            callback: deleteRecordsCallback,
-            errorCallback: deleteRecordsErrorCallback,
+            callback: () => {
+              modelSelectionRef.value = []
+            },
+            errorCallback: (error: unknown) => {
+              if (!error) return
+              if (typeof error == 'object' && 'message' in error) {
+                deleteErrorRef.value = error.message as string
+                return
+              }
+              deleteErrorRef.value = error as string
+            },
             selectedRecords: modelSelectionRef.value,
             apiClient
           }
-        ).then(() => { resolve(); dialog.close() }).catch((e: unknown) => { reject(e); dialog.close() })
+        ).then(() => {
+          resolve();
+          close()
+        }).catch(reject)
 
       })
     }
-
-    const deleteRecordsErrorCallback = (error: unknown) => {
-      console.log(error)
-    }
-    const deleteRecordsCallback = () => {
-      modelSelectionRef.value = []
-    }
-    const deleteRecordsConfirmed = (dialog: { close: Function }): Promise<void> => {
-      return new Promise((resolve, reject) => {
-        assertValidDatalistQueryResult(datalistQueryResult)
-        AssertIsDefined(datalistQueryResult.data.options.deleteHandler, "options has no delete handler")
-        if (modelSelectionRef.value.length == 0) {
-          reject("no selected records")
-          return
-        }
-        if (!rowIdentifier) {
-          reject("row identifier is not passed")
-          return
-        }
-        _deleteRecordsConfirmed(
-          {
-            dialogRef: { close: () => null },
-            handler: datalistQueryResult.data.options.deleteHandler,
-            rowIdentifier,
-            callback: deleteRecordsCallback,
-            errorCallback: deleteRecordsErrorCallback,
-            selectedRecords: modelSelectionRef.value,
-            apiClient
-          }
-        ).then(() => { resolve(); dialog.close() }).catch((e: unknown) => { reject(e); dialog.close() })
-
-      })
-
-    }
-    const deleteRestoreRecords = (row?: TRecord) => {
-      if (!deleteResotreMutation) return
+    const deleteErrorRef = ref<string>('')
+    const showDeleteDialog = ({ mutate }: DatalistDeleteMutation, handlerType: 'delete' | 'deleteRestore', row?: TRecord) => {
+      assertValidDatalistQueryResult(datalistQueryResult)
+      const handlers: { delete: DeleteHandler | undefined, deleteRestore: DeleteHandler | undefined } = {
+        delete: datalistQueryResult.data.options.deleteHandler,
+        deleteRestore: datalistQueryResult.data.options.deleteRestoreHandler,
+      }
+      const handler = handlers[handlerType]
+      AssertIsDefined(handler, `options has no ${handlerType} handler`)
+      if (modelSelectionRef.value.length == 0 && !row) return
       if (row) {
         modelSelectionRef.value = [row]
       }
-
-      console.log("delete restore", modelSelectionRef)
-      const dialogProps = {
-        onConfirmed: deleteResotreMutation?.mutate,
+      dialog.open(h(AppDialog, {
+        onConfirmed: ({ close }) => mutate({ close, handler }),
+        errorRef: deleteErrorRef,
         modal: true
-      }
-      dialog.open(h(AppDialog, dialogProps, {
+      }, {
         default: () => h("div", [
-          h('h2', 'error here '),
           h('h2', 'are you sure?')
         ])
-      }), {
-        props: {
-          modal: true,
-          dismissableMask: true
+      }),
+        {
+          props: {
+            modal: true,
+            dismissableMask: true,
+          },
+          onClose: () => {
+            deleteErrorRef.value = ""
+          }
+
         }
-      })
+      )
     }
-    const deleteRecords = (row?: TRecord) => {
-      if (!deleteMutation) return
-      if (row && typeof row == 'object') {
-        modelSelectionRef.value = [row]
-      }
-      const dialogProps = {
-        onConfirmed: deleteMutation?.mutate
-      }
-      dialog.open(h(AppDialog, dialogProps, {
-        default: () => h("div", [
-          dialogErrorRef.value ? h(Message, { severity: 'error' }, () => h('h2', dialogErrorRef.value)) : undefined,
-          h('h2', 'are you sure?')
-        ])
-      }))
-    }
-
-
     const exportRecords = () => {
       if (!tableElementRef.value) return
       tableElementRef.value.exportCSV()
@@ -383,7 +350,6 @@ export const useDatalistStore = <TReq, TRecord extends Record<string, unknown>>(
       datalistOptions,
       datalistQueryResult,
       filtersFormKey,
-      deleteResotreMutation,
       filtersFormSchema,
       isLoadingRef,
       isShowDeletedRef,
@@ -407,13 +373,11 @@ export const useDatalistStore = <TReq, TRecord extends Record<string, unknown>>(
       resetFiltersForm,
       assertValidDatalistQueryResult,
       setIsShowDeletedRef,
-      deleteRestoreRecordsConfirmed,
       deleteRecordsConfirmed,
       updateRecord,
       viewRecord,
       getRowIdentifier,
-      deleteRecords,
-      deleteRestoreRecords,
+      showDeleteDialog,
       presistFilters,
       refetch,
     }

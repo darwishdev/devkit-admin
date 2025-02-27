@@ -4,7 +4,7 @@ import type { DatalistHeaderSlots, DatalistHeaderProps, DatalistFiltersEmits } f
 import { useDatalistStoreWithKey } from '../store/DatalisStore';
 import { ToggleSwitch } from 'primevue';
 import { AppBtn } from 'devkit-base-components';
-const { datalistKey, exportable } = defineProps<DatalistHeaderProps>()
+const { datalistKey, exportable, mutations } = defineProps<DatalistHeaderProps>()
 const slots = defineSlots<DatalistHeaderSlots<TReq, TRecord>>()
 
 const emit = defineEmits<DatalistFiltersEmits>()
@@ -30,19 +30,20 @@ const actions = [
   slots.headerActionsStartAppend ? slots.headerActionsStartAppend(datalistStore) : undefined,
 ]
 const renderHeader = (): VNode => {
-  const deleteRestoreBtn = true ? h(AppBtn, {
+  const { deleteMutation } = mutations
+  const deleteRestoreBtn = deleteMutation ? h(AppBtn, {
     useReset: true,
     ...datalistStore.deleteRestoreVariants,
     key: datalistStore.deleteRestoreVariants.icon,
-    action: () => datalistStore.deleteRestoreRecords()
+    action: () => datalistStore.showDeleteDialog(deleteMutation, 'deleteRestore')
   }) : undefined
-  const deleteBtn = datalistStore.availableActions.delete && datalistStore.isShowDeletedRef ? h(AppBtn, {
+  const deleteBtn = deleteMutation && datalistStore.availableActions.delete && datalistStore.isShowDeletedRef ? h(AppBtn, {
     label: 'delete',
     useReset: true,
     disabled: datalistStore.deleteRestoreVariants.disabled,
     severity: 'danger',
     class: 'text-white',
-    action: () => datalistStore.deleteRecords()
+    action: () => datalistStore.showDeleteDialog(deleteMutation, 'delete')
   }) : undefined
   const variant = datalistStore.deleteRestoreVariants
   return h('div', {
@@ -54,6 +55,7 @@ const renderHeader = (): VNode => {
     h('div', {
       class: 'end'
     }, [
+
       variant.hasDeletedRecords ? h(ToggleSwitch, {
         type: 'toggle',
         modelValue: datalistStore.isShowDeletedRef,

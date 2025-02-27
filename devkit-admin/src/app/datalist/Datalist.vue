@@ -9,6 +9,7 @@ import DatalistHeader from './components/DatalistHeader.vue';
 import DatalistFilters from './components/DatalistFilters.vue';
 import { useMutation, useQuery, useQueryClient, keepPreviousData } from '@tanstack/vue-query';
 import type { DatalisQueryReturnType } from './utilities/_apiTypes';
+import { DatalistDeleteMutation, DatalistMutations } from './store/types';
 const props = defineProps<DatalistProps<TReq, TRecord>>()
 const slots = defineSlots<DatalistSlots<TReq, TRecord>>()
 const emit = defineEmits<DatalistEmits<TRecord>>();
@@ -29,24 +30,18 @@ const result = useQuery<DatalisQueryReturnType<TRecord>>({
   enabled: true,
   placeholderData: keepPreviousData,
 })
-const deleteResotreMutation = useMutation({
-  mutationFn: datalistStore.deleteRestoreRecordsConfirmed,
-  onSuccess: () => {
-    console.log("mutatett succ")
-    queryClient.invalidateQueries({ queryKey: [props.context.datalistKey] })
-  },
-})
 
-const deleteMutation = useMutation({
+const deleteMutation: DatalistDeleteMutation = useMutation({
   mutationFn: datalistStore.deleteRecordsConfirmed,
   onSuccess: () => {
-    console.log("mutatett succ")
     queryClient.invalidateQueries({ queryKey: [props.context.datalistKey] })
   },
 })
 
+const datalistMutations: DatalistMutations = { deleteMutation }
+
 await result.suspense().then((queryResult) => {
-  datalistStore.init({ queryResult, props, slots, mutaions: { deleteResotreMutation, deleteMutation } })
+  datalistStore.init({ queryResult, props, slots, mutaions: datalistMutations })
 })
 
 const renderColumnActions = () => {
@@ -64,6 +59,7 @@ const renderColumnActions = () => {
     {
       body: slots.actions ? slots.actions : (context: { data: TRecord }) => !result.data.value ? h('h2', 'holahola') : [
         h(ColumnActions, {
+          mutations: datalistMutations,
           recordData: context.data,
           isActionsDropdown: props.context.isActionsDropdown,
           deleteRestoreHandler: result.data.value.options?.deleteRestoreHandler,
@@ -159,6 +155,7 @@ const renderdatalist = () => {
         slots.header(datalistStore) :
         [
           h(DatalistHeader, {
+            mutations: datalistMutations,
             datalistKey: props.context.datalistKey, onToggleShowDeleted: (value) => {
               console.log("setting deleted",)
               datalistStore.setIsShowDeletedRef(value)
@@ -173,7 +170,7 @@ const renderdatalist = () => {
           }, slots),
           h(DatalistFilters, {
             'onUpdate:modelValue': (value: Record<string, unknown>) => {
-              console.log("update filter value" , value)
+              console.log("update filter value", value)
               if (!props.context.isServerside || !value) return
               filtersValueRef.value = value
               console.log("filters changed", filtersValueRef.value)

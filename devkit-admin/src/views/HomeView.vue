@@ -104,12 +104,12 @@ const tableProps: DatalistProps<UserListRequest, AccountsSchemaUser> = {
         placeholder: t("userName")
       }
     }],
-    //   columns,
+    columns,
     records: 'userList',
     isServerside: false,
     exportable: true,
     displayType: 'table',
-    useLazyFilters: false,
+    useLazyFilters: true,
     isActionsDropdown: true,
     options: { title: "asd", description: "asd" },
   }

@@ -1,6 +1,6 @@
 import { type Ref, type VNode } from "vue"
 import type { FormKitSchemaNode } from '@formkit/core'
-import type { DatalistStore } from './store/types'
+import type { DatalistMutations, DatalistStore } from './store/types'
 import type { ApiListOptions, ApiResponseList, DatalistFetchFunction } from './utilities/_apiTypes'
 import type { DatalistFilter } from './utilities/_filtersTypes'
 import type { DatalistColumns } from './columns/_types'
@@ -30,6 +30,7 @@ export type DatalistRouter<TRecord extends Record<string, unknown>> = {
 export type DatalistGlobalActions = {
   create?: boolean,
   delete?: boolean,
+  deleteRestore?: boolean,
   export?: boolean,
 }
 
@@ -50,7 +51,9 @@ export type DatalistRecords<TReq, TRecord extends Record<string, unknown>> = TRe
 // components types
 //
 // components/DatalistHeader.vue type
-export type DatalistHeaderProps = Pick<DatalistContextComposer<any, any>, "datalistKey" | "exportable">;
+export type DatalistHeaderProps = Pick<DatalistContextComposer<any, any>, "datalistKey" | "exportable"> & {
+  mutations: DatalistMutations
+};
 export type DatalistHeaderSlots<TReq, TRecord extends Record<string, unknown>> = Partial<Pick<
   DatalistSlots<TReq, TRecord>,
   "headerActionsStartPrepend" |
@@ -84,7 +87,9 @@ export type DatalistFiltersEmits = {
 // "filtersFormAppend"
 //Extract<keyof DatalistSlots<TReq, TRecord>, `filters.${string}`>
 // components/ColumnActions.vue
-export type ColumnActionsProps<TRecord> = Pick<DatalistContext<any, any>, "datalistKey" | "isActionsDropdown"> & { recordData: TRecord } & Pick<ApiListOptions, 'createHandler' | 'deleteHandler' | 'updateHandler' | 'deleteRestoreHandler'>
+export type ColumnActionsProps<TRecord> = Pick<DatalistContext<any, any>, "datalistKey" | "isActionsDropdown"> & { recordData: TRecord } & Pick<ApiListOptions, 'createHandler' | 'deleteHandler' | 'updateHandler' | 'deleteRestoreHandler'> & {
+  mutations: DatalistMutations
+}
 
 
 
