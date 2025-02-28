@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { useI18n } from "vue-i18n";
 import type { AccountsSchemaUser, UserListRequest } from "@buf/ahmeddarwish_devkit-api.bufbuild_es/devkit/v1/accounts_user_pb";
-import type { DatalistColumns } from "../../../devkit-admin/dist/types/app/datalist/columns/_types";
 import { ColumnText, DatalistProps } from "@/devkit_admin";
 import { apiClient } from "@/apiClient";
 import Datalist from "@/app/datalist/Datalist.vue";
 import { AppFormSection } from "@/pkg/types/types";
+import { DatalistColumns } from "@/app/datalist/columns/_types";
 const { t } = useI18n()
 const columns: DatalistColumns<AccountsSchemaUser> = {
   userId: new ColumnText<AccountsSchemaUser>('userId', {

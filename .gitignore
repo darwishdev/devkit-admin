@@ -3,5 +3,10 @@ docs/dist
 devkit-admin/node_modules
 devkit-admin/dist
 devkit-admin/.env.local
+devkit-admin/.env
+devkit-admin/.npmrc
 docs/.env.development
+docs/.env
+docs/.env.local
+docs/.npmrc
 
