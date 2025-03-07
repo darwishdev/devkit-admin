@@ -12,7 +12,7 @@
     "build-storybook": "storybook build"
   },
   "dependencies": {
-    "@buf/ahmeddarwish_devkit-api.bufbuild_es": "2.2.3-20250227152819-06e97b5c888d.1",
+    "@buf/ahmeddarwish_devkit-api.bufbuild_es": "2.2.3-20250306172749-8dbd95b352b6.1",
     "@connectrpc/connect": "^2.0.0",
     "@connectrpc/connect-web": "^2.0.0",
     "@formkit/vue": "^1.6.9",

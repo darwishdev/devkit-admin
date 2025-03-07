@@ -9,8 +9,8 @@ importers:
   .:
     dependencies:
       '@buf/ahmeddarwish_devkit-api.bufbuild_es':
-        specifier: 2.2.3-20250227152819-06e97b5c888d.1
-        version: 2.2.3-20250227152819-06e97b5c888d.1(@bufbuild/protobuf@2.2.3)
+        specifier: 2.2.3-20250306172749-8dbd95b352b6.1
+        version: 2.2.3-20250306172749-8dbd95b352b6.1(@bufbuild/protobuf@2.2.3)
       '@connectrpc/connect':
         specifier: ^2.0.0
         version: 2.0.1(@bufbuild/protobuf@2.2.3)
@@ -149,8 +149,8 @@ packages:
     resolution: {integrity: sha512-t8kDRGrKXyp6+tjUh7hw2RLyclsW4TRoRvRHtSyAX9Bb5ldlFh+90YAYY6awRXrlB4G5G2izNeGySpATlFzmOg==}
     engines: {node: '>=6.9.0'}
 
-  '@buf/ahmeddarwish_devkit-api.bufbuild_es@2.2.3-20250227152819-06e97b5c888d.1':
-    resolution: {tarball: https://buf.build/gen/npm/v1/@buf/ahmeddarwish_devkit-api.bufbuild_es/-/ahmeddarwish_devkit-api.bufbuild_es-2.2.3-20250227152819-06e97b5c888d.1.tgz}
+  '@buf/ahmeddarwish_devkit-api.bufbuild_es@2.2.3-20250306172749-8dbd95b352b6.1':
+    resolution: {tarball: https://buf.build/gen/npm/v1/@buf/ahmeddarwish_devkit-api.bufbuild_es/-/ahmeddarwish_devkit-api.bufbuild_es-2.2.3-20250306172749-8dbd95b352b6.1.tgz}
     peerDependencies:
       '@bufbuild/protobuf': ^2.2.3
 
@@ -1862,8 +1862,8 @@ packages:
   vue-component-type-helpers@2.2.0:
     resolution: {integrity: sha512-cYrAnv2me7bPDcg9kIcGwjJiSB6Qyi08+jLDo9yuvoFQjzHiPTzML7RnkJB1+3P6KMsX/KbCD4QE3Tv/knEllw==}
 
-  vue-component-type-helpers@2.2.4:
-    resolution: {integrity: sha512-F66p0XLbAu92BRz6kakHyAcaUSF7HWpWX/THCqL0TxySSj7z/nok5UUMohfNkkCm1pZtawsdzoJ4p1cjNqCx0Q==}
+  vue-component-type-helpers@2.2.8:
+    resolution: {integrity: sha512-4bjIsC284coDO9om4HPA62M7wfsTvcmZyzdfR0aUlFXqq4tXxM1APyXpNVxPC8QazKw9OhmZNHBVDA6ODaZsrA==}
 
   vue-demi@0.14.10:
     resolution: {integrity: sha512-nMZBOwuzabUO0nLgIcc6rycZEebF6eeUfaiQx9+WSk8e29IbLvPU9feI6tqW4kTo3hvoYAJkMh8n8D0fuISphg==}
@@ -1981,7 +1981,7 @@ snapshots:
       '@babel/helper-string-parser': 7.25.9
       '@babel/helper-validator-identifier': 7.25.9
 
-  '@buf/ahmeddarwish_devkit-api.bufbuild_es@2.2.3-20250227152819-06e97b5c888d.1(@bufbuild/protobuf@2.2.3)':
+  '@buf/ahmeddarwish_devkit-api.bufbuild_es@2.2.3-20250306172749-8dbd95b352b6.1(@bufbuild/protobuf@2.2.3)':
     dependencies:
       '@buf/bufbuild_protovalidate.bufbuild_es': 2.2.3-20240920164238-5a7b106cbb87.1(@bufbuild/protobuf@2.2.3)
       '@bufbuild/protobuf': 2.2.3
@@ -2495,7 +2495,7 @@ snapshots:
       ts-dedent: 2.2.0
       type-fest: 2.19.0
       vue: 3.5.13(typescript@5.6.3)
-      vue-component-type-helpers: 2.2.4
+      vue-component-type-helpers: 2.2.8
 
   '@tanstack/match-sorter-utils@8.19.4':
     dependencies:
@@ -3677,7 +3677,7 @@ snapshots:
 
   vue-component-type-helpers@2.2.0: {}
 
-  vue-component-type-helpers@2.2.4: {}
+  vue-component-type-helpers@2.2.8: {}
 
   vue-demi@0.14.10(vue@3.5.13(typescript@5.6.3)):
     dependencies:
