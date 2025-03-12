@@ -88,6 +88,8 @@
   "dependencies": {
     "@connectrpc/connect": "^2.0.1",
     "@connectrpc/connect-web": "^2.0.1",
-    "primeicons": "^7.0.0"
+    "@vue/test-utils": "^2.4.6",
+    "primeicons": "^7.0.0",
+    "vitest": "^3.0.7"
   }
 }

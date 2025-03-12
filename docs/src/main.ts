@@ -20,6 +20,8 @@ const app = createApp(App)
 
 const baseConfig: DevkitBaseConfig<typeof apiClient> = {
   apiClient,
+  baseImageUrl: 'http://192.168.1.40:54321/storage/v1/object/public/',
+  noImageUrl: 'http://192.168.1.40:54321/storage/v1/object/public/images/noimg.webp',
   locales: ['en', 'ar'],
   iconFindApi: 'iconFind'
 }

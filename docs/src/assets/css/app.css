@@ -89,3 +89,19 @@
 * {
 	box-sizing: border-box;
 }
+
+.cards {
+
+	thead.p-datatable-thead {
+		display: none !important;
+	}
+
+	tbody {
+		display: grid;
+		grid-template-columns: repeat(3, 4fr);
+	}
+
+	.p-datatable-tbody>tr>td {
+		--tw-border-opacity: 0;
+	}
+}

@@ -4,7 +4,7 @@ import type { DatalistMutations, DatalistStore } from './store/types'
 import type { ApiListOptions, ApiResponseList, DatalistFetchFunction } from './utilities/_apiTypes'
 import type { DatalistFilter } from './utilities/_filtersTypes'
 import type { DatalistColumns } from './columns/_types'
-import { AppFormSection, AppFormSections } from "@/pkg/types/types"
+import { AppFormSections } from "@/pkg/types/types"
 import { StringUnkownRecord } from "devkit-apiclient"
 
 // helper type
@@ -16,6 +16,15 @@ export type PaginationParams = {
   pageNumber?: number
 }
 
+
+export type DatelistDefaultRequest = {
+  filters: StringUnkownRecord | undefined,
+  paginationParams: PaginationParams | undefined
+}
+export type DatalistMappers<TReq extends StringUnkownRecord, TRecord extends StringUnkownRecord> = {
+  requestMapper?: (req: DatelistDefaultRequest) => TReq,
+  responseMapper?: (response: StringUnkownRecord) => ApiResponseList<TRecord>,
+}
 
 export type DatalistRequest = {
   filters?: Record<string, unknown>,
@@ -54,7 +63,7 @@ export type DatalistRecords<TReq, TRecord extends Record<string, unknown>> = TRe
 export type DatalistHeaderProps = Pick<DatalistContextComposer<any, any>, "datalistKey" | "exportable"> & {
   mutations: DatalistMutations
 };
-export type DatalistHeaderSlots<TReq, TRecord extends Record<string, unknown>> = Partial<Pick<
+export type DatalistHeaderSlots<TReq extends StringUnkownRecord, TRecord extends Record<string, unknown>> = Partial<Pick<
   DatalistSlots<TReq, TRecord>,
   "headerActionsStartPrepend" |
   "headerActionsStartAppend" |
@@ -74,7 +83,7 @@ export type DatalistFiltersProps = {
   isServerSide?: boolean
 }
 
-export type DatalistFiltersSlots<TReq, TRecord extends Record<string, unknown>> = Partial<Pick<
+export type DatalistFiltersSlots<TReq extends StringUnkownRecord, TRecord extends StringUnkownRecord> = Partial<Pick<
   SharedSlots<TReq, TRecord>, 'filtersForm' | 'filtersPanel'>>
 export type DatalistFiltersEmits = {
   (e: 'toggleShowDeleted', value: boolean): void
@@ -94,49 +103,50 @@ export type ColumnActionsProps<TRecord> = Pick<DatalistContext<any, any>, "datal
 
 
 export type ColumnActionsSlots<TRecord extends Record<string, unknown>> = Partial<Pick<
-  DatalistSlots<unknown, TRecord>,
+  DatalistSlots<StringUnkownRecord, TRecord>,
   "dropdownActions" |
   "actions" |
   "prependActions" |
   "appendActions" |
-  Extract<keyof DatalistSlots<unknown, TRecord>, `rowActions.${string}`>
+  Extract<keyof DatalistSlots<StringUnkownRecord, TRecord>, `rowActions.${string}`>
 >>
 
-export type DatalistBaseContext<TRecord extends Record<string, unknown>> = {
+export type DatalistBaseContext<TReq extends StringUnkownRecord, TRecord extends StringUnkownRecord> = DatalistMappers<TReq, TRecord> & {
   datalistKey: string;
   title: string;
-  filters?: DatalistFilter<TRecord>[]; // Required for serverside
-  isPresistFilters?: boolean
-  useLazyFilters?: boolean
-  useFilterPersist?: boolean,
+  filters?: DatalistFilter<TRecord>[];
+  isPresistFilters?: boolean;
+  useLazyFilters?: boolean;
+  useFilterPersist?: boolean;
   formSections?: AppFormSections<StringUnkownRecord>;
-  exportable?: boolean
+  exportable?: boolean;
   debounceInMilliseconds?: number;
-  isActionsDropdown?: boolean
+  isActionsDropdown?: boolean;
   rowIdentifier?: keyof TRecord;
   viewRouter?: DatalistRouter<TRecord>;
-  initiallySelectedItems?: TRecord[]
+  initiallySelectedItems?: TRecord[];
   options: ApiListOptions;
 };
 
 export type DisplayType = 'card' | 'table' | 'list'
-export type ServersideDatalistContext<TReq, TRecord extends Record<string, unknown>> = DatalistBaseContext<TRecord> & {
+export type ServersideDatalistContext<TReq extends StringUnkownRecord, TRecord extends Record<string, unknown>> = DatalistBaseContext<TReq, TRecord> & {
   isServerside: true;
   records: string | DatalistFetchFunction<TReq, TRecord>,
 };
 
 
-export type ClientsideDatalistContext<TRecord extends Record<string, unknown>> =
-  DatalistBaseContext<TRecord> & {
+export type ClientsideDatalistContext<TReq extends StringUnkownRecord, TRecord extends Record<string, unknown>> =
+  DatalistBaseContext<TReq, TRecord> & {
     records: DatalistRecords<any, TRecord>
     isServerside: false;
   };
-export type DatalistContextComposer<TReq, TRecord extends Record<string, unknown>> =
+export type DatalistContextComposer<TReq extends StringUnkownRecord, TRecord extends Record<string, unknown>> =
   | ServersideDatalistContext<TReq, TRecord>
-  | ClientsideDatalistContext<TRecord>;
+  | ClientsideDatalistContext<TReq, TRecord>;
 export type TableDatalistContext<TRecord extends Record<string, unknown>> = {
   displayType: DisplayType;
   columns?: DatalistColumns<TRecord>;
+  hasRequiredFilters?: boolean;
   execludedColumns?: (keyof TRecord)[];
 };
 
@@ -146,9 +156,9 @@ export type CardDatalistContext = {
 export type ListDatalistContext = {
   displayType: 'list';
 };
-export type DatalistDisplayContext<TRecord extends Record<string, unknown>> = TableDatalistContext<TRecord>
+export type DatalistDisplayContext<TRecord extends StringUnkownRecord> = TableDatalistContext<TRecord>
 // Datalist.vue
-export type DatalistContext<TReq, TRecord extends Record<string, unknown>> =
+export type DatalistContext<TReq extends StringUnkownRecord, TRecord extends Record<string, unknown>> =
   DatalistContextComposer<TReq, TRecord> & DatalistDisplayContext<TRecord>;
 // export type DatalistContext<TReq extends DatalistRequest, TRecord extends Record<string, unknown>> = {
 //   datalistKey: string
@@ -172,7 +182,7 @@ export type DatalistContext<TReq, TRecord extends Record<string, unknown>> =
 //   viewRouter?: DatalistRouter<TRecord>
 // }
 
-export type DatalistProps<TReq, TRecord extends Record<string, unknown>> = {
+export type DatalistProps<TReq extends StringUnkownRecord, TRecord extends Record<string, unknown>> = {
   context: DatalistContext<TReq, TRecord>
 }
 // export type BaseDatalistSlots<TReq, TRecord extends Record<string, unknown>> = {
@@ -219,12 +229,12 @@ export type DatalistProps<TReq, TRecord extends Record<string, unknown>> = {
 // export type ListSlots<TRecord extends Record<string, unknown>> = {
 //   listItem(props: { data: TRecord }): VNode | undefined;
 // };
-export type BaseDatalistSlots<TReq, TRecord extends Record<string, unknown>> = {
+export type BaseDatalistSlots<TReq extends StringUnkownRecord, TRecord extends Record<string, unknown>> = {
   default(): VNode | undefined;
   expansion(props: { data: TRecord }): VNode | undefined;
   header(store: DatalistStore<TReq, TRecord>): VNode | undefined;
 };
-export type SharedSlots<TReq, TRecord extends Record<string, unknown>> = {
+export type SharedSlots<TReq extends StringUnkownRecord, TRecord extends Record<string, unknown>> = {
   dropdownActions(props: { data: TRecord }): VNode | undefined;
   actions(props: { data: TRecord }): VNode | undefined;
   headerActionsStartPrepend(store: DatalistStore<TReq, TRecord>): VNode | undefined;
@@ -242,7 +252,8 @@ export type SharedSlots<TReq, TRecord extends Record<string, unknown>> = {
   }) => VNode;
 };
 
-export type CardSlots<TReq, TRecord extends Record<string, unknown>> = Pick<DatalistSlots<TReq, TRecord>, 'cardEnd' | 'card' | 'cardStart'>;
+export type CardSlots<TReq extends StringUnkownRecord, TRecord extends Record<string, unknown>> = Pick<DatalistSlots<TReq, TRecord>, 'cardEnd' | 'card' | 'cardStart'>;
+
 export type TableSlots<TRecord extends Record<string, unknown>> = {
   columnHeader(props: { column: keyof TRecord }): VNode;
   columnFooter(props: { column: keyof TRecord }): VNode;
@@ -253,7 +264,7 @@ export type ListSlots<TRecord extends Record<string, unknown>> = {
   listItem(props: { data: TRecord }): VNode;
 };
 
-export type DatalistSlots<TReq, TRecord extends Record<string, unknown>> = {
+export type DatalistSlots<TReq extends StringUnkownRecord, TRecord extends Record<string, unknown>> = {
   // BaseDatalistSlots<TReq, TRecord> & SharedSlots<TReq, TRecord> & CardSlots<TRecord>
 
   default(): VNode | undefined

@@ -1,4 +1,4 @@
-<script setup lang="ts" generic="TReq,TRecord extends Record<string, unknown> ">
+<script setup lang="ts" generic="TReq extends  StringUnkownRecord,TRecord extends  StringUnkownRecord">
 import { computed, h, ref, type Ref } from 'vue';
 import type { DatalistEmits, DatalistProps, DatalistSlots, PaginationParams } from './types';
 import DataTable, { type DataTableFilterEvent, type DataTableFilterMetaData, type DataTablePageEvent, type DataTableSortEvent } from 'primevue/datatable';
@@ -10,6 +10,7 @@ import DatalistFilters from './components/DatalistFilters.vue';
 import { useMutation, useQuery, useQueryClient, keepPreviousData } from '@tanstack/vue-query';
 import type { DatalisQueryReturnType } from './utilities/_apiTypes';
 import { DatalistDeleteMutation, DatalistMutations } from './store/types';
+import { StringUnkownRecord } from 'devkit-apiclient';
 const props = defineProps<DatalistProps<TReq, TRecord>>()
 const slots = defineSlots<DatalistSlots<TReq, TRecord>>()
 const emit = defineEmits<DatalistEmits<TRecord>>();
@@ -24,6 +25,8 @@ const result = useQuery<DatalisQueryReturnType<TRecord>>({
   queryKey: [props.context.datalistKey, paginationParamsRef, filtersValueRef],
   queryFn: () => datalistStore.datalistFetchFunction({
     paginationParams: paginationParamsRef.value,
+    requestMapper: props.context.requestMapper,
+    responseMapper: props.context.responseMapper,
     filtersValue: filtersValueRef.value,
     records: props.context.records, deletedRecords: [], options: props.context.options
   }),
@@ -127,7 +130,7 @@ const renderdatalist = () => {
       filters: datalistStore.modelFiltersRef as Record<string, DataTableFilterMetaData>,
       "onUpdate:filters": handleTableChanges,
       paginator: true,
-      loading: datalistStore.isLoadingRef,
+      loading: result.isLoading.value || result.isFetching.value,
       pt: {
         root: 'glass rounded-md p-md',
         header: 'transparent',
@@ -135,7 +138,7 @@ const renderdatalist = () => {
       },
       metaKeySelection: true,
       exportFilename: props.context.datalistKey,
-      calss: 'data-list',
+      calss: `data-list ${props.context.displayType == 'card' ? 'cards' : ''}`,
       lazy: props.context.isServerside,
       totalRecords: !result.data.value ? undefined : !result.data.value.options ? undefined : result.data.value.options.totalCount,
       selection: datalistStore.modelSelectionRef,

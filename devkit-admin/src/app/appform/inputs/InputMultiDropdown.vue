@@ -3,16 +3,16 @@ TApi extends Record<string, Function>,
 TOptionsReq extends StringUnkownRecord, 
 TOptionsResp extends StringUnkownRecord = DropdownOptions">
 import { StringUnkownRecord } from 'devkit-apiclient';
-import Select from 'primevue/select';
-import { DropdownOptions, InputDropdownProps } from '../types';
+import MultiSelect from 'primevue/multiselect';
+import { DropdownOptions, InputMultiDropdownProps } from '../types';
 import { watch, h, inject, ref, computed, } from 'vue';
 import { useQuery } from '@tanstack/vue-query';
 import { clearOptionsCache, useMemoizedDropdownOptions, optionsErrorMessages } from './OptionsGetter';
 import { useFormKitContext } from '@formkit/vue';
-import { SelectProps } from 'primevue';
+import { MultiSelectProps, SelectProps } from 'primevue';
 import { AppBtn, AppIcon } from 'devkit-base-components';
 const apiClient = inject<TApi>('apiClient')
-const { context } = defineProps<InputDropdownProps<TApi, TOptionsReq, TOptionsResp>>()
+const { context } = defineProps<InputMultiDropdownProps<TApi, TOptionsReq, TOptionsResp>>()
 const emit = defineEmits<{
 	(e: 'valueChange', value: any): void
 }>();
@@ -61,7 +61,7 @@ const queryResult = useQuery({
 	refetchOnWindowFocus: false,
 	staleTime: cacheTimeout
 })
-const init = () => new Promise<SelectProps>((resolve) => {
+const init = () => new Promise<MultiSelectProps>((resolve) => {
 	const primevuePops: SelectProps = { ...context }
 	if (!Array.isArray(options)) {
 		primevuePops.optionLabel = primevuePops.optionLabel || 'label'
@@ -89,16 +89,15 @@ const forceReload = () => {
 	clearOptionsCache(getCacheName())
 	queryResult.refetch()
 }
+const selectProps = await init()
 const renderInputDropdown = () => {
-	return h(Select, {
+	return h(MultiSelect, {
 		...selectProps,
 		modelValue: formValue.value,
 		"onUpdate:modelValue": onValueChange,
 		loading: queryResult.isLoading.value || queryResult.isFetching.value,
 		options: queryResult.data.value,
 		onBeforeShow
-
-
 	}, {
 		header: (_: any) => h('div', { class: 'select-header' }, [
 			!hideReload ? h(AppBtn, { action: forceReload, label: 'reload', icon: 'reload' }) : undefined,
@@ -133,7 +132,6 @@ const renderInputDropdown = () => {
 
 	})
 }
-const selectProps = await init()
 </script>
 <template>
 	<component :is="renderInputDropdown" />

@@ -5,6 +5,7 @@ import type { Ref } from "vue"
 import type { Store } from "pinia"
 export type AppFormState<TReq extends StringUnkownRecord> = {
   formValueRef: Ref<StringUnkownRecord>
+  formElementRef: Ref<any>
   initialFormValue: StringUnkownRecord
   formOptions: AppFormOptions
 }
@@ -18,6 +19,7 @@ export type AppFormActions<TKey extends string,
   TFindResponsePropName extends string | undefined = 'request',
   TFindCallbakResponse = unknown,
   TCallbakResponse = unknown> = {
+    validate: () => void
   }
 
 export type AppFormStore<

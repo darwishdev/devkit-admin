@@ -6,8 +6,8 @@ import { type VNode } from 'vue';
 import type { DatalistColumns } from '../columns/_types';
 import { ColumnText } from '../columns/ColumnBase';
 import type { DatalistFiltersModel } from './_filtersTypes';
-import { ObjectKeys } from 'devkit-apiclient';
-export const _constructColumns = <TRecord extends Record<string, unknown>>(record: TRecord, execludedKeys: (keyof TRecord)[] = [], defaultOptions: { isSortable: boolean } = { isSortable: true }): DatalistColumns<TRecord> => {
+import { ObjectKeys, StringUnkownRecord } from 'devkit-apiclient';
+export const _constructColumns = <TRecord extends StringUnkownRecord>(record: TRecord, execludedKeys: (keyof TRecord)[] = [], defaultOptions: { isSortable: boolean } = { isSortable: true }): DatalistColumns<TRecord> => {
   const columns = {} as DatalistColumns<TRecord>;
   ObjectKeys(record).forEach((key) => {
     if (!execludedKeys.includes(key)) {
@@ -20,7 +20,7 @@ export type DatalistPrimevueColumn = {
   props: ColumnProps,
   slots: Partial<ColumnSlots>
 }
-export const _extractCardColumns = <TReq, TRecord extends Record<string, unknown>>({ card, cardStart, cardEnd }: CardSlots<TReq, TRecord>): DatalistPrimevueColumn[] => {
+export const _extractCardColumns = <TReq extends StringUnkownRecord, TRecord extends StringUnkownRecord>({ card, cardStart, cardEnd }: CardSlots<TReq, TRecord>): DatalistPrimevueColumn[] => {
   if (card) {
     return [{ props: { class: 'card' }, slots: { body: ({ data }) => card({ data }) } }]
   }
@@ -32,7 +32,7 @@ export const _extractCardColumns = <TReq, TRecord extends Record<string, unknown
   return cardColumns
 }
 
-export const _extractColumns = <TReq, TRecord extends Record<string, unknown>>(columns: DatalistColumns<TRecord>, slots: DatalistSlots<TReq, TRecord>) => {
+export const _extractColumns = <TReq extends StringUnkownRecord, TRecord extends StringUnkownRecord>(columns: DatalistColumns<TRecord>, slots: DatalistSlots<TReq, TRecord>) => {
   const filtersFormSchema: FormKitSchemaNode[] = []
   const datalistColumns: DatalistPrimevueColumn[] = []
   const modelFilters: DatalistFiltersModel = {}

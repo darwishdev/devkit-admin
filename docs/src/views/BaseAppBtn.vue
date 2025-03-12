@@ -4,7 +4,6 @@ import Checkbox from 'primevue/checkbox';
 import type { AccountsSchemaUser, UserListRequest } from "@buf/ahmeddarwish_devkit-api.bufbuild_es/devkit/v1/accounts_user_pb";
 import { Datalist, type DatalistProps, ColumnText } from "devkit-admin";
 import { apiClient } from "../api/apiClient";
-import ToggleSwitch from 'primevue/toggleswitch';
 import type { DatalistColumns } from "../../../devkit-admin/dist/types/app/datalist/columns/_types";
 import type { AppFormSection } from "../../../devkit-admin/dist/types/pkg/types/types";
 import { ref } from 'vue';

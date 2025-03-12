@@ -18,9 +18,15 @@ export const useAppFormStore = <
     const initialFormValue: StringUnkownRecord = {}
     const formOptions: AppFormOptions = {}
     const formValueRef = ref<StringUnkownRecord>({})
+    const formElementRef = ref()
+    const validate = () => {
+      console.log("validat the form" , formElementRef.value)
+    }
     return {
       //state
       initialFormValue,
+      validate,
+      formElementRef,
       formValueRef,
       formOptions,
       //methos
@@ -36,5 +42,5 @@ export const useAppFormStoreWithKey = <
   TFindResponsePropName extends string | undefined = 'request',
   TFindCallbakResponse = unknown,
   TCallbakResponse = unknown
->(appFormKey: string): AppFormStore<TKey, TFormRequest, TApiRequest, TApiResponse, TFindRequestPropName, TFindResponsePropName, TFindCallbakResponse, TCallbakResponse> => useAppFormStore<TKey, TFormRequest, TApiRequest, TApiResponse, TFindRequestPropName, TFindResponsePropName, TFindCallbakResponse, TCallbakResponse>(appFormKey)()
+  >(appFormKey: string): AppFormStore<TKey, TFormRequest, TApiRequest, TApiResponse, TFindRequestPropName, TFindResponsePropName, TFindCallbakResponse, TCallbakResponse> => useAppFormStore<TKey, TFormRequest, TApiRequest, TApiResponse, TFindRequestPropName, TFindResponsePropName, TFindCallbakResponse, TCallbakResponse>(appFormKey)()
 

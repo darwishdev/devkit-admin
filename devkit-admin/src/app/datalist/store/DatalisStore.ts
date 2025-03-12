@@ -6,26 +6,28 @@ import { defineStore } from 'pinia'
 import type { DatalistAvailableActions, DatalistContext, DatalistSlots, DatalistRouter, PaginationParams, CardSlots } from '../types'
 import { type DatalistDeleteMutation, type DatalistFetchParams, type DatalistStore, type DatalistStoreInit, type DeleteRestoreVariant } from './types'
 import { useRouter } from 'vue-router'
-import { Message, useDialog, type DataTableMethods } from 'primevue'
+import { useDialog, type DataTableMethods } from 'primevue'
 import type { ColumnProps, ColumnSlots } from 'primevue'
 import { useDebounceFn } from '@vueuse/core'
 import { _deleteRecordsConfirmed, _refetch, _datalistFetchWithArray, _datalistFetchWithString, _datalistFetchWithFunction } from '../utilities/_queryUtils'
 import { _constructColumns, _extractCardColumns, _extractColumns } from '../utilities/_columnUtils'
 import { _applyFilters, _presistFilters } from '../utilities/_filterUtils'
 import { _createRecord, _updateRecord, _viewRecord } from '../utilities/_crudUtils'
-import type { ApiListOptions, DatalisQueryReturnType, DatalistQueryResult, DeleteHandler } from '../utilities/_apiTypes'
+import type { ApiListOptions, ApiResponseList, DatalisQueryReturnType, DatalistQueryResult, DeleteHandler } from '../utilities/_apiTypes'
 import type { StringUnkownRecord, AppFormProps, AppFormSection, SubmitHandler } from '@/pkg/types/types'
 import type { DatalistFiltersModel } from '../utilities/_filtersTypes'
 import type { DatalistColumns } from '../columns/_types'
 import { ColumnText } from '../columns/ColumnBase'
-import { AssertIsDefined, ObjectKeys } from 'devkit-apiclient'
+import { AssertIsDefined, ObjectKeys, resolveApiEndpoint } from 'devkit-apiclient'
 import AppForm from '@/app/appform/AppForm.vue'
-export const useDatalistStore = <TReq, TRecord extends Record<string, unknown>>(
+import { useAppFormStoreWithKey } from '@/app/appform/store/AppFormStore'
+export const useDatalistStore = <TReq extends StringUnkownRecord, TRecord extends StringUnkownRecord>(
   datalistKey: string) => defineStore(`datalist-${datalistKey}` as string, () => {
     let datalistOptions: ApiListOptions = { title: datalistKey, description: `${datalistKey}_description` }
     const filtersFormKey = `${datalistKey}-filters`
     let formSections: Record<string, AppFormSection | FormKitSchemaNode[]> | undefined
     let rowIdentifier: (keyof TRecord) | undefined = `${datalistKey}Id` as keyof TRecord
+    const filtersFormStore = useAppFormStoreWithKey(`${datalistKey}-filter-form`)
     let viewRouter: DatalistRouter<TRecord> | undefined
     const filtersFormSchema: FormKitSchemaNode[] = []
     const paginationParams: Ref<PaginationParams> = ref({ lastRowValue: "2", sortFunction: "asc", sortColumn: "roleId", pageNumber: 2, isDeleted: false, pageSize: 10 })
@@ -48,8 +50,8 @@ export const useDatalistStore = <TReq, TRecord extends Record<string, unknown>>(
       if (isShowDeletedRef.value) return { disabled: !hasSelectedData, hasSelectedData, hasDeletedRecords, icon: 'left', label: 'restore', empty: "empty_records_deleted", severity: 'success' } as DeleteRestoreVariant
       return { disabled: !hasSelectedData, hasDeletedRecords, icon: 'trash', label: 'delete', empty: "empty_records", severity: 'danger' } as DeleteRestoreVariant
     })
-    const activeFilters: ComputedRef<Record<string, unknown>> = computed(() => {
-      const activeFilters: Record<string, unknown> = {}
+    const activeFilters: ComputedRef<StringUnkownRecord> = computed(() => {
+      const activeFilters: StringUnkownRecord = {}
       const filtersFormKeys = ObjectKeys(modelFiltersRef.value)
       for (const dataHeaderKey of filtersFormKeys) {
         const currentInputValue = modelFiltersRef.value[dataHeaderKey]
@@ -62,18 +64,25 @@ export const useDatalistStore = <TReq, TRecord extends Record<string, unknown>>(
       return activeFilters
     })
 
-    const datalistFetchFunction = ({ filtersValue, paginationParams, records, deletedRecords = [], options }: DatalistFetchParams<TReq, TRecord>): Promise<DatalisQueryReturnType<TRecord>> => {
-      isLoadingRef.value = true
+    const datalistFetchFunction = ({ filtersValue, requestMapper, responseMapper, paginationParams, records, deletedRecords = [], options }: DatalistFetchParams<TReq, TRecord>): Promise<DatalisQueryReturnType<TRecord>> => {
       if (Array.isArray(records)) {
         return _datalistFetchWithArray({ records, deletedRecords, options })
       }
       const requestPayload = { filters: filtersValue, paginationParams: paginationParams }
-      const callBack = useDebounceFn(() => isLoadingRef.value = false, debounceInMilliSeconds)
-      console.log("Requpaulo", requestPayload)
-      if (typeof records == 'string') {
-        return _datalistFetchWithString({ records, requestPayload, apiClient, callBack })
-      }
-      return _datalistFetchWithFunction<TReq, TRecord>({ records, requestPayload: requestPayload as TReq, callBack })
+      const request = requestMapper ? requestMapper(requestPayload) : requestPayload
+      return new Promise<DatalisQueryReturnType<TRecord>>((resolve, reject) => {
+        resolveApiEndpoint<typeof apiClient, TReq, StringUnkownRecord>(records, apiClient, request as TReq).then((response) => {
+          if (responseMapper) {
+            const newResponse = responseMapper(response)
+            return resolve(newResponse)
+          }
+          if ('records' in response && Array.isArray(response['records'])) {
+            return resolve(response as ApiResponseList<TRecord>)
+          }
+          return reject(new Error('can\'t find records on the response '))
+
+        })
+      })
     }
     const refetch = () => {
       return _refetch(datalistQueryResult)
@@ -382,4 +391,4 @@ export const useDatalistStore = <TReq, TRecord extends Record<string, unknown>>(
       refetch,
     }
   })
-export const useDatalistStoreWithKey = <TReq, TRecord extends Record<string, unknown>>(datalistKey: string): DatalistStore<TReq, TRecord> => useDatalistStore<TReq, TRecord>(datalistKey)()
+export const useDatalistStoreWithKey = <TReq extends StringUnkownRecord, TRecord extends StringUnkownRecord>(datalistKey: string): DatalistStore<TReq, TRecord> => useDatalistStore<TReq, TRecord>(datalistKey)()

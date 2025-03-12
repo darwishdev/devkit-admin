@@ -1,132 +1,191 @@
-<script lang="ts" setup>
-import { ref } from 'vue';
-import { usePrimeVue } from 'primevue/config';
-import FileUpload from 'primevue/fileupload';
-import { useToast } from "primevue/usetoast";
-import Button from 'primevue/button';
-import ProgressBar from 'primevue/progressbar';
-import Badge from 'primevue/badge';
-import Toast from 'primevue/toast';
-const $primevue = usePrimeVue();
-const toast = useToast();
-
-const totalSize = ref<number>(0);
-const totalSizePercent = ref<number>(0);
-const files = ref<any[]>([]);
-
-const onRemoveTemplatingFile = (file: any, removeFileCallback: (index: number) => void, index: number): void => {
-  removeFileCallback(index);
-  if (file && file.size) {
-    totalSize.value -= parseInt(formatSize(file.size));
-    totalSizePercent.value = totalSize.value / 10;
-  }
-};
-
-const onClearTemplatingUpload = (clear: () => void): void => {
-  clear();
-  totalSize.value = 0;
-  totalSizePercent.value = 0;
-};
-
-const onSelectedFiles = (event: any): void => {
-  if (event.files instanceof Array) {
-    files.value = event.files as any[];
-    files.value.forEach((file: any) => {
-      if (file && file.size) {
-        totalSize.value += parseInt(formatSize(file.size));
-      }
-    });
-  }
-};
-
-const uploadEvent = (callback: () => void): void => {
-  totalSizePercent.value = totalSize.value / 10;
-  callback();
-};
-
-const onTemplatedUpload = (): void => {
-  toast.add({ severity: "info", summary: "Success", detail: "File Uploaded", life: 3000 });
-};
-
-const formatSize = (bytes: number): string => {
-  const k = 1024;
-  const dm = 3;
-  const sizes = $primevue.config.locale!.fileSizeTypes;
-
-  if (bytes === 0) {
-    return `0 ${sizes[0]}`;
-  }
-
-  const i = Math.floor(Math.log(bytes) / Math.log(k));
-  const formattedSize = parseFloat((bytes / Math.pow(k, i)).toFixed(dm));
-
-  return `${formattedSize} ${sizes[i]}`;
-};
-</script>
 <template>
-  <div class="card">
-    <Toast />
-    <FileUpload name="demo[]" url="/api/upload" @upload="onTemplatedUpload" :multiple="true" accept="image/*"
-      :maxFileSize="1000000" @select="onSelectedFiles">
-      <template #header="{ chooseCallback, uploadCallback, clearCallback, files }">
-        <div class="flex flex-wrap justify-between items-center flex-1 gap-4">
-          <div class="flex gap-2">
-            <Button @click="chooseCallback()" icon="pi pi-images" rounded outlined severity="secondary"></Button>
-            <Button @click="uploadEvent(uploadCallback)" icon="pi pi-cloud-upload" rounded outlined severity="success"
-              :disabled="!files || files.length === 0"></Button>
-            <Button @click="clearCallback()" icon="pi pi-times" rounded outlined severity="danger"
-              :disabled="!files || files.length === 0"></Button>
-          </div>
-          <ProgressBar :value="totalSizePercent" :showValue="false" class="md:w-20rem h-1 w-full md:ml-auto">
-            <span class="whitespace-nowrap">{{ totalSize }}B / 1Mb</span>
-          </ProgressBar>
+  <div class="buckets" v-if="imagesQuyeryResult.data.value" @dragover.prevent="onDragOver" @dragleave="onDragLeave"
+    @drop.prevent="onDrop" :class="{ 'drag-active': isDragging }">
+    <div v-if="isDragging" class="drop-overlay">
+      Drop files here to upload
+    </div>
+    <Datalist :context="datalistProps.context">
+      <template #header>
+        <h2>header</h2>
+      </template>
+      <template #appendActions="">
+        <AppBtn v-for="action in ObjectKeys(actions)" :key="action" :label="action" :action="actions[action]" />
+      </template>
+      <template #card="item">
+        <div class="object-partial">
+          <AppImage width="150px" preview :src="`images/${item.data.name}`" />
+          <h2> {{ item.data.name }}</h2>
+          <h3 v-if="item.data.metadata"> {{ item.data.metadata.size }}</h3>
+          <h3 v-if="item.data.metadata"> {{ item.data.metadata.mimetype }}</h3>
         </div>
       </template>
-      <template #content="{ files, uploadedFiles, removeUploadedFileCallback, removeFileCallback }">
-        <div class="flex flex-col gap-8 pt-4">
-          <div v-if="files.length > 0">
-            <h5>Pending</h5>
-            <div class="flex flex-wrap gap-4">
-              <div v-for="(file, index) of files" :key="file.name + file.type + file.size"
-                class="p-8 rounded-border flex flex-col border border-surface items-center gap-4">
-                <div>
-                  <img role="presentation" :alt="file.name" :src="file.objectURL" width="100" height="50" />
-                </div>
-                <span class="font-semibold text-ellipsis max-w-60 whitespace-nowrap overflow-hidden">{{ file.name
-                  }}</span>
-                <div>{{ formatSize(file.size) }}</div>
-                <Badge value="Pending" severity="warn" />
-                <Button icon="pi pi-times" @click="onRemoveTemplatingFile(file, removeFileCallback, index)" outlined
-                  rounded severity="danger" />
-              </div>
-            </div>
-          </div>
+    </Datalist>
 
-          <div v-if="uploadedFiles.length > 0">
-            <h5>Completed</h5>
-            <div class="flex flex-wrap gap-4">
-              <div v-for="(file, index) of uploadedFiles" :key="file.name + file.type + file.size"
-                class="p-8 rounded-border flex flex-col border border-surface items-center gap-4">
-                <div>
-                  <img role="presentation" :alt="file.name" :src="file.objectURL" width="100" height="50" />
-                </div>
-                <span class="font-semibold text-ellipsis max-w-60 whitespace-nowrap overflow-hidden">{{ file.name
-                  }}</span>
-                <div>{{ formatSize(file.size) }}</div>
-                <Badge value="Completed" class="mt-4" severity="success" />
-                <Button icon="pi pi-times" @click="removeUploadedFileCallback(index)" outlined rounded
-                  severity="danger" />
-              </div>
-            </div>
-          </div>
-        </div>
-      </template>
-      <template #empty>
-        <div class="flex items-center justify-center flex-col">
-          <i class="pi pi-cloud-upload !border-2 !rounded-full !p-8 !text-4xl !text-muted-color" />
-          <p class="mt-6 mb-0">Drag and drop files to here to upload.</p>
-        </div>
-      </template>
-    </FileUpload>
   </div>
 </template>
+
+<script setup lang="ts">
+import { ObjectKeys } from 'devkit-apiclient'
+import { ref } from 'vue';
+import { apiClient } from '../api/apiClient';
+import { useQuery } from '@tanstack/vue-query';
+import { Datalist, type DatalistProps } from "devkit-admin";
+import { AppBtn, AppImage } from 'devkit-base-components';
+import type { FileListRequest, FileListResponse, FileObject } from '@buf/ahmeddarwish_devkit-api.bufbuild_es/devkit/v1/public_storage_pb';
+import type { DatalistRequest } from '../../../devkit-admin/dist/types/app/datalist/types';
+import type { ApiResponseList } from '../../../devkit-admin/dist/types/app/datalist/utilities/_apiTypes';
+import { throws } from 'assert';
+// Drag and drop state
+const isDragging = ref(false);
+const datalistProps: DatalistProps<Partial<FileListRequest>, FileObject> = {
+  context: {
+    datalistKey: 'files',
+    title: "files",
+    rowIdentifier: "id",
+    filters: [{
+      matchMode: "contains",
+      input: {
+        $formkit: 'devkitDropdown',
+        options: 'bucketList',
+        optionValue: 'id',
+        optionLabel: 'name',
+        prefixIcon: "tools",
+        outerClass: "col-12 sm:col-6 md:col-3",
+        name: "bucketId",
+        placeholder: "buckets"
+      }
+    }],
+    requestMapper: (req: DatalistRequest): Partial<FileListRequest> => {
+      if (!req.filters) {
+        throw new Error('bucket must be selected')
+      }
+      const request: Partial<FileListRequest> = {
+        bucketId: req.filters['bucketId'] as string
+      }
+      return request
+    },
+    records: 'fileList',
+    isServerside: false,
+    exportable: true,
+    displayType: 'table',
+    useLazyFilters: true,
+    isActionsDropdown: true,
+    options: { title: "asd", description: "asd" },
+  }
+}
+
+// Existing bucket create function
+const bucketCreateOpen = () => {
+  console.log("open the model to create new bucket");
+};
+const actions = {
+  rename: () => {
+    console.log("rename the file")
+  },
+  move: () => {
+    console.log('move the image')
+  },
+  download: () => {
+    console.log("download the image")
+  },
+  delete: () => {
+    console.log("delete ")
+  }
+}
+// Existing buckets query
+const bucketsQuyeryResult = useQuery({
+  queryKey: ['bucketList'],
+  queryFn: () => new Promise((resolve) => {
+    apiClient.bucketList({}).then((response) => {
+      console.log("reso", response);
+      const r = response.buckets.map(bucket => {
+        return {
+          key: bucket.id.toString(),
+          label: bucket.name,
+          icon: 'pi pi-fw pi-folder',
+        };
+      });
+      resolve(r);
+    });
+  }),
+});
+
+// Add images query (assuming this exists or needs to be added)
+const imagesQuyeryResult = useQuery({
+  queryKey: ['imagesList'],
+  queryFn: () => apiClient.fileList({ bucketId: 'images' }), // Adjust this based on your API
+});
+
+// Drag and drop handlers
+const onDragOver = (event: Event) => {
+  event.preventDefault();
+  isDragging.value = true;
+};
+
+const onDragLeave = () => {
+  isDragging.value = false;
+};
+
+const onDrop = async (event: any) => {
+  event.preventDefault();
+  isDragging.value = false;
+
+  const files = event.dataTransfer.files;
+  if (files.length > 0) {
+    await uploadFiles(files);
+  }
+};
+
+// File upload function
+const uploadFiles = async (files: any) => {
+  try {
+    const formData = new FormData();
+    for (const file of files) {
+      formData.append('files[]', file);
+    }
+
+    // Assuming you have an upload endpoint in your apiClient
+    //  const reques: FileCreateRequest = { path: "new.webp", bucketName: 'images',fileType: 'webp' ,  }
+    //const response = await apiClient.fileCreate(reques);
+
+    // Refresh the images query after successful upload
+    imagesQuyeryResult.refetch();
+  } catch (error) {
+    console.error('Upload failed:', error);
+  }
+};
+</script>
+
+<style>
+.buckets {
+  position: relative;
+  padding: 1rem;
+  border: 2px dashed #ccc;
+  border-radius: 4px;
+  min-height: 200px;
+}
+
+.drag-active {
+  border-color: #2196f3;
+  background-color: rgba(33, 150, 243, 0.1);
+}
+
+.drop-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  pointer-events: none;
+}
+
+.images {
+  margin-top: 1rem;
+}
+</style>

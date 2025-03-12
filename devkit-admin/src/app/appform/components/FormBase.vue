@@ -244,6 +244,7 @@
         modelValue: formStore.formValueRef,
         "onUpdate:modelValue": (value: StringUnkownRecord) =>
           (formStore.formValueRef = value),
+        ref: (ref) => formStore.formElementRef = ref,
         onSubmit: formSubmitHandler,
       },
       {

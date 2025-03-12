@@ -1,9 +1,10 @@
-<script setup lang="ts" generic="TReq,TRecord extends Record<string, unknown>">
+<script setup lang="ts" generic="TReq extends StringUnkownRecord,TRecord extends StringUnkownRecord">
 import { h, type VNode } from 'vue';
 import type { DatalistHeaderSlots, DatalistHeaderProps, DatalistFiltersEmits } from '../types';
 import { useDatalistStoreWithKey } from '../store/DatalisStore';
 import { ToggleSwitch } from 'primevue';
 import { AppBtn } from 'devkit-base-components';
+import { StringUnkownRecord } from 'devkit-apiclient';
 const { datalistKey, exportable, mutations } = defineProps<DatalistHeaderProps>()
 const slots = defineSlots<DatalistHeaderSlots<TReq, TRecord>>()
 

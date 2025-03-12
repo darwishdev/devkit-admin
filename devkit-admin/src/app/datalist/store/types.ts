@@ -4,12 +4,12 @@ import type { ColumnProps, ColumnSlots } from 'primevue/column'
 import type { DataTableMethods } from 'primevue'
 import type { QueryObserverResult, UseMutationReturnType } from '@tanstack/vue-query'
 import type { Store } from 'pinia'
-import type { DatalistAvailableActions, DatalistProps, DatalistRecords, DatalistRouter, DatalistSlots, PaginationParams } from '../types'
-import type { ApiListOptions, DatalisQueryReturnType, DatalistQueryResult, DeleteHandler } from '../utilities/_apiTypes'
+import type { DatalistAvailableActions, DatalistMappers, DatalistProps, DatalistRecords, DatalistRouter, DatalistSlots, PaginationParams } from '../types'
+import type { ApiListOptions,  DatalisQueryReturnType, DatalistQueryResult, DeleteHandler } from '../utilities/_apiTypes'
 import type { AppFormSection } from '@/pkg/types/types'
 import type { DatalistFiltersModel } from '../utilities/_filtersTypes'
 import { StringUnkownRecord } from 'devkit-apiclient'
-export type DatalistStore<TReq, TRecord extends Record<string, unknown>> = Store<
+export type DatalistStore<TReq extends StringUnkownRecord, TRecord extends StringUnkownRecord> = Store<
   string,
   Pick<DatalistState<TReq, TRecord>, keyof DatalistState<TReq, TRecord>>,
   Pick<DatalistGetters<TRecord>, keyof DatalistGetters<TRecord>>,
@@ -26,7 +26,7 @@ export type DeleteRestoreVariant = {
 
 }
 
-export type DatalistState<TReq, TRecord extends Record<string, unknown>> = {
+export type DatalistState<TReq extends StringUnkownRecord, TRecord extends StringUnkownRecord> = {
   apiClient: Record<string, Function>
   debounceInMilliSeconds: number
   datalistColumns: {
@@ -50,16 +50,16 @@ export type DatalistState<TReq, TRecord extends Record<string, unknown>> = {
   tableElementRef: Ref<DataTableMethods | undefined>;
 };
 
-export type DatalistGetters<TRecord extends Record<string, unknown>> = {
-  activeFilters: ComputedRef<Record<string, unknown>>
+export type DatalistGetters<TRecord extends StringUnkownRecord> = {
+  activeFilters: ComputedRef<StringUnkownRecord>
   deleteRestoreVariants: ComputedRef<DeleteRestoreVariant>;
 };
 export type DatalistDeleteMutation = UseMutationReturnType<void, unknown, {
   close: Function
   handler: DeleteHandler
 }, unknown>
-export type DatalistFetchParams<TReq, TRecord extends Record<string, unknown>> = {
-  filtersValue: Record<string, unknown> | undefined
+export type DatalistFetchParams<TReq extends StringUnkownRecord, TRecord extends StringUnkownRecord> = DatalistMappers<TReq, TRecord> & {
+  filtersValue: StringUnkownRecord | undefined
   records: DatalistRecords<TReq, TRecord>
   paginationParams: PaginationParams | undefined
   deletedRecords?: TRecord[]
@@ -68,13 +68,13 @@ export type DatalistFetchParams<TReq, TRecord extends Record<string, unknown>> =
 export type DatalistMutations = {
   deleteMutation?: DatalistDeleteMutation
 }
-export type DatalistStoreInit<TReq, TRecord extends Record<string, unknown>> = {
+export type DatalistStoreInit<TReq extends StringUnkownRecord, TRecord extends StringUnkownRecord> = {
   queryResult: QueryObserverResult<DatalisQueryReturnType<TRecord>, Error>,
   props: DatalistProps<TReq, TRecord>,
   slots: DatalistSlots<TReq, TRecord>,
   mutaions?: DatalistMutations
 }
-export type DatalistActions<TReq, TRecord extends Record<string, unknown>> = {
+export type DatalistActions<TReq extends StringUnkownRecord, TRecord extends StringUnkownRecord> = {
   applyFilters: (filtersFormValue: Partial<Record<(keyof TRecord) | string, unknown>>) => void;
   getRowIdentifier: () => keyof TRecord | undefined
   createNewRecord: () => void;

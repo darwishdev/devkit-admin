@@ -1,4 +1,4 @@
-<script setup lang="ts" generic="TReq,TRecord extends Record<string, unknown> ">
+<script setup lang="ts" generic="TReq extends StringUnkownRecord,TRecord extends StringUnkownRecord ">
 import { h, ref, VNode } from 'vue'; import {
   type
     ColumnActionsProps, type ColumnActionsSlots
@@ -6,6 +6,7 @@ import { h, ref, VNode } from 'vue'; import {
 import { useDatalistStoreWithKey } from '../store/DatalisStore';
 import { Menu } from 'primevue';
 import { AppBtn } from 'devkit-base-components';
+import { StringUnkownRecord } from 'devkit-apiclient';
 const { datalistKey, deleteRestoreHandler, deleteHandler, recordData, isActionsDropdown, mutations } = defineProps<ColumnActionsProps<TRecord>>()
 const datalistStore = useDatalistStoreWithKey<TReq, TRecord>(datalistKey)
 const slots = defineSlots<ColumnActionsSlots<TRecord>>()

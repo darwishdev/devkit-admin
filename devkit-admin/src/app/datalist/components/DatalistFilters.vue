@@ -1,4 +1,4 @@
-<script setup lang="ts" generic="TReq,TRecord extends Record<string, unknown> ">
+<script setup lang="ts" generic="TReq extends StringUnkownRecord,TRecord extends StringUnkownRecord">
 
 import { FormKitSchema } from '@formkit/vue';
 import { useDatalistStoreWithKey } from '../store/DatalisStore';
@@ -10,7 +10,7 @@ import { Panel } from 'primevue';
 import { useRoute } from 'vue-router';
 
 import { AppBtn, AppIcon } from 'devkit-base-components';
-import { ObjectKeys } from 'devkit-apiclient';
+import { ObjectKeys, StringUnkownRecord } from 'devkit-apiclient';
 import { RouteQueryFind } from '@/pkg/utils/QueryUtils';
 const formkitComp = resolveComponent('FormKit')
 const { datalistKey, useLazyFilters = false, schema, isServerSide } = defineProps<DatalistFiltersProps>()
