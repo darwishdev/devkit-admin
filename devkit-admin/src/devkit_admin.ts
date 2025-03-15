@@ -12,7 +12,7 @@ import * as datalistTypes from './app/datalist/types'
 import { DropdownContext, InputDropdownProps, InputDatepickerProps, DatepickerContext, InputMultiDropdownProps } from './app/appform/types';
 export type { DropdownContext, InputDatepickerProps, DatepickerContext, InputDropdownProps, InputMultiDropdownProps, DevkitAdminConfig, DatalistEmits, DatalistProps, DatalistSlots, PaginationParams }
 import Datepicker from './app/appform/inputs/Datepicker.vue';
-import { ColumnText } from './app/datalist/columns/ColumnBase'
+import { ColumnText } from './app/datalist/columns/ColumnText'
 import DevkitAdminDB from './pkg/database/DB';
 import { NumberToDate, DateToNumber } from './pkg/utils/DateUtils'
 

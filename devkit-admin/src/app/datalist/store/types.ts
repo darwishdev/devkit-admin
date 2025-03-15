@@ -9,6 +9,7 @@ import type { ApiListOptions,  DatalisQueryReturnType, DatalistQueryResult, Dele
 import type { AppFormSection } from '@/pkg/types/types'
 import type { DatalistFiltersModel } from '../utilities/_filtersTypes'
 import { StringUnkownRecord } from 'devkit-apiclient'
+import { DatalistColumns } from '../columns/_types'
 export type DatalistStore<TReq extends StringUnkownRecord, TRecord extends StringUnkownRecord> = Store<
   string,
   Pick<DatalistState<TReq, TRecord>, keyof DatalistState<TReq, TRecord>>,
@@ -25,16 +26,14 @@ export type DeleteRestoreVariant = {
   severity: 'secondary' | 'success' | 'info' | 'warn' | 'help' | 'danger' | 'contrast' | undefined;
 
 }
-
 export type DatalistState<TReq extends StringUnkownRecord, TRecord extends StringUnkownRecord> = {
   apiClient: Record<string, Function>
+  errorRef: Ref<string>
   debounceInMilliSeconds: number
-  datalistColumns: {
-    props: ColumnProps
-    slots: Partial<ColumnSlots>
-  }[];
+  datalistColumns: DatalistColumns<TRecord>;
+  datalistColumnsRef: Ref<Partial<DatalistColumns<TRecord>>>;
   availableActions: DatalistAvailableActions
-  paginationParams: Ref<PaginationParams>
+  paginationParams: Ref<PaginationParams> | undefined
   formSections?: Record<string, AppFormSection | FormKitSchemaNode[]>;
   datalistOptions: ApiListOptions;
   viewRouter: DatalistRouter<TRecord> | undefined
@@ -88,7 +87,7 @@ export type DatalistActions<TReq extends StringUnkownRecord, TRecord extends Str
   // deledatalistStore.deletmutatteRestoreRecords: (row?: TRecord) => void;
   showDeleteDialog: (mutation: DatalistDeleteMutation, handlerType: 'delete' | 'deleteRestore', row?: TRecord) => void;
   exportRecords: () => void;
-  init: (params: DatalistStoreInit<TReq, TRecord>) => Promise<void>
+  //init: (params: DatalistStoreInit<TReq, TRecord>) => Promise<void>
   presistFilters: (filtersFormValue: Record<(keyof TRecord) | string, unknown>) => void;
   refetch: () => void;
   removeFilter: (filterKey: string) => void;

@@ -116,6 +116,7 @@ export type DatalistBaseContext<TReq extends StringUnkownRecord, TRecord extends
   title: string;
   filters?: DatalistFilter<TRecord>[];
   isPresistFilters?: boolean;
+  useLazy?: boolean
   useLazyFilters?: boolean;
   useFilterPersist?: boolean;
   formSections?: AppFormSections<StringUnkownRecord>;

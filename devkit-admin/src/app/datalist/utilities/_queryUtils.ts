@@ -39,41 +39,11 @@ export const _datalistFetchWithArray = <TRecord extends Record<string, unknown>>
   })
 }
 
-export const _datalistFetchWithString = <TReq, TRecord extends Record<string, unknown>>({ records, callBack, apiClient }: DatalistFetchWithStringParams<TReq, TRecord>) => {
-  return new Promise<DatalisQueryReturnType<TRecord>>((resolve, reject) => {
-    const apiListFunction = apiClient[records] as DatalistFetchFunction<{}, TRecord>
-    apiListFunction({}).then((response: DatalisQueryReturnType<TRecord>) => {
-      if (callBack) callBack(response)
-      setTimeout(() => resolve(response), 1)
-    }
-    ).catch((e: Error) => reject(e))
-  })
-}
-
-export const _datalistFetchWithFunction = <TReq, TRecord extends Record<string, unknown>>({ records, callBack, requestPayload }: DatalistFetchWithFunctionParams<TReq, TRecord>) => {
-  return new Promise<DatalisQueryReturnType<TRecord>>((resolve, reject) => {
-    records(requestPayload).then((response: DatalisQueryReturnType<TRecord>) => {
-      if (callBack) callBack(response)
-      setTimeout(() => resolve(response), 1)
-    }
-    ).catch((e: Error) => reject(e))
-  })
-}
-
 
 export const isDatalistFetchWithArrayParams = <TReq, TRecord extends Record<string, unknown>>(param: DatalistFetchFunctionParams<TReq, TRecord>): param is DatalistFetchWithArrayParams<TRecord> => Array.isArray(param.records);
 
 export const isDatalistFetchWithStringParams = <TReq, TRecord extends Record<string, unknown>>(param: DatalistFetchFunctionParams<TReq, TRecord>): param is DatalistFetchWithStringParams<TReq, TRecord> => typeof param.records == 'string';
 
-export const datalistFetchFunction = <TReq, TRecord extends Record<string, unknown>>(params: DatalistFetchFunctionParams<TReq, TRecord>) => {
-  if (isDatalistFetchWithArrayParams(params)) {
-    return _datalistFetchWithArray(params)
-  }
-  if (isDatalistFetchWithStringParams(params)) {
-    return _datalistFetchWithString(params)
-  }
-  return _datalistFetchWithFunction(params)
-}
 
 export const _refetch = <TRecord extends Record<string, unknown>>(tanstackQuery?: DatalistQueryResult<TRecord, Error>, callback?: (res: DatalistQueryResult<TRecord, Error>) => void) => {
   if (!tanstackQuery) return

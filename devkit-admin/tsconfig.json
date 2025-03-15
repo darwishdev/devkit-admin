@@ -13,6 +13,7 @@
     "declaration": true, // Generate .d.ts files
     "declarationDir": "dist/types", // Output directory for .d.ts files
     "baseUrl": ".",
+    "types": ["vite/client"],
     "paths": {
       "@/*": ["src/*"]
     }
