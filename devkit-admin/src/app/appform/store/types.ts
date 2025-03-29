@@ -1,6 +1,5 @@
-import type { AppFormOptions, AppFormProps, StringUnkownRecord } from "@/pkg/types/types"
+import type { AppFormOptions, StringUnkownRecord } from "@/pkg/types/types"
 
-import { type FormKitSchemaNode, type FormKitNode } from '@formkit/core'
 import type { Ref } from "vue"
 import type { Store } from "pinia"
 export type AppFormState<TReq extends StringUnkownRecord> = {

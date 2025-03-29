@@ -27,7 +27,7 @@ const ReloadBtn = h(AppBtn, {
 })
 const actions = [
   slots.headerActionsStartPrepend ? slots.headerActionsStartPrepend(datalistStore) : undefined,
-  datalistStore.availableActions.create ? h(AppBtn, { label: 'create', action: datalistStore.createNewRecord, severity: 'success', class: '' }) : undefined,
+  datalistStore.availableActions.has('create') ? h(AppBtn, { label: 'create', action: datalistStore.createNewRecord, severity: 'success', class: '' }) : undefined,
   slots.headerActionsStartAppend ? slots.headerActionsStartAppend(datalistStore) : undefined,
 ]
 const renderHeader = (): VNode => {
@@ -38,7 +38,7 @@ const renderHeader = (): VNode => {
     key: datalistStore.deleteRestoreVariants.icon,
     action: () => datalistStore.showDeleteDialog(deleteMutation, 'deleteRestore')
   }) : undefined
-  const deleteBtn = deleteMutation && datalistStore.availableActions.delete && datalistStore.isShowDeletedRef ? h(AppBtn, {
+  const deleteBtn = deleteMutation && datalistStore.availableActions.has('delete') && datalistStore.isShowDeletedRef ? h(AppBtn, {
     label: 'delete',
     useReset: true,
     disabled: datalistStore.deleteRestoreVariants.disabled,

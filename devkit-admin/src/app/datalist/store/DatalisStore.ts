@@ -3,39 +3,36 @@ import { ref, computed, h, inject, type Ref, type ComputedRef } from 'vue'
 import { AppDialog } from 'devkit-base-components'
 import type { FormKitSchemaNode } from '@formkit/core'
 import { defineStore } from 'pinia'
-import type { DatalistAvailableActions,  DatalistRouter, PaginationParams } from '../types'
-import { type DatalistDeleteMutation, type DatalistFetchParams, type DatalistStore, type DeleteRestoreVariant } from './types'
+import type { DatalistAvailableActions, DatalistRouter, PaginationParams } from '../types'
+import { DatalistDeleteMutationRequest, type DatalistStore, type DeleteRestoreVariant } from './types'
 import { useRouter } from 'vue-router'
 import { useDialog, type DataTableMethods } from 'primevue'
-import type { ColumnProps, ColumnSlots } from 'primevue'
 import { useDebounceFn } from '@vueuse/core'
-import { _deleteRecordsConfirmed, _refetch, _datalistFetchWithArray } from '../utilities/_queryUtils'
 import { _applyFilters, _presistFilters } from '../utilities/_filterUtils'
 import { _createRecord, _updateRecord, _viewRecord } from '../utilities/_crudUtils'
-import type { ApiListOptions, ApiResponseList, DatalisQueryReturnType, DatalistQueryResult, DeleteHandler } from '../utilities/_apiTypes'
+import type { ApiListOptions, DatalistQueryResult, DeleteHandler } from '../utilities/_apiTypes'
 import type { StringUnkownRecord, AppFormProps, AppFormSection, SubmitHandler } from '@/pkg/types/types'
 import type { DatalistFiltersModel } from '../utilities/_filtersTypes'
-//import type { DatalistColumns } from '../columns/_types'
-//import { ColumnText } from '../columns/ColumnBase'
-//import { AssertIsDefined, ObjectKeys, resolveApiEndpoint } from 'devkit-apiclient'
 import AppForm from '@/app/appform/AppForm.vue'
 import { AssertIsDefined, ObjectKeys } from 'devkit-apiclient'
 import { DatalistColumns } from '../columns/_types'
+import { UseMutationReturnType } from '@tanstack/vue-query'
 export const useDatalistStore = <TReq extends StringUnkownRecord, TRecord extends StringUnkownRecord>(
   datalistKey: string) => defineStore(`datalist-${datalistKey}` as string, () => {
-    const datalistOptions: ApiListOptions = { title: datalistKey, description: `${datalistKey}_description` }
+    let datalistOptions: ApiListOptions = { title: `${datalistKey}_title`, description: `${datalistKey}_description` }
     const errorRef = ref('')
     const filtersFormKey = `${datalistKey}-filters`
-    let formSections: Record<string, AppFormSection | FormKitSchemaNode[]> | undefined
+    let formSections: Ref<Record<string, AppFormSection | FormKitSchemaNode[]> | undefined> = ref()
     let rowIdentifier: (keyof TRecord) | undefined = `${datalistKey}Id` as keyof TRecord
+    let isServerSide = false
     let viewRouter: DatalistRouter<TRecord> | undefined
-    const filtersFormSchema: FormKitSchemaNode[] = []
     const paginationParams = ref<PaginationParams>()
+    const serverSideInputs = new Set<string>()
     let useFilterPersist: boolean | undefined
     let debounceInMilliSeconds = 1000
-    const availableActions: DatalistAvailableActions = {}
-    let datalistQueryResult: DatalistQueryResult<TRecord, Error> | undefined
-    const datalistColumns: DatalistColumns<TRecord> = {}
+    const availableActions = new Set<'create' | 'update' | 'delete' | 'deleteRestore' | 'export' | 'view'>()
+    let refetchFn: DatalistQueryResult<TRecord, Error>['refetch'] | undefined
+    // const datalistColumns: DatalistColumns<TRecord> = {}
     const datalistColumnsRef: Ref<Partial<DatalistColumns<TRecord>>> = ref({})
     const tableElementRef: Ref<DataTableMethods | undefined> = ref()
     const modelSelectionRef: Ref<TRecord[]> = ref([])
@@ -43,8 +40,12 @@ export const useDatalistStore = <TReq extends StringUnkownRecord, TRecord extend
     const isShowDeletedRef = ref(false)
     const apiClient = inject('apiClient') as Record<string, Function>
     const modelFiltersRef: Ref<DatalistFiltersModel> = ref({})
+    const isFiltersFormValid: Ref<boolean> = ref(false)
     const { push } = useRouter()
     const dialog = useDialog()
+    const setRefetchFn = (fn: DatalistQueryResult<TRecord, Error>['refetch']) => {
+      refetchFn = fn
+    }
     const deleteRestoreVariants: ComputedRef<DeleteRestoreVariant> = computed(() => {
       const hasDeletedRecords = true
       const hasSelectedData = modelSelectionRef.value.length > 0
@@ -65,79 +66,45 @@ export const useDatalistStore = <TReq extends StringUnkownRecord, TRecord extend
       return activeFilters
     })
 
-    const datalistFetchFunction = ({ filtersValue, requestMapper, responseMapper, paginationParams, records, deletedRecords = [], options }: DatalistFetchParams<TReq, TRecord>): Promise<DatalisQueryReturnType<TRecord>> => {
-      if (Array.isArray(records)) {
-        return _datalistFetchWithArray({ records, deletedRecords, options })
-      }
-      console.log("filters is" , filtersValue)
-      return new Promise<DatalisQueryReturnType<TRecord>>((resolve, reject) => {
-        const requestPayload = { filters: filtersValue, paginationParams: paginationParams }
-        let request
-        try {
-          request = requestMapper ? requestMapper(requestPayload) : requestPayload
-        } catch (e) {
-          console.log("error from mapping" , e)
-          if(e instanceof Error) {
-            errorRef.value = e.message
-          }
-          return reject(e)
-        }
+    // const datalistFetchFunction = ({ filtersValue, requestMapper, responseMapper, paginationParams, records, deletedRecords = [], options }: DatalistFetchParams<TReq, TRecord>): Promise<DatalisQueryReturnType<TRecord>> => {
+    //   if (Array.isArray(records)) {
+    //     return _datalistFetchWithArray({ records, deletedRecords, options })
+    //   }
+    //   console.log("filters is", filtersValue)
+    //   return new Promise<DatalisQueryReturnType<TRecord>>((resolve, reject) => {
+    //     const requestPayload = { filters: filtersValue, paginationParams: paginationParams }
+    //     let request
+    //     try {
+    //       request = requestMapper ? requestMapper(requestPayload) : requestPayload
+    //     } catch (e) {
+    //       console.log("error from mapping", e)
+    //       if (e instanceof Error) {
+    //         errorRef.value = e.message
+    //       }
+    //       return reject(e)
+    //     }
 
-        resolveApiEndpoint<typeof apiClient, TReq, StringUnkownRecord>(records, apiClient, request as TReq).then((response) => {
-          if (responseMapper) {
-            const newResponse = responseMapper(response)
-            return resolve(newResponse)
-          }
-          if ('records' in response && Array.isArray(response['records'])) {
-            return resolve(response as ApiResponseList<TRecord>)
-          }
-          const errMessage = 'can\'t find records on the response '
-          errorRef.value = errMessage
-          return reject(new Error(errMessage))
+    //     resolveApiEndpoint<typeof apiClient, TReq, StringUnkownRecord>(records, apiClient, request as TReq).then((response) => {
+    //       if (responseMapper) {
+    //         const newResponse = responseMapper(response)
+    //         return resolve(newResponse)
+    //       }
+    //       if ('records' in response && Array.isArray(response['records'])) {
+    //         return resolve(response as ApiResponseList<TRecord>)
+    //       }
+    //       const errMessage = 'can\'t find records on the response '
+    //       errorRef.value = errMessage
+    //       return reject(new Error(errMessage))
 
-        })
-      })
-    }
+    //     })
+    //   })
+    // }
     const refetch = () => {
-      return _refetch(datalistQueryResult)
+      if (refetchFn) {
+        refetchFn()
+      }
     }
 
-    //const setLazyProps = (ctx: DatalistContext<TReq, TRecord>) => {
-    //  const { filters = [], formSections: formSectionsCtx, debounceInMilliseconds: debounceInMilliSecondsCtx = debounceInMilliSeconds, useFilterPersist: useFilterPersistCtx, rowIdentifier: rowIdentifierCtx, initiallySelectedItems = [], viewRouter: viewRouterCtx } = ctx
-    //
-    //  console.log("cettntinglazu", filters)
-    //  modelSelectionRef.value = initiallySelectedItems
-    //  formSections = formSectionsCtx
-    //  rowIdentifier = rowIdentifierCtx
-    //  useFilterPersist = useFilterPersistCtx
-    //  debounceInMilliSeconds = debounceInMilliSecondsCtx
-    //  viewRouter = viewRouterCtx
-    //  if (filters.length) {
-    //    console.log("filter is ", filters)
-    //    filters.forEach((c) => {
-    //      filtersFormSchema.push(c.input)
-    //      modelFiltersRef.value[c.input.name] = { matchMode: c.matchMode, value: null }
-    //    })
-    //  }
-    //}
-    //
-    // Explicitly declare the type of the assertion function
-    // Use the assertion
-    //const constructColumns = (execludedKeys: (keyof TRecord)[]): DatalistColumns<TRecord> => {
-    //  console.log("constructing colllumnss", datalistQueryResult)
-    //  AssertIsDefined(datalistQueryResult, "datalistQueryResult must not be undefined");
-    //  AssertIsDefined(datalistQueryResult.data, "datalistQueryResult has no data");
-    //  console.log("constructing colllumnss")
-    //  const { records, deletedRecords = [] } = datalistQueryResult.data
-    //  const columns: DatalistColumns<TRecord> = {}
-    //  if (rowIdentifier) {
-    //    columns[rowIdentifier] = new ColumnText<TRecord>(rowIdentifier, { isSortable: true })
-    //  }
-    //  if (records.length == 0 && deletedRecords.length == 0) {
-    //    return columns
-    //  }
-    //  return records.length > 0 ? _constructColumns(records[0], execludedKeys) : _constructColumns(deletedRecords[0], execludedKeys)
-    //}
     //const init = (
     //  { queryResult, props, slots, mutaions }: DatalistStoreInit<TReq, TRecord>
     //) => {
@@ -180,23 +147,13 @@ export const useDatalistStore = <TReq extends StringUnkownRecord, TRecord extend
       _presistFilters(filtersFormKey, filtersFormValue)
     }
     const applyFilters = (filtersFormValue: Partial<Record<(keyof TRecord) | string, unknown>>) => {
-      console.log("appling filters ", filtersFormValue)
       const newModelValue = _applyFilters({ filtersFormKey, filtersFormValue, modelFiltersRefValue: modelFiltersRef.value, useFilterPersist })
-      console.log(newModelValue, filtersFormValue)
       modelFiltersRef.value = { ...modelFiltersRef.value, ...newModelValue }
+      console.log("asdasdasd", isServerSide)
+      if (isServerSide) {
+        refetch()
+      }
     }
-
-    //const extractCardColumns = ({ card, cardStart, cardEnd }: CardSlots<TReq, TRecord>) => {
-    //  const values = _extractCardColumns<TReq, TRecord>({ card, cardStart, cardEnd })
-    //  values.forEach((column, index) => datalistColumns[index] = column)
-    //}
-    //
-    //const extractColumns = (columns: DatalistColumns<TRecord>, slots: DatalistSlots<TReq, TRecord>) => {
-    //  const values = _extractColumns(columns, slots)
-    //  values.filtersFormSchema.forEach((input, index) => filtersFormSchema[index] = input)
-    //  values.datalistColumns.forEach((column, index) => datalistColumns[index] = column)
-    //  modelFiltersRef.value = values.modelFilters
-    //}
     const resetFiltersForm = () => {
       const filterKeys = ObjectKeys(modelFiltersRef.value)
       filterKeys.forEach((filterKey) => {
@@ -204,23 +161,24 @@ export const useDatalistStore = <TReq extends StringUnkownRecord, TRecord extend
       })
     }
     const getRowIdentifier = (): (keyof TRecord) | undefined => rowIdentifier
-    function assertValidDatalistQueryResult(
-      result: DatalistQueryResult<TRecord, Error> | undefined
-    ): asserts result is DatalistQueryResult<TRecord, Error> & { data: { options: ApiListOptions } } {
-      AssertIsDefined(result, "datalistQueryResult must not be undefined");
-      AssertIsDefined(result.data, "datalistQueryResult has no data");
-      AssertIsDefined(result.data.options, "datalistQueryResult has no options");
-    }
+    // function assertValidDatalistQueryResult(
+    //   result: Pick<DatalistQueryResult<TRecord, Error>, 'data' | 'refetch'> | undefined
+    // ): asserts result is Pick<DatalistQueryResult<TRecord, Error>, 'data' | 'refetch'> & { data: { options: ApiListOptions } } {
+    //   AssertIsDefined(result, "datalistQueryResult must not be undefined");
+    //   AssertIsDefined(result.data, "datalistQueryResult has no data");
+    //   AssertIsDefined(result.data.options, "datalistQueryResult has no options");
+    // }
     const updateRecord = (record: TRecord) => {
-      assertValidDatalistQueryResult(datalistQueryResult)
-      AssertIsDefined(datalistQueryResult.data.options.updateHandler, "options has no update handler");
-      const handler = datalistQueryResult.data.options.updateHandler
+      AssertIsDefined(datalistOptions, "options not defined");
+      AssertIsDefined(datalistOptions.updateHandler, "options has no update handler");
+      const handler = datalistOptions.updateHandler
+      console.log("formsections", formSections)
       if (!rowIdentifier) {
         //TODO:  handle this error properly
         console.log("this shouldn't be called")
         return
       }
-      if (formSections) {
+      if (formSections.value) {
         console.log("open", handler, handler.endpoint)
         // const handlerFn = apiClient[handler.endpoint] as (req: unknown) => Promise<unknown>
         const submitHandler: SubmitHandler = {
@@ -235,7 +193,7 @@ export const useDatalistStore = <TReq extends StringUnkownRecord, TRecord extend
         const formProps: AppFormProps<`${string}_update`, StringUnkownRecord, StringUnkownRecord, StringUnkownRecord, typeof handler.findRequestProperty, typeof handler.findResponseProperty, unknown, unknown> = {
           context: {
             title: `${datalistKey}_update`,
-            sections: formSections,
+            sections: formSections.value,
             invalidateCaches: [datalistKey],
             findHandler: {
               endpoint: handler.findEndpoint,
@@ -251,7 +209,7 @@ export const useDatalistStore = <TReq extends StringUnkownRecord, TRecord extend
         dialog.open(h(AppForm, formProps))
         return
       }
-      _updateRecord({ record, rowIdentifier, updateHandler: handler, formSchema: formSections, push })
+      _updateRecord({ record, rowIdentifier, updateHandler: handler, formSchema: formSections.value, push })
     }
     const viewRecord = (record: TRecord) => {
       if (!viewRouter || !rowIdentifier) {
@@ -262,11 +220,10 @@ export const useDatalistStore = <TReq extends StringUnkownRecord, TRecord extend
       _viewRecord({ record, viewRouter, push })
     }
     const createNewRecord = () => {
-      assertValidDatalistQueryResult(datalistQueryResult)
-      AssertIsDefined(datalistQueryResult.data.options.createHandler, "options has no create handler")
-      const handler = datalistQueryResult.data.options.createHandler
-      console.log("asd handler ir", handler)
-      if (formSections) {
+      AssertIsDefined(datalistOptions, "options not defined");
+      AssertIsDefined(datalistOptions.createHandler, "options has no create handler")
+      const handler = datalistOptions.createHandler
+      if (formSections.value) {
         const submitHandler: SubmitHandler<StringUnkownRecord, StringUnkownRecord> = {
           endpoint: handler.endpoint,
           callback: () => {
@@ -277,7 +234,7 @@ export const useDatalistStore = <TReq extends StringUnkownRecord, TRecord extend
         dialog.open(h(AppForm, {
           context: {
             title: `${datalistKey}_create`,
-            sections: formSections,
+            sections: formSections.value,
             // invalidateCaches: [datalistKey],
             formKey: `${datalistKey}_create`,
             submitHandler
@@ -285,7 +242,7 @@ export const useDatalistStore = <TReq extends StringUnkownRecord, TRecord extend
         }))
         return
       }
-      _createRecord({ createHandler: handler, formSchema: formSections, push })
+      _createRecord({ createHandler: handler, formSchema: formSections.value, push })
     }
     const setIsShowDeletedRef = (value: boolean) => {
       isLoadingRef.value = true
@@ -295,6 +252,35 @@ export const useDatalistStore = <TReq extends StringUnkownRecord, TRecord extend
       }, debounceInMilliSeconds)()
     }
 
+    type DeleteConfirmedParams<TRecord extends Record<string, unknown>> = {
+      dialogRef: { close: Function },
+      handler: DeleteHandler
+      rowIdentifier: keyof TRecord
+      callback: () => void
+      errorCallback: (error: unknown) => void
+      selectedRecords: TRecord[],
+      apiClient: Record<string, Function>,
+    }
+    const _deleteRecordsConfirmed = <TRecord extends Record<string, unknown>>({ errorCallback, callback, handler, selectedRecords, apiClient, rowIdentifier }: DeleteConfirmedParams<TRecord>) => {
+      return new Promise((resolve, reject) => {
+        const deleteRequest: Record<string, unknown> = {}
+        const requestProperty = handler.requestProperty || "records"
+        deleteRequest[requestProperty] = selectedRecords.map((row) => {
+          return row[rowIdentifier]
+        })
+        const deleteEndpointFn = apiClient[handler.endpoint]
+        console.log("resseeqq isss", deleteRequest)
+        deleteEndpointFn(deleteRequest).then(() => {
+          callback()
+          // dialogRef.close()
+          resolve(null)
+        }).catch((err: unknown) => {
+          errorCallback(err)
+          reject(err)
+        })
+
+      })
+    }
     const deleteRecordsConfirmed = ({ close, handler }: { close: Function, handler: DeleteHandler }): Promise<void> => {
       return new Promise((resolve, reject) => {
         AssertIsDefined(rowIdentifier, 'row indentifier mus be passed to take this action')
@@ -318,18 +304,20 @@ export const useDatalistStore = <TReq extends StringUnkownRecord, TRecord extend
             apiClient
           }
         ).then(() => {
-            resolve();
-            close()
-          }).catch(reject)
+          resolve();
+          close()
+        }).catch(reject)
 
       })
     }
     const deleteErrorRef = ref<string>('')
-    const showDeleteDialog = ({ mutate }: DatalistDeleteMutation, handlerType: 'delete' | 'deleteRestore', row?: TRecord) => {
-      assertValidDatalistQueryResult(datalistQueryResult)
+    const showDeleteDialog = ({ mutate }: UseMutationReturnType<void, unknown, DatalistDeleteMutationRequest, unknown>
+      , handlerType: 'delete' | 'deleteRestore', row?: TRecord) => {
+      console.log("daada", datalistOptions)
+      AssertIsDefined(datalistOptions, "options not defined");
       const handlers: { delete: DeleteHandler | undefined, deleteRestore: DeleteHandler | undefined } = {
-        delete: datalistQueryResult.data.options.deleteHandler,
-        deleteRestore: datalistQueryResult.data.options.deleteRestoreHandler,
+        delete: datalistOptions.deleteHandler,
+        deleteRestore: datalistOptions.deleteRestoreHandler,
       }
       const handler = handlers[handlerType]
       AssertIsDefined(handler, `options has no ${handlerType} handler`)
@@ -342,10 +330,10 @@ export const useDatalistStore = <TReq extends StringUnkownRecord, TRecord extend
         errorRef: deleteErrorRef,
         modal: true
       }, {
-          default: () => h("div", [
-            h('h2', 'are you sure?')
-          ])
-        }),
+        default: () => h("div", [
+          h('h2', 'are you sure?')
+        ])
+      }),
         {
           props: {
             modal: true,
@@ -367,21 +355,22 @@ export const useDatalistStore = <TReq extends StringUnkownRecord, TRecord extend
       // state
       apiClient,
       debounceInMilliSeconds,
-      datalistColumns,
+      // datalistColumns,
       availableActions,
       formSections,
       datalistOptions,
-      datalistQueryResult,
       filtersFormKey,
-      filtersFormSchema,
       isLoadingRef,
       isShowDeletedRef,
+      isFiltersFormValid,
       modelFiltersRef,
       modelSelectionRef,
       tableElementRef,
+      serverSideInputs,
       paginationParams,
+      isServerSide,
       viewRouter,
-datalistColumnsRef,
+      datalistColumnsRef,
       errorRef,
 
       // getters
@@ -390,13 +379,13 @@ datalistColumnsRef,
 
       // // actions
       applyFilters,
+      setRefetchFn,
       createNewRecord,
-      datalistFetchFunction,
+      // datalistFetchFunction,
       //init,
       exportRecords,
       removeFilter,
       resetFiltersForm,
-      assertValidDatalistQueryResult,
       setIsShowDeletedRef,
       deleteRecordsConfirmed,
       updateRecord,

@@ -17,18 +17,14 @@ export type PaginationParams = {
 }
 
 
-export type DatelistDefaultRequest = {
-  filters: StringUnkownRecord | undefined,
-  paginationParams: PaginationParams | undefined
-}
-export type DatalistMappers<TReq extends StringUnkownRecord, TRecord extends StringUnkownRecord> = {
-  requestMapper?: (req: DatelistDefaultRequest) => TReq,
-  responseMapper?: (response: StringUnkownRecord) => ApiResponseList<TRecord>,
-}
 
 export type DatalistRequest = {
   filters?: Record<string, unknown>,
   paginationParams?: PaginationParams
+}
+export type DatalistMappers<TReq extends StringUnkownRecord, TRecord extends StringUnkownRecord> = {
+  requestMapper?: (req: DatalistRequest) => TReq,
+  responseMapper?: (response: StringUnkownRecord) => ApiResponseList<TRecord>,
 }
 export type DatalistRouter<TRecord extends Record<string, unknown>> = {
   name: string,
@@ -88,6 +84,7 @@ export type DatalistFiltersSlots<TReq extends StringUnkownRecord, TRecord extend
 export type DatalistFiltersEmits = {
   (e: 'toggleShowDeleted', value: boolean): void
   (e: 'update:modelValue', value: any): void
+  (e: 'queryInvalidate'): void
 }
 // "filtersForm" |
 // "filtersReset" |

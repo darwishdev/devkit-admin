@@ -1,9 +1,5 @@
-<script
-  setup
-  lang="ts"
-  generic="TReq extends StringUnkownRecord, TRecord extends StringUnkownRecord"
->
-import { FormKitSchema } from "@formkit/vue";
+<script setup lang="ts" generic="TReq extends StringUnkownRecord, TRecord extends StringUnkownRecord">
+import { FormKitSchema, useFormKitContextById } from "@formkit/vue";
 import { useDatalistStoreWithKey } from "../store/DatalisStore";
 import {
   type DatalistFiltersEmits,
@@ -17,7 +13,6 @@ import { Panel } from "primevue";
 
 import { AppBtn, AppIcon } from "devkit-base-components";
 import { ObjectKeys, StringUnkownRecord } from "devkit-apiclient";
-import { RouteQueryFind } from "@/pkg/utils/QueryUtils";
 const formkitComp = resolveComponent("FormKit");
 const {
   datalistKey,
@@ -28,48 +23,48 @@ const {
 const datalistStore = useDatalistStoreWithKey<TReq, TRecord>(datalistKey);
 const slots = defineSlots<DatalistFiltersSlots<TReq, TRecord>>();
 const emit = defineEmits<DatalistFiltersEmits>();
+
+const formValue = useFormKitContextById(`${datalistKey}-filter-form`)
+const formNode = ref(null);
 const modelFilterFormRef = ref<
   Partial<Record<keyof TRecord & string, unknown>>
 >({});
 onMounted(() => {
-  const form =
-    localStorage.getItem(datalistStore.filtersFormKey) ||
-    RouteQueryFind(datalistStore.filtersFormKey);
-  console.log("dataliststore is here", form);
-  if (form && typeof form == "string") {
-    const newModelValue = JSON.parse(form);
-    modelFilterFormRef.value = newModelValue;
-    console.log("formref", modelFilterFormRef.value);
-    datalistStore.applyFilters(modelFilterFormRef.value);
-  }
+  const filtersValueFlat: StringUnkownRecord = {}
+  ObjectKeys(datalistStore.modelFiltersRef).forEach(key => filtersValueFlat[key as string] = datalistStore.modelFiltersRef[key].value)
+  modelFilterFormRef.value = filtersValueFlat
+  console.log("formvalue from filters mounted", formNode.value)
 });
-const onFormChange = useDebounceFn(
-  isServerSide
-    ? (formValue) => {
-        emit("update:modelValue", formValue);
-      }
-    : datalistStore.applyFilters,
+const onFormChange = useDebounceFn((formValue, node) => {
+  datalistStore.isFiltersFormValid = node.context.state.valid
+  if (!datalistStore.isFiltersFormValid) return
+  emit("update:modelValue", formValue);
+},
   datalistStore.debounceInMilliSeconds,
 );
 const renderFiltersForm = () => {
   return slots.filtersForm
     ? slots.filtersForm(datalistStore)
     : h(
-        formkitComp,
-        {
-          id: `${datalistKey}-filter-form`,
-          type: "form",
-          actions: useLazyFilters,
-          modelValue: modelFilterFormRef.value,
-          onInput: useLazyFilters ? undefined : onFormChange,
-          onSubmit: useLazyFilters ? onFormChange : undefined,
-        },
-        { default: () => h(FormKitSchema, { schema }) },
-      );
+      formkitComp,
+      {
+        id: `${datalistKey}-filter-form`,
+        type: "form",
+        actions: useLazyFilters,
+        modelValue: modelFilterFormRef.value,
+        onInput: useLazyFilters ? undefined : onFormChange,
+        onSubmit: useLazyFilters ? onFormChange : undefined,
+      },
+      { default: () => h(FormKitSchema, { schema }) },
+    );
 };
 const removeFilter = (filter: keyof TRecord | string) => {
   modelFilterFormRef.value[filter] = null;
   datalistStore.applyFilters(modelFilterFormRef.value);
+  if (datalistStore.serverSideInputs.has(filter.toString())) {
+    emit('queryInvalidate')
+  }
+
 };
 const renderResetButton = () => {
   return h(AppBtn, {
@@ -84,7 +79,7 @@ const renderResetButton = () => {
 };
 const renderActiveFilters = () => {
   return ObjectKeys(datalistStore.activeFilters).map(
-    (activeFilterKey: keyof TRecord | string) =>
+    (activeFilterKey) =>
       h(
         Chip,
         {
@@ -94,7 +89,7 @@ const renderActiveFilters = () => {
             datalistStore.removeFilter(activeFilterKey as string);
           },
           onClick: () => {
-            removeFilter(activeFilterKey);
+            removeFilter(activeFilterKey.toString());
             if (modelFilterFormRef.value[activeFilterKey]) {
               datalistStore.removeFilter(activeFilterKey as string);
             }
@@ -152,6 +147,6 @@ const renderFilters = () => {
 };
 </script>
 <template>
-  <h2>model{{ modelFilterFormRef }} {{ schema }}</h2>
+  <FormKit />
   <component :is="renderFilters" />
 </template>

@@ -13,8 +13,8 @@ const slots = defineSlots<ColumnActionsSlots<TRecord>>()
 const actionsMenuElementRef = ref()
 const actions = [
   slots.prependActions ? slots.prependActions({ data: recordData }) : undefined,
-  datalistStore.availableActions.view ? h(AppBtn, { useReset: true, label: 'view', action: () => datalistStore.viewRecord(recordData) }) : undefined,
-  datalistStore.availableActions.update ? h(AppBtn, { useReset: true, label: 'update', action: () => datalistStore.updateRecord(recordData) }) : undefined,
+  datalistStore.availableActions.has('view') ? h(AppBtn, { useReset: true, label: 'view', action: () => datalistStore.viewRecord(recordData) }) : undefined,
+  datalistStore.availableActions.has('update') ? h(AppBtn, { useReset: true, label: 'update', action: () => datalistStore.updateRecord(recordData) }) : undefined,
 ]
 const renderActions = () => {
   if (slots.actions) return h('div', { class: 'actions-btns__wrapper' }, slots.actions({ data: recordData }))
@@ -22,16 +22,15 @@ const renderActions = () => {
   const deleteActions: VNode[] = []
   if (deleteMutation) {
     const { availableActions, deleteRestoreVariants, showDeleteDialog } = datalistStore
-    const { delete: hasDeletePermission, deleteRestore: hasDeleteRestorePermission } = availableActions
 
-    if (hasDeletePermission) {
+    if (datalistStore.availableActions.has('delete')) {
       deleteActions.push(h(AppBtn, {
         label: 'delete',
         icon: 'trash',
         action: () => showDeleteDialog(deleteMutation, 'delete', recordData)
       }))
     }
-    if (hasDeleteRestorePermission && datalistStore.isShowDeletedRef) {
+    if (datalistStore.availableActions.has('deleteRestore') && datalistStore.isShowDeletedRef) {
       const { label, severity, icon } = deleteRestoreVariants
       deleteActions.push(h(AppBtn, {
         label,

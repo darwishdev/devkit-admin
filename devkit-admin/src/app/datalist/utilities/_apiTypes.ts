@@ -42,13 +42,12 @@ export type ApiListOptions = {
   importHandler?: ImportHandler
 }
 
-export type DatalisQueryReturnType<TRecord extends Record<string, unknown>> = ApiResponseList<TRecord>
 export type ApiResponseList<TRecord extends Record<string, unknown>> = {
   records: TRecord[]
   deletedRecords?: TRecord[]
   options?: ApiListOptions
 }
 
-export type DatalistQueryResult<TRecord extends Record<string, unknown>, TError = Error> = QueryObserverResult<DatalisQueryReturnType<TRecord>, TError>
+export type DatalistQueryResult<TRecord extends Record<string, unknown>, TError = Error> = QueryObserverResult<ApiResponseList<TRecord>, TError>
 
 export type DatalistFetchFunction<TReq, TRecord extends Record<string, unknown>> = (req: TReq, options?: any) => Promise<ApiResponseList<TRecord>>

@@ -1,9 +1,5 @@
 <!-- eslint-disable vue/multi-word-component-names -->
-<script
-  setup
-  lang="ts"
-  generic="TReq extends StringUnkownRecord, TRecord extends StringUnkownRecord"
->
+<script setup lang="ts" generic="TReq extends StringUnkownRecord, TRecord extends StringUnkownRecord">
 import { computed, h, inject, ref } from "vue";
 import type {
   DatalistEmits,
@@ -13,12 +9,11 @@ import type {
 } from "./types";
 import DataTable, {
   type DataTableFilterEvent,
-  type DataTableFilterMetaData,
   type DataTablePageEvent,
   type DataTableSortEvent,
 } from "primevue/datatable";
 import { useDatalistStoreWithKey } from "./store/DatalisStore";
-import { Column, ColumnProps } from "primevue";
+import { Column } from "primevue";
 import ColumnActions from "./components/ColumnActions.vue";
 import DatalistHeader from "./components/DatalistHeader.vue";
 import DatalistFilters from "./components/DatalistFilters.vue";
@@ -29,20 +24,21 @@ import {
   keepPreviousData,
 } from "@tanstack/vue-query";
 import type {
+  ApiListOptions,
   ApiResponseList,
-  DatalisQueryReturnType,
 } from "./utilities/_apiTypes";
-import { DatalistDeleteMutation, DatalistMutations } from "./store/types";
+import { DatalistMutations } from "./store/types";
 import {
   ObjectKeys,
   resolveApiEndpoint,
   StringUnkownRecord,
 } from "devkit-apiclient";
-import { DatalistColumns } from "./columns/_types";
+import { RouteQueryFind } from "@/pkg/utils/QueryUtils";
 import {
   _constructColumns,
   _extractDatalistColumns,
 } from "./utilities/_columnUtils";
+import { FormKitSchemaNode } from "@formkit/core";
 const apiClient = inject<Record<string, Function>>("apiClient");
 const props = defineProps<DatalistProps<TReq, TRecord>>();
 const {
@@ -56,6 +52,7 @@ const {
   rowIdentifier,
   debounceInMilliseconds,
   useLazy,
+  execludedColumns,
   isPresistFilters,
   requestMapper,
   columns,
@@ -68,52 +65,78 @@ const slots = defineSlots<DatalistSlots<TReq, TRecord>>();
 const emit = defineEmits<DatalistEmits<TRecord>>();
 const datalistStore = useDatalistStoreWithKey<TReq, TRecord>(datalistKey);
 const {
-  modelFiltersRef,
   modelSelectionRef,
-  filtersFormSchema,
   setIsShowDeletedRef,
   errorRef,
-  datalistColumnsRef,
+  serverSideInputs,
   isShowDeletedRef,
   deleteRecordsConfirmed,
 } = datalistStore;
 const queryClient = useQueryClient();
 const paginationParamsRef = ref<PaginationParams | undefined>();
-const filtersValueRef = ref<Record<string, unknown> | undefined>();
+const filtersFormSchema: FormKitSchemaNode[] = []
 let hasRequiredFilters = false;
 // set thre reuest body on case of the default server side
 // user remove the payload from the query params and use it from the server
 // bind the filters form from the other component
+const isQueryEnabled = computed(() => {
 
+  return datalistStore.isFiltersFormValid
+})
 const initFilters = () => {
   if (filters) {
+    const formValues =
+      localStorage.getItem(datalistStore.filtersFormKey) ||
+      RouteQueryFind(datalistStore.filtersFormKey);
+    let formValuesObject: StringUnkownRecord = {}
+    if (formValues != null) {
+      formValuesObject = JSON.parse(formValues)
+    }
     if (filters.length) {
-      filters.forEach(({ input, matchMode }) => {
+      filters.forEach(({ input, matchMode, isServerSide }) => {
+        const currentInputValue = input.name in formValuesObject ? formValuesObject[input.name] : null
         filtersFormSchema.push(input);
-        if ("validation" in input) {
-          hasRequiredFilters = input.validation.includes("required");
+        console.log("input", input, 'ser', isServerSide)
+        if (isServerSide) {
+          serverSideInputs.add(input.name)
         }
-        modelFiltersRef[input.name as keyof DataTableFilterMetaData] = {
-          matchMode: matchMode,
-          value: filtersValueRef.value ? filtersValueRef.value[input.name] : "",
+        if ("validation" in input) {
+          const isRequired = input.validation.includes("required");
+          if (isRequired) {
+          }
+          hasRequiredFilters = isRequired && !currentInputValue
+        }
+        datalistStore.modelFiltersRef[input.name] = {
+          matchMode,
+          value: currentInputValue,
         };
       });
     }
   }
 };
-
+const formFiltersValueFlat = computed(() => {
+  const filtersValueFlat: StringUnkownRecord = {}
+  ObjectKeys(datalistStore.modelFiltersRef).forEach(key => filtersValueFlat[key] = datalistStore.modelFiltersRef[key].value)
+  return filtersValueFlat
+})
+const queryInvalid = ref(false)
 const queryFn = () => {
+  console.log("refetechhhhhhss", isQueryEnabled.value)
+  if (!isQueryEnabled.value) {
+    return Promise.resolve({ records: [] })
+  }
+
   if (Array.isArray(records)) {
     return Promise.resolve({ records });
   }
-  return new Promise<DatalisQueryReturnType<TRecord>>((resolve, reject) => {
+  return new Promise<ApiResponseList<TRecord>>((resolve, reject) => {
     const requestPayload = {
-      filters: filtersValueRef.value,
+      filters: formFiltersValueFlat.value,
       paginationParams: paginationParamsRef.value,
     };
     let request;
     try {
-      request = requestMapper ? requestMapper(requestPayload) : requestPayload;
+      request = requestMapper ? requestMapper(requestPayload) : isServerside ? requestPayload : formFiltersValueFlat.value;
     } catch (e) {
       console.log("error from mapping", e);
       if (e instanceof Error) {
@@ -121,51 +144,76 @@ const queryFn = () => {
       }
       return reject(e);
     }
-    if (!apiClient) {
-      return;
-    }
-    resolveApiEndpoint<typeof apiClient, TReq, StringUnkownRecord>(
+    resolveApiEndpoint<Record<string, Function>, TReq, StringUnkownRecord>(
       records,
       apiClient,
       request as TReq,
     ).then((response) => {
+
+      console.log("this is the response ", 'options' in response, datalistStore.datalistOptions)
+      if (!datalistStore.datalistOptions.createHandler && 'options' in response) {
+
+        console.log("this is the response ", typeof response.options == 'object')
+        if (response.options && typeof response.options == 'object') {
+          console.log(response.options, 'createHandler' in response.options)
+          const options = response.options as ApiListOptions
+          datalistStore.datalistOptions.createHandler = options.createHandler
+          datalistStore.datalistOptions.updateHandler = options.updateHandler
+          datalistStore.datalistOptions.deleteHandler = options.deleteHandler
+          datalistStore.datalistOptions.deleteRestoreHandler = options.deleteRestoreHandler
+          datalistStore.datalistOptions.totalCount = options.totalCount
+          console.log("this datalistStore.datalistOptions is the response ", 'options', datalistStore.datalistOptions)
+          if ('createHandler' in response.options) datalistStore.availableActions.add('create')
+          if ('updateHandler' in response.options) datalistStore.availableActions.add('update')
+          if ('deleteRestoreHandler' in response.options) datalistStore.availableActions.add('deleteRestore')
+          if ('deleteHandler' in response.options) datalistStore.availableActions.add('delete')
+        }
+      }
       if (responseMapper) {
+        console.log("this is the response mapper")
         const newResponse = responseMapper(response);
         return resolve(newResponse);
       }
       if ("records" in response && Array.isArray(response["records"])) {
-        if (
-          response["records"].length &&
-          ObjectKeys(datalistStore.datalistColumnsRef).length == 0
-        ) {
-          const datalistColumns = _constructColumns(
-            response["records"][0],
-            props.context.execludedColumns,
-          );
-
-          console.log("we are here", datalistColumns);
-          console.log("we are here", response["records"][0]);
-          datalistStore.datalistColumnsRef = datalistColumns;
-        }
         return resolve(response as ApiResponseList<TRecord>);
       }
       const errMessage = "can't find records on the response ";
       datalistStore.errorRef = errMessage;
       return reject(new Error(errMessage));
+    }).catch((e) => {
+      return reject(e);
     });
   });
 };
-const result = useQuery<DatalisQueryReturnType<TRecord>>({
-  queryKey: [datalistKey, paginationParamsRef, filtersValueRef],
-  queryFn,
-  enabled: false,
+const result = useQuery<ApiResponseList<TRecord>, Error>({
+  queryKey: [datalistKey, formFiltersValueFlat.value],
+  queryFn: () => queryFn().then(async (response: ApiResponseList<TRecord>) => {
+    const { records } = response
+    if (
+      records.length > 0 &&
+      ObjectKeys(datalistStore.datalistColumnsRef).length == 0
+    ) {
+      const datalistColumns = _constructColumns(
+        records[0],
+        props.context.execludedColumns,
+        slots,
+      );
+      datalistStore.datalistColumnsRef = datalistColumns;
+    }
+    return response
+  }),
+  enabled: true,
   placeholderData: keepPreviousData,
 });
-
 const init = async () => {
   if (initiallySelectedItems)
     datalistStore.modelSelectionRef = initiallySelectedItems as TRecord[];
-  datalistStore.formSections = formSections;
+  datalistStore.isServerSide = props.context.isServerside || false
+  console.log("formsectionsdasd s", formSections)
+
+  datalistStore.formSections = { ...formSections };
+
+  console.log("formsectionsdasd s", datalistStore.formSections)
   //datalistStore.useFilterPersist = useFilterPersist;
   datalistStore.debounceInMilliSeconds = debounceInMilliseconds || 1000;
   initFilters();
@@ -175,7 +223,6 @@ const init = async () => {
       slots,
     );
     datalistStore.datalistColumnsRef = extrectedColumns;
-    console.log("colums", extrectedColumns);
   }
   if (useLazy) {
     return;
@@ -183,17 +230,16 @@ const init = async () => {
   if (hasRequiredFilters) {
     return;
   }
-  result.refetch();
 };
 await init();
-const deleteMutation: DatalistDeleteMutation = useMutation({
+const deleteMutation = useMutation({
   mutationFn: deleteRecordsConfirmed,
   onSuccess: () => {
     queryClient.invalidateQueries({ queryKey: [datalistKey] });
   },
 });
 
-const datalistMutations: DatalistMutations = { deleteMutation };
+const datalistMutations = { deleteMutation } as unknown as DatalistMutations;
 
 //await result.suspense();
 const renderColumnActions = () => {
@@ -213,28 +259,28 @@ const renderColumnActions = () => {
       body: slots.actions
         ? slots.actions
         : (context: { data: TRecord }) =>
-            !result.data.value
-              ? h("h2", "holahola")
-              : [
-                  h(
-                    ColumnActions,
-                    {
-                      mutations: datalistMutations,
-                      recordData: context.data,
-                      isActionsDropdown: isActionsDropdown,
-                      deleteRestoreHandler:
-                        result.data.value.options?.deleteRestoreHandler,
-                      deleteHandler: result.data.value.options?.deleteHandler,
-                      datalistKey: datalistKey,
-                    },
-                    {
-                      prependActions: slots.prependActions,
-                      dropdownActions: slots.dropdownActions,
-                      actions: slots.actions,
-                      appendActions: slots.appendActions,
-                    },
-                  ),
-                ],
+          !result.data.value
+            ? h("h2", "holahola")
+            : [
+              h(
+                ColumnActions,
+                {
+                  mutations: datalistMutations as unknown as DatalistMutations,
+                  recordData: context.data,
+                  isActionsDropdown: isActionsDropdown,
+                  deleteRestoreHandler:
+                    result.data.value.options?.deleteRestoreHandler,
+                  deleteHandler: result.data.value.options?.deleteHandler,
+                  datalistKey: datalistKey,
+                },
+                {
+                  prependActions: slots.prependActions,
+                  dropdownActions: slots.dropdownActions,
+                  actions: slots.actions,
+                  appendActions: slots.appendActions,
+                },
+              ),
+            ],
     },
   );
 };
@@ -292,6 +338,7 @@ const selectAllColumn = h(Column, {
   },
 });
 const currentData = computed<TRecord[]>(() => {
+  console.log("curren data is ", result.data.value)
   if (!result.data.value) return [];
   const { records, deletedRecords = [] } = result.data.value;
   if (isShowDeletedRef) return isServerside ? records : deletedRecords;
@@ -307,7 +354,7 @@ const renderdatalist = () => {
       rows: 10,
       ref: "tableEmelentRef",
       maxHeight: 200,
-      filters: modelFiltersRef as Record<string, DataTableFilterMetaData>,
+      filters: datalistStore.modelFiltersRef,
       "onUpdate:filters": handleTableChanges,
       paginator: true,
       loading: result.isLoading.value || result.isFetching.value,
@@ -320,7 +367,7 @@ const renderdatalist = () => {
       exportFilename: datalistKey,
       calss: `data-list ${displayType == "card" ? "cards" : ""}`,
       lazy: isServerside,
-      totalRecords: !result.data.value
+      totalRecords: !isServerside ? undefined : !result.data.value
         ? undefined
         : !result.data.value.options
           ? undefined
@@ -337,7 +384,7 @@ const renderdatalist = () => {
     },
     {
       empty: () => [
-        errorRef.length ? h("h2", errorRef) : h("h2", "no_records"),
+        errorRef.length ? h("h2", errorRef) : hasRequiredFilters ? h("h2", "select filters") : h("h2", "no_records"),
       ],
       default: () => [
         selectAllColumn,
@@ -348,48 +395,53 @@ const renderdatalist = () => {
         slots.header
           ? slots.header(datalistStore)
           : [
-              h(
-                DatalistHeader,
-                {
-                  mutations: datalistMutations,
-                  datalistKey: datalistKey,
-                  onToggleShowDeleted: (value) => {
-                    console.log("setting deleted");
-                    setIsShowDeletedRef(value);
-                    if (isServerside) {
-                      if (paginationParamsRef.value) {
-                        paginationParamsRef.value.isDeleted = value;
-                      } else {
-                        paginationParamsRef.value = { isDeleted: value };
-                      }
+            h(
+              DatalistHeader,
+              {
+                mutations: datalistMutations,
+                datalistKey: datalistKey,
+                onToggleShowDeleted: (value) => {
+                  console.log("setting deleted");
+                  setIsShowDeletedRef(value);
+                  if (isServerside) {
+                    if (paginationParamsRef.value) {
+                      paginationParamsRef.value.isDeleted = value;
+                    } else {
+                      paginationParamsRef.value = { isDeleted: value };
                     }
-                  },
-                  exportable: exportable,
+                  }
                 },
-                slots,
-              ),
-              h(
-                DatalistFilters,
-                {
-                  "onUpdate:modelValue": (value: Record<string, unknown>) => {
-                    console.log("update filter value", value);
-                    if (!isServerside || !value) return;
-                    filtersValueRef.value = value;
-                    console.log("filters changed", filtersValueRef.value);
-                  },
-                  datalistKey: datalistKey,
-                  isServerSide: isServerside,
-                  schema: filtersFormSchema,
-                  isPresistFilters: isPresistFilters,
-                  useLazyFilters: useLazyFilters,
+                exportable: exportable,
+              },
+              slots,
+            ),
+            h(
+              DatalistFilters,
+              {
+                "onUpdate:modelValue": (value: Partial<Record<(keyof TRecord) | string, unknown>>) => {
+                  console.log("value is", value)
+                  datalistStore.applyFilters(value)
+                  if (!result.isFetched.value) {
+                  }
                 },
-                slots,
-              ),
-            ],
+                "onQueryInvalidate": () => {
+                  console.log("remove this required field should remove the data")
+                  queryInvalid.value = true
+                },
+                datalistKey: datalistKey,
+                isServerSide: isServerside,
+                schema: filtersFormSchema,
+                isPresistFilters: isPresistFilters,
+                useLazyFilters: useLazyFilters,
+              },
+              slots,
+            ),
+          ],
     },
   );
 };
 </script>
 <template>
+  <h2>is enabled {{ isQueryEnabled }}</h2>
   <component :is="renderdatalist" />
 </template>
