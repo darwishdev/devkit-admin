@@ -31,6 +31,7 @@ export type DatalistState<TReq extends StringUnkownRecord, TRecord extends Strin
   debounceInMilliSeconds: number
   datalistColumnsRef: Ref<Partial<DatalistColumns<TRecord>>>;
   availableActions: Set<'create' | 'update' | 'delete' | 'deleteRestore' | 'export' | 'view'>
+  requiredFilters: Set<string>
   paginationParams: Ref<PaginationParams> | undefined
   formSections: Ref<Record<string, AppFormSection | FormKitSchemaNode[]> | undefined>;
   isFiltersFormValid: Ref<boolean>
@@ -50,6 +51,7 @@ export type DatalistState<TReq extends StringUnkownRecord, TRecord extends Strin
 
 export type DatalistGetters<TRecord extends StringUnkownRecord> = {
   activeFilters: ComputedRef<StringUnkownRecord>
+  formFiltersValueFlat: ComputedRef<StringUnkownRecord>
   deleteRestoreVariants: ComputedRef<DeleteRestoreVariant>;
 };
 export type DatalistDeleteMutationRequest = {

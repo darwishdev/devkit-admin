@@ -1,6 +1,6 @@
 <!-- eslint-disable vue/multi-word-component-names -->
 <script setup lang="ts" generic="TReq extends StringUnkownRecord, TRecord extends StringUnkownRecord">
-import { computed, h, inject, ref } from "vue";
+import { computed, h, inject, ref, shallowRef, toRefs, watch } from "vue";
 import type {
   DatalistEmits,
   DatalistProps,
@@ -75,14 +75,15 @@ const {
 const queryClient = useQueryClient();
 const paginationParamsRef = ref<PaginationParams | undefined>();
 const filtersFormSchema: FormKitSchemaNode[] = []
-let hasRequiredFilters = false;
+// let hasRequiredFilters = false;
 // set thre reuest body on case of the default server side
 // user remove the payload from the query params and use it from the server
 // bind the filters form from the other component
 const isQueryEnabled = computed(() => {
-
   return datalistStore.isFiltersFormValid
 })
+
+const requiredFilters = new Set<string>()
 const initFilters = () => {
   if (filters) {
     const formValues =
@@ -93,18 +94,20 @@ const initFilters = () => {
       formValuesObject = JSON.parse(formValues)
     }
     if (filters.length) {
-      filters.forEach(({ input, matchMode, isServerSide }) => {
+      filters.forEach(({ input, matchMode, isServerSide: currentFilterIsServerSide }) => {
         const currentInputValue = input.name in formValuesObject ? formValuesObject[input.name] : null
         filtersFormSchema.push(input);
-        console.log("input", input, 'ser', isServerSide)
-        if (isServerSide) {
+        if (isServerside || currentFilterIsServerSide) {
           serverSideInputs.add(input.name)
         }
+        console.log("input us", input)
         if ("validation" in input) {
           const isRequired = input.validation.includes("required");
           if (isRequired) {
+            datalistStore.requiredFilters.add(input.name)
+
+            console.log("input datalistStore", datalistStore.requiredFilters)
           }
-          hasRequiredFilters = isRequired && !currentInputValue
         }
         datalistStore.modelFiltersRef[input.name] = {
           matchMode,
@@ -114,15 +117,24 @@ const initFilters = () => {
     }
   }
 };
-const formFiltersValueFlat = computed(() => {
-  const filtersValueFlat: StringUnkownRecord = {}
-  ObjectKeys(datalistStore.modelFiltersRef).forEach(key => filtersValueFlat[key] = datalistStore.modelFiltersRef[key].value)
-  return filtersValueFlat
-})
+const validateRequiredFilters = () => {
+  console.log("filter is required", datalistStore.requiredFilters)
+  if (datalistStore.requiredFilters.size) {
+    const filters = datalistStore.requiredFilters.keys()
+    filters.forEach((filter) => {
+      console.log("filter is required", filter, datalistStore.formFiltersValueFlat[filter])
+    })
+    return true
+
+  }
+}
 const queryInvalid = ref(false)
 const queryFn = () => {
-  console.log("refetechhhhhhss", isQueryEnabled.value)
-  if (!isQueryEnabled.value) {
+  const isFormValid = validateRequiredFilters()
+  if (!isFormValid) {
+    console.log(isFormValid)
+  }
+  if (isServerside) {
     return Promise.resolve({ records: [] })
   }
 
@@ -131,14 +143,13 @@ const queryFn = () => {
   }
   return new Promise<ApiResponseList<TRecord>>((resolve, reject) => {
     const requestPayload = {
-      filters: formFiltersValueFlat.value,
+      filters: datalistStore.formFiltersValueFlat,
       paginationParams: paginationParamsRef.value,
     };
     let request;
     try {
-      request = requestMapper ? requestMapper(requestPayload) : isServerside ? requestPayload : formFiltersValueFlat.value;
+      request = requestMapper ? requestMapper(requestPayload) : isServerside ? requestPayload : datalistStore.formFiltersValueFlat;
     } catch (e) {
-      console.log("error from mapping", e);
       if (e instanceof Error) {
         datalistStore.errorRef = e.message;
       }
@@ -185,8 +196,13 @@ const queryFn = () => {
     });
   });
 };
+watch(() => datalistStore.formFiltersValueFlat, (newFilters) => {
+  if (isServerside) {
+    result.refetch()
+  }
+})
 const result = useQuery<ApiResponseList<TRecord>, Error>({
-  queryKey: [datalistKey, formFiltersValueFlat.value],
+  queryKey: [datalistKey, datalistStore.formFiltersValueFlat],
   queryFn: () => queryFn().then(async (response: ApiResponseList<TRecord>) => {
     const { records } = response
     if (
@@ -225,9 +241,6 @@ const init = async () => {
     datalistStore.datalistColumnsRef = extrectedColumns;
   }
   if (useLazy) {
-    return;
-  }
-  if (hasRequiredFilters) {
     return;
   }
 };
@@ -384,7 +397,7 @@ const renderdatalist = () => {
     },
     {
       empty: () => [
-        errorRef.length ? h("h2", errorRef) : hasRequiredFilters ? h("h2", "select filters") : h("h2", "no_records"),
+        errorRef.length ? h("h2", errorRef) : false ? h("h2", "select filters") : h("h2", "no_records"),
       ],
       default: () => [
         selectAllColumn,
@@ -442,6 +455,6 @@ const renderdatalist = () => {
 };
 </script>
 <template>
-  <h2>is enabled {{ isQueryEnabled }}</h2>
+  <h2>is enabled {{ datalistStore.formFiltersValueFlat }}</h2>
   <component :is="renderdatalist" />
 </template>

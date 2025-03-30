@@ -28,6 +28,7 @@ export const useDatalistStore = <TReq extends StringUnkownRecord, TRecord extend
     let viewRouter: DatalistRouter<TRecord> | undefined
     const paginationParams = ref<PaginationParams>()
     const serverSideInputs = new Set<string>()
+    const requiredFilters = new Set<string>()
     let useFilterPersist: boolean | undefined
     let debounceInMilliSeconds = 1000
     const availableActions = new Set<'create' | 'update' | 'delete' | 'deleteRestore' | 'export' | 'view'>()
@@ -65,7 +66,12 @@ export const useDatalistStore = <TReq extends StringUnkownRecord, TRecord extend
       }
       return activeFilters
     })
-
+    const formFiltersValueFlat = computed(() => {
+      const filtersValueFlat: StringUnkownRecord = {}
+      ObjectKeys(modelFiltersRef.value).forEach(key => filtersValueFlat[key] = modelFiltersRef.value[key].value)
+      console.log("filtfua", filtersValueFlat)
+      return filtersValueFlat
+    })
     // const datalistFetchFunction = ({ filtersValue, requestMapper, responseMapper, paginationParams, records, deletedRecords = [], options }: DatalistFetchParams<TReq, TRecord>): Promise<DatalisQueryReturnType<TRecord>> => {
     //   if (Array.isArray(records)) {
     //     return _datalistFetchWithArray({ records, deletedRecords, options })
@@ -365,6 +371,7 @@ export const useDatalistStore = <TReq extends StringUnkownRecord, TRecord extend
       isFiltersFormValid,
       modelFiltersRef,
       modelSelectionRef,
+      requiredFilters,
       tableElementRef,
       serverSideInputs,
       paginationParams,
@@ -375,6 +382,7 @@ export const useDatalistStore = <TReq extends StringUnkownRecord, TRecord extend
 
       // getters
       activeFilters,
+      formFiltersValueFlat,
       deleteRestoreVariants,
 
       // // actions

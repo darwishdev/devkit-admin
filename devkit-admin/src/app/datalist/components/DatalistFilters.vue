@@ -36,7 +36,6 @@ onMounted(() => {
   console.log("formvalue from filters mounted", formNode.value)
 });
 const onFormChange = useDebounceFn((formValue, node) => {
-  datalistStore.isFiltersFormValid = node.context.state.valid
   if (!datalistStore.isFiltersFormValid) return
   emit("update:modelValue", formValue);
 },
