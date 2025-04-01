@@ -85,6 +85,7 @@ const isQueryEnabled = computed(() => {
 
 const requiredFilters = new Set<string>()
 const initFilters = () => {
+
   if (filters) {
     const formValues =
       localStorage.getItem(datalistStore.filtersFormKey) ||
@@ -222,6 +223,7 @@ const result = useQuery<ApiResponseList<TRecord>, Error>({
   placeholderData: keepPreviousData,
 });
 const init = async () => {
+  datalistStore.syncProps(props)
   if (initiallySelectedItems)
     datalistStore.modelSelectionRef = initiallySelectedItems as TRecord[];
   datalistStore.isServerSide = props.context.isServerside || false

@@ -5,7 +5,7 @@ export type FilterMatchModeValues = 'startsWith' | 'contains' | 'notContains' | 
 export type DatalistFilter<TRecord> = {
   isServerSide?: boolean
   matchMode: FilterMatchModeValues,
-  input: FormKitSchemaNode & { name: keyof TRecord & string }
+  input: FormKitSchemaNode & { name: keyof TRecord }
 }
 
 export type DatalistFiltersModel = Record<string, DataTableFilterMetaData>

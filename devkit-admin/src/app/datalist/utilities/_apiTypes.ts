@@ -33,8 +33,8 @@ export type ImportHandler = {
 
 export type ApiListOptions = {
   title: string
+  description?: string
   totalCount?: number
-  description: string
   createHandler?: CreateHandler
   updateHandler?: UpdateHandler
   deleteRestoreHandler?: DeleteHandler

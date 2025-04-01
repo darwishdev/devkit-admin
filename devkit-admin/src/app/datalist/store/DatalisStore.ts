@@ -3,7 +3,7 @@ import { ref, computed, h, inject, type Ref, type ComputedRef } from 'vue'
 import { AppDialog } from 'devkit-base-components'
 import type { FormKitSchemaNode } from '@formkit/core'
 import { defineStore } from 'pinia'
-import type { DatalistAvailableActions, DatalistRouter, PaginationParams } from '../types'
+import type { DatalistAvailableActions, DatalistProps, DatalistRouter, PaginationParams } from '../types'
 import { DatalistDeleteMutationRequest, type DatalistStore, type DeleteRestoreVariant } from './types'
 import { useRouter } from 'vue-router'
 import { useDialog, type DataTableMethods } from 'primevue'
@@ -30,6 +30,7 @@ export const useDatalistStore = <TReq extends StringUnkownRecord, TRecord extend
     const serverSideInputs = new Set<string>()
     const requiredFilters = new Set<string>()
     let useFilterPersist: boolean | undefined
+    const datalistProps: DatalistProps<TReq, TRecord> = { context: { displayType: 'table', records: [], isServerside: false, options: datalistOptions, datalistKey, title: datalistOptions.title } }
     let debounceInMilliSeconds = 1000
     const availableActions = new Set<'create' | 'update' | 'delete' | 'deleteRestore' | 'export' | 'view'>()
     let refetchFn: DatalistQueryResult<TRecord, Error>['refetch'] | undefined
@@ -44,6 +45,9 @@ export const useDatalistStore = <TReq extends StringUnkownRecord, TRecord extend
     const isFiltersFormValid: Ref<boolean> = ref(false)
     const { push } = useRouter()
     const dialog = useDialog()
+    const syncProps = (props: DatalistProps<TReq, TRecord>) => {
+      datalistProps.context = props.context
+    }
     const setRefetchFn = (fn: DatalistQueryResult<TRecord, Error>['refetch']) => {
       refetchFn = fn
     }
@@ -72,78 +76,11 @@ export const useDatalistStore = <TReq extends StringUnkownRecord, TRecord extend
       console.log("filtfua", filtersValueFlat)
       return filtersValueFlat
     })
-    // const datalistFetchFunction = ({ filtersValue, requestMapper, responseMapper, paginationParams, records, deletedRecords = [], options }: DatalistFetchParams<TReq, TRecord>): Promise<DatalisQueryReturnType<TRecord>> => {
-    //   if (Array.isArray(records)) {
-    //     return _datalistFetchWithArray({ records, deletedRecords, options })
-    //   }
-    //   console.log("filters is", filtersValue)
-    //   return new Promise<DatalisQueryReturnType<TRecord>>((resolve, reject) => {
-    //     const requestPayload = { filters: filtersValue, paginationParams: paginationParams }
-    //     let request
-    //     try {
-    //       request = requestMapper ? requestMapper(requestPayload) : requestPayload
-    //     } catch (e) {
-    //       console.log("error from mapping", e)
-    //       if (e instanceof Error) {
-    //         errorRef.value = e.message
-    //       }
-    //       return reject(e)
-    //     }
-
-    //     resolveApiEndpoint<typeof apiClient, TReq, StringUnkownRecord>(records, apiClient, request as TReq).then((response) => {
-    //       if (responseMapper) {
-    //         const newResponse = responseMapper(response)
-    //         return resolve(newResponse)
-    //       }
-    //       if ('records' in response && Array.isArray(response['records'])) {
-    //         return resolve(response as ApiResponseList<TRecord>)
-    //       }
-    //       const errMessage = 'can\'t find records on the response '
-    //       errorRef.value = errMessage
-    //       return reject(new Error(errMessage))
-
-    //     })
-    //   })
-    // }
     const refetch = () => {
       if (refetchFn) {
         refetchFn()
       }
     }
-
-    //const init = (
-    //  { queryResult, props, slots, mutaions }: DatalistStoreInit<TReq, TRecord>
-    //) => {
-    //  return new Promise<void>((resolve) => {
-    //    datalistQueryResult = queryResult
-    //    console.log("initing the storeeeeee", datalistQueryResult, queryResult, queryResult.data)
-    //    if (queryResult.data) {
-    //      if (queryResult.data.options) {
-    //        const { createHandler, updateHandler, deleteHandler } = queryResult.data.options
-    //        availableActions.create = typeof createHandler != 'undefined'
-    //        availableActions.update = typeof updateHandler != 'undefined'
-    //        availableActions.delete = typeof deleteHandler != 'undefined'
-    //      }
-    //    }
-    //    availableActions.create = true
-    //    console.log(datalistQueryResult, 'from the init', props.context.filters)
-    //    setLazyProps(props.context)
-    //    const columns = props.context.columns ? props.context.columns : props.context.displayType != 'card' ?  constructColumns(props.context.execludedColumns || []) : {}
-    //    if (props.context.displayType == 'table') extractColumns(columns, slots)
-    //    if (props.context.displayType == 'card') {
-    //      const { cardStart, cardEnd, card } = slots as CardSlots<TReq, TRecord>
-    //      extractCardColumns({ cardStart, cardEnd, card })
-    //    }
-    //    if (props.context.filters) {
-    //      props.context.filters.forEach((filter) => {
-    //        modelFiltersRef.value[filter.input.name as string] = { matchMode: filter.matchMode, value: null }
-    //      })
-    //    }
-    //    // deleteResotreMutation = mutaions.deleteResotreMutation
-    //    // deleteMutation = mutaions.deleteMutation
-    //    setTimeout(() => resolve(), 1)
-    //  })
-    //}
 
     const removeFilter = (filterKey: string) => {
       if (!modelFiltersRef.value[filterKey]) return
@@ -167,13 +104,6 @@ export const useDatalistStore = <TReq extends StringUnkownRecord, TRecord extend
       })
     }
     const getRowIdentifier = (): (keyof TRecord) | undefined => rowIdentifier
-    // function assertValidDatalistQueryResult(
-    //   result: Pick<DatalistQueryResult<TRecord, Error>, 'data' | 'refetch'> | undefined
-    // ): asserts result is Pick<DatalistQueryResult<TRecord, Error>, 'data' | 'refetch'> & { data: { options: ApiListOptions } } {
-    //   AssertIsDefined(result, "datalistQueryResult must not be undefined");
-    //   AssertIsDefined(result.data, "datalistQueryResult has no data");
-    //   AssertIsDefined(result.data.options, "datalistQueryResult has no options");
-    // }
     const updateRecord = (record: TRecord) => {
       AssertIsDefined(datalistOptions, "options not defined");
       AssertIsDefined(datalistOptions.updateHandler, "options has no update handler");
@@ -387,6 +317,7 @@ export const useDatalistStore = <TReq extends StringUnkownRecord, TRecord extend
 
       // // actions
       applyFilters,
+      syncProps,
       setRefetchFn,
       createNewRecord,
       // datalistFetchFunction,

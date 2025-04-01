@@ -78,6 +78,8 @@ export type DatalistActions<TReq extends StringUnkownRecord, TRecord extends Str
   applyFilters: (filtersFormValue: Partial<Record<(keyof TRecord) | string, unknown>>) => void;
   setRefetchFn: (fn: QueryObserverResult<ApiResponseList<TRecord>, Error>['refetch']) => void
   getRowIdentifier: () => keyof TRecord | undefined
+
+  syncProps: (props: DatalistProps<TReq, TRecord>) => void
   createNewRecord: () => void;
   // datalistFetchFunction: (params: DatalistFetchParams<TReq, TRecord>) => Promise<ApiResponseList<TRecord>>
   // deleteRestoreRecordsConfirmed: (dialog: { close: Function }) => Promise<void>
