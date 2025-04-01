@@ -1,6 +1,6 @@
 
 import { createInput, defaultConfig } from '@formkit/vue'
-import { Dropdown, MultiDropdown, Datepicker } from 'devkit-admin'
+import { Dropdown, SelectButton, MultiDropdown, Datepicker } from 'devkit-admin'
 import { rootClasses } from './formkit.theme'
 import { ar, en } from '@formkit/i18n'
 const formKitConfig = () => {
@@ -183,11 +183,17 @@ const formKitConfig = () => {
   const multDropdownInput = createInput(MultiDropdown, {
     props: multiDropdownProps,
   })
+
+  const selectButtonInput = createInput(SelectButton, {
+    props: singleDropdownProps,
+  })
+
   const datePickerInput = createInput(Datepicker, {
     props: datepickerContextKeys,
   })
   const inputs = {
     'devkitDropdown': dropdownInput,
+    'devkitSelectButton': selectButtonInput,
     'devkitMultiDropdown': multDropdownInput,
     'devkitDatepicker': datePickerInput,
 

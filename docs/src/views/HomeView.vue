@@ -127,8 +127,5 @@ const tableProps: DatalistProps<UserListRequest, AccountsSchemaUser> = {
 </script>
 <template>
   <Datalist :context="tableProps.context">
-    <template #cardStart="{ data }">
-      {{ data }}
-    </template>
   </Datalist>
 </template>

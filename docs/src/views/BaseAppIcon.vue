@@ -1,23 +1,13 @@
 <template>
-  <div class="buckets" v-if="imagesQuyeryResult.data.value" @dragover.prevent="onDragOver" @dragleave="onDragLeave"
-    @drop.prevent="onDrop" :class="{ 'drag-active': isDragging }">
+  <div class="buckets" @dragover.prevent="onDragOver" @dragleave="onDragLeave" @drop.prevent="onDrop"
+    :class="{ 'drag-active': isDragging }">
+    <input type="file" ref="fileInput" @change="handleFileChange" style="display: none" />
     <div v-if="isDragging" class="drop-overlay">
       Drop files here to upload
     </div>
     <Datalist :context="datalistProps.context">
-      <template #header>
-        <h2>header</h2>
-      </template>
-      <template #appendActions="">
-        <AppBtn v-for="action in ObjectKeys(actions)" :key="action" :label="action" :action="actions[action]" />
-      </template>
-      <template #card="item">
-        <div class="object-partial">
-          <AppImage width="150px" preview :src="`images/${item.data.name}`" />
-          <h2> {{ item.data.name }}</h2>
-          <h3 v-if="item.data.metadata"> {{ item.data.metadata.size }}</h3>
-          <h3 v-if="item.data.metadata"> {{ item.data.metadata.mimetype }}</h3>
-        </div>
+      <template #headerActionsStartAppend>
+        <AppBtn :action="openUploadDialog" label="upload" />
       </template>
     </Datalist>
 
@@ -25,50 +15,95 @@
 </template>
 
 <script setup lang="ts">
-import { ObjectKeys } from 'devkit-apiclient'
 import { ref } from 'vue';
 import { apiClient } from '../api/apiClient';
 import { useQuery } from '@tanstack/vue-query';
-import { Datalist, type DatalistProps } from "devkit-admin";
-import { AppBtn, AppImage } from 'devkit-base-components';
-import type { FileListRequest, FileListResponse, FileObject } from '@buf/ahmeddarwish_devkit-api.bufbuild_es/devkit/v1/public_storage_pb';
-import type { DatalistRequest } from '../../../devkit-admin/dist/types/app/datalist/types';
-import type { ApiResponseList } from '../../../devkit-admin/dist/types/app/datalist/utilities/_apiTypes';
-import { throws } from 'assert';
-// Drag and drop state
+import { Datalist, useDatalistStoreWithKey, type DatalistProps } from "devkit-admin";
+import type { FileListRequest, FileObject } from '@buf/ahmeddarwish_devkit-api.bufbuild_es/devkit/v1/public_storage_pb';
+import type { StringUnkownRecord } from '../../../devkit-admin/dist/types/pkg/types/types';
+import { AppBtn } from 'devkit-base-components';
 const isDragging = ref(false);
+const fileInput = ref<HTMLInputElement | null>(null);
+const datalistStore = useDatalistStoreWithKey('files')
+const handleFileChange = (event: Event) => {
+  console.log(datalistStore.modelFiltersRef.bucketId)
+  const bucketId = datalistStore.modelFiltersRef['bucketId']
+  if (!bucketId.value) {
+    console.error("bucket should be selected to be able to upload")
+    return
+  }
+  const target = event.target as HTMLInputElement;
+  if (!target.files || target.files.length === 0) return;
+
+  const file = target.files[0];
+  const filePath = file.name; // Adjust based on your needs
+  const fileType = file.type;
+
+  const reader = new FileReader();
+
+  reader.onload = () => {
+    if (reader.result instanceof ArrayBuffer) {
+      const fileRequest = {
+        path: filePath,
+        bucketName: bucketId.value,
+        reader: new Uint8Array(reader.result),
+        fileType: fileType,
+      };
+      apiClient.fileCreate(fileRequest).then((response) => {
+        console.log("response", response)
+      })
+      console.log("FileCreateRequest:", fileRequest);
+    }
+  };
+
+  reader.readAsArrayBuffer(file);
+  console.log("should handle the upload", bucketId.value)
+}
+
+const openUploadDialog = () => {
+  if (fileInput.value) {
+    fileInput.value.click();
+  }
+  console.log("should open the upload")
+}
 const datalistProps: DatalistProps<Partial<FileListRequest>, FileObject> = {
   context: {
     datalistKey: 'files',
     title: "files",
     rowIdentifier: "id",
+    execludedColumns: ['$typeName', '$unknown'],
     filters: [{
       matchMode: "contains",
+      isServerSide: true,
       input: {
         $formkit: 'devkitDropdown',
         options: 'bucketList',
+        responseOptionsKey: 'buckets',
         optionValue: 'id',
         optionLabel: 'name',
+        validationVisibility: "live",
+        validation: '+required',
         prefixIcon: "tools",
+        showClear: true,
         outerClass: "col-12 sm:col-6 md:col-3",
         name: "bucketId",
         placeholder: "buckets"
       }
     }],
-    requestMapper: (req: DatalistRequest): Partial<FileListRequest> => {
-      if (!req.filters) {
-        throw new Error('bucket must be selected')
-      }
-      const request: Partial<FileListRequest> = {
-        bucketId: req.filters['bucketId'] as string
-      }
-      return request
+    requestMapper: (req) => {
+      if (!req.filters) return { bucketId: '' }
+      if (typeof req.filters.bucketId !== 'string') return { bucketId: '' }
+      return { bucketId: req.filters.bucketId }
+    },
+    responseMapper: (response: StringUnkownRecord) => {
+      console.log("response from mapper", response)
+      return { records: response.files as FileObject[], options: { title: "files", description: "files_description", totalCount: 50 } }
     },
     records: 'fileList',
-    isServerside: false,
+    isServerside: true,
     exportable: true,
-    displayType: 'table',
-    useLazyFilters: true,
+    displayType: 'card',
+    useLazyFilters: false,
     isActionsDropdown: true,
     options: { title: "asd", description: "asd" },
   }
@@ -111,10 +146,6 @@ const bucketsQuyeryResult = useQuery({
 });
 
 // Add images query (assuming this exists or needs to be added)
-const imagesQuyeryResult = useQuery({
-  queryKey: ['imagesList'],
-  queryFn: () => apiClient.fileList({ bucketId: 'images' }), // Adjust this based on your API
-});
 
 // Drag and drop handlers
 const onDragOver = (event: Event) => {
@@ -149,7 +180,6 @@ const uploadFiles = async (files: any) => {
     //const response = await apiClient.fileCreate(reques);
 
     // Refresh the images query after successful upload
-    imagesQuyeryResult.refetch();
   } catch (error) {
     console.error('Upload failed:', error);
   }

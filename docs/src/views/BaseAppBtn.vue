@@ -2,7 +2,8 @@
 import { useI18n } from "vue-i18n";
 import Checkbox from 'primevue/checkbox';
 import type { AccountsSchemaUser, UserListRequest } from "@buf/ahmeddarwish_devkit-api.bufbuild_es/devkit/v1/accounts_user_pb";
-import { Datalist, type DatalistProps, ColumnText } from "devkit-admin";
+import { Datalistv2, type DatalistProps, ColumnText } from "devkit-admin";
+
 import { apiClient } from "../api/apiClient";
 import type { DatalistColumns } from "../../../devkit-admin/dist/types/app/datalist/columns/_types";
 import type { AppFormSection } from "../../../devkit-admin/dist/types/pkg/types/types";
@@ -62,7 +63,15 @@ const tableProps: DatalistProps<UserListRequest, AccountsSchemaUser> = {
     datalistKey: 'user',
     title: "users",
     rowIdentifier: "userId",
-    filters: [{
+    serverFilters: [{
+      $formkit: 'text',
+      prefixIcon: "tools",
+      outerClass: "col-12 sm:col-6 md:col-3",
+      name: "serveruserName",
+      placeholder: t("serveruserName")
+    }],
+
+    clientFilters: [{
       matchMode: "contains",
       input: {
         $formkit: 'text',
@@ -86,10 +95,6 @@ const tableProps: DatalistProps<UserListRequest, AccountsSchemaUser> = {
 
 </script>
 <template>
-  <h2>
-    asd
-  </h2>
-  <Checkbox v-model="checked" label="asdasdasdasdasd" />
-  <Datalist :context="tableProps.context">
-  </Datalist>
+  <Datalistv2 :context="tableProps.context">
+  </Datalistv2>
 </template>
