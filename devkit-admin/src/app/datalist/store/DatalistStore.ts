@@ -1,20 +1,18 @@
 import { ref, computed, h, inject, type Ref, watch } from 'vue'
 import { defineStore, getActivePinia } from 'pinia'
-import { DeleteRestoreVariant } from './types'
-import { ActionButtonProps, DatalistAvailableActions, DatalistColumnsBase, DatalistGlobalActions, DatalistProps, DatalistRowActions, FilterMatchModeValues, PaginationParams } from '../types'
+import { ActionButtonProps, ApiListOptions, ApiResponseList, DatalistAvailableActions, DatalistColumnsBase, DatalistFilter, DatalistFilterInput, DatalistFiltersModel, DatalistGlobalActions, DatalistProps, DatalistRowActions, FilterMatchModeValues, PaginationParams } from '../types'
 import { FormKitSchemaNode } from '@formkit/core'
 import { ObjectKeys, resolveApiEndpoint, StringUnkownRecord } from 'devkit-apiclient'
-import { DatalistFilter, DatalistFilterInput, DatalistFiltersModel } from '@/app/datalist/utilities/_filtersTypes'
-import { ApiListOptions, ApiResponseList } from '@/app/datalist/utilities/_apiTypes'
 import { useAppFormStoreWithProps } from '@/app/appform/store/AppFormStore'
 import { _constructColumns } from '../utilites/_columnUtils'
-import { isServer, keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
+import {  keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
 import { objectEntries, useDebounceFn } from '@vueuse/core'
-import { AppBtn, AppBtnProps, AppDialog } from 'devkit-base-components'
+import {  AppDialog } from 'devkit-base-components'
 import { useRouter } from 'vue-router'
 import { useDialog } from 'primevue'
 import AppForm from '@/app/appform/AppForm.vue'
-import { AppFormProps, FindHandler, SubmitHandler } from '@/pkg/types/types'
+import {  FindHandler} from '@/pkg/types/types'
+import { DeleteRestoreVariant } from '../types'
 
 export const useDatalistStore = <
 	TApi extends Record<string, Function>,
@@ -37,7 +35,6 @@ export const useDatalistStore = <
 		const globalFilters: string[] = []
 
 		const queryClient = useQueryClient();
-		const datalistOptions: ApiListOptions = { title: `datalist-${context.datalistKey}`, ...context.options }
 		const datatableColumnsRef: Ref<DatalistColumnsBase<TRecord, TFiltersReq>
 		> = ref(context.columns || {})
 		const errorRef = ref('')
@@ -138,8 +135,9 @@ export const useDatalistStore = <
 
 			return datalistFiltersModel
 		})
-		function isApiResponseList<TRecord extends StringUnkownRecord>(response: any): response is ApiResponseList<TRecord> {
+		function isApiResponseList<TRecord extends StringUnkownRecord>(response: object): response is ApiResponseList<TRecord> {
 			return (
+        'records' in response &&
 				response &&
 				Array.isArray(response.records)
 			);
@@ -183,6 +181,7 @@ export const useDatalistStore = <
 			const initialVariant: DeleteRestoreVariant = {
 				hasSelectedData: modelSelectionRef.value.length > 0,
 				hasDeletedRecords: false,
+        disabled: false,
 				icon: isShowDeletedRef.value ? 'back' : 'trash',
 				label: isShowDeletedRef.value ? 'restore' : 'delete',
 				empty: isShowDeletedRef.value ? 'empty_records_deleted' : 'empty_records',
@@ -195,7 +194,7 @@ export const useDatalistStore = <
 			return initialVariant
 		})
 		const { push } = useRouter()
-		const deleteRestoreOpenDialog = (params?: { record?: any, isHardDelete?: Boolean }) => {
+		const deleteRestoreOpenDialog = (params?: { record?: TRecord, isHardDelete?: boolean }) => {
 			dialog.open(h(AppDialog, {
 				onConfirmed: ({ close }) => {
 					deleteMutation.mutateAsync(params || {}).finally(() => {
@@ -246,20 +245,20 @@ export const useDatalistStore = <
 			}))
 
 		}
-		const viewRecord = (record: any) => {
+		const viewRecord = (record: TRecord) => {
 			const { viewRouter, rowIdentifier } = context
 			if (!viewRouter || !rowIdentifier || typeof record != 'object') return
 			if (!(viewRouter.paramColumnName in record)) return
 			try {
 				const params: Record<string, string> = {}
-				params[viewRouter.paramName] = record[viewRouter.paramColumnName]
+			if(viewRouter.paramColumnName in record)	params[viewRouter.paramName] = record[viewRouter.paramColumnName] as string
 				push({ name: viewRouter.name, params })
-			} catch (e) {
-				console.error('error routing to view route')
+			} catch (e : unknown) {
+				console.error('error routing to view route' , e)
 			}
 			console.log('view record', record)
 		}
-		const deleteRestoreMutationFn = async ({ record, isHardDelete }: { record?: any, isHardDelete?: Boolean }) => {
+		const deleteRestoreMutationFn = async ({ record, isHardDelete }: { record?: TRecord, isHardDelete?: boolean }) => {
 			console.log('recordis', record)
 			const options: ApiListOptions | undefined = datalistQueryResult.data.value?.options || context.options
 			const { rowIdentifier } = context
@@ -282,28 +281,30 @@ export const useDatalistStore = <
 				queryClient.invalidateQueries({ queryKey: [context.datalistKey] });
 			},
 		});
+    const exportData = () => {
 
-		const initAvailableActions = async (options: ApiListOptions) => {
+    }
+		const initAvailableActions = async (options?: ApiListOptions) => {
+      if(!options) return
 			console.log("initialaizee", datalistQueryResult.data.value, options)
 			const cuurentAvailableOptions: DatalistAvailableActions = {}
 			if (context.viewRouter) {
-				cuurentAvailableOptions.view = { label: 'view', actionFn: (record: any) => viewRecord(record) }
-			}
+				cuurentAvailableOptions.view = { actionKey: 'view', label: 'view', actionFn: (record: TRecord) => viewRecord(record) } }
 			if (options.deleteHandler) {
-				cuurentAvailableOptions.delete = { label: 'delete', actionFn: (record: any) => viewRecord(record) }
+				cuurentAvailableOptions.delete = { actionKey: 'view',label: 'delete', actionFn: () => {} }
 			}
 			if (options.deleteRestoreHandler) {
-				cuurentAvailableOptions.deleteRestore = { label: 'delete', actionFn: (record: any) => viewRecord(record) }
+				cuurentAvailableOptions.deleteRestore = { actionKey: 'view',label: 'delete', actionFn:  () => {}}
 			}
 
 			if (options.updateHandler) {
-				cuurentAvailableOptions.update = { label: 'update', actionFn: (record: any) => createUpdateRecord(record) }
+				cuurentAvailableOptions.update = { actionKey: 'view',label: 'update', actionFn: (record: TRecord) => createUpdateRecord(record) }
 			}
 			if (options.createHandler) {
-				cuurentAvailableOptions.create = { label: 'create', actionFn: createUpdateRecord }
+				cuurentAvailableOptions.create = { actionKey: 'create', label: 'create', actionFn: createUpdateRecord }
 			}
 			if (context.isExportable) {
-				cuurentAvailableOptions.export = { label: 'export', actionFn: (record: any) => viewRecord(record) }
+				cuurentAvailableOptions.export = {actionKey: 'export', label: 'export', actionFn: () => exportData() }
 			}
 
 			availableActions.value = cuurentAvailableOptions
@@ -326,13 +327,12 @@ export const useDatalistStore = <
 				if (initialCallbackFinished) return response
 				const { records } = response
 				if (
-					records.length > 0 &&
+					records.length > 0 && context.displayType == 'table' &&
 					ObjectKeys(datatableColumnsRef.value).length == 0
 				) {
 					const datalistColumns = _constructColumns(
 						records[0],
 						context.execludedColumns,
-						{},
 					);
 					datatableColumnsRef.value = datalistColumns;
 				}
@@ -369,6 +369,7 @@ export const useDatalistStore = <
 			filtersFormStore,
 			createUpdateRecord,
 			isShowDeletedRef,
+      debouncedRefetch,
 			deleteRestoreVariants,
 			filtersFormKey,
 			// actions

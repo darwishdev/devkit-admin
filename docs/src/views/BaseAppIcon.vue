@@ -1,198 +1,131 @@
 <template>
-  <div class="buckets" @dragover.prevent="onDragOver" @dragleave="onDragLeave" @drop.prevent="onDrop"
-    :class="{ 'drag-active': isDragging }">
-    <input type="file" ref="fileInput" @change="handleFileChange" style="display: none" />
-    <div v-if="isDragging" class="drop-overlay">
-      Drop files here to upload
-    </div>
-    <Datalistv2 :context="datalistProps.context">
+  <div
+    class="buckets"
+    @dragover.prevent="onDragOver"
+    @dragleave="onDragLeave"
+    @drop.prevent="onDrop"
+    :class="{ 'drag-active': isDragging }"
+  >
+    <input
+      type="file"
+      ref="fileInput"
+      @change="handleFileChange"
+      style="display: none"
+    />
+    <div v-if="isDragging" class="drop-overlay">Drop files here to upload</div>
+    <Datalist :context="datalistProps.context">
       <template #card="{ data }">
-        <AppImage :src="`${data.name}`" />
+        <AppImage :src="`${data.name}`" class="w-150" />
       </template>
       <template #globalActionsStartAppend>
         <AppBtn :action="openUploadDialog" label="upload" />
-        <AppBtn :action="openBuckerCreateDialog" label="new bucket" />
       </template>
-    </Datalistv2>
-
+    </Datalist>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
-import { apiClient } from '../api/apiClient';
-import { useQuery } from '@tanstack/vue-query';
-import { Datalistv2, useDatalistStoreWithProps, type DatalistProps } from "devkit-admin";
-import type { BucketCreateUpdateRequest, FileListRequest, FileObject } from '@buf/ahmeddarwish_devkit-api.bufbuild_es/devkit/v1/public_storage_pb';
-import type { AppFormSections, StringUnkownRecord } from '../../../devkit-admin/dist/types/pkg/types/types';
-import { AppBtn } from 'devkit-base-components';
+import { ref } from "vue";
+import { apiClient } from "../api/apiClient";
+import Datalist, {
+  type DatalistProps,
+  useDatalistStoreWithProps,
+} from "devkit-admin/datalist";
+import type {
+  BucketCreateUpdateRequest,
+  FileListRequest,
+  FileObject,
+} from "@buf/ahmeddarwish_devkit-api.bufbuild_es/devkit/v1/public_storage_pb";
+import type { AppFormSections } from "../../../devkit-admin/dist/types/pkg/types/types";
+import { AppBtn } from "devkit-base-components";
 const isDragging = ref(false);
 const fileInput = ref<HTMLInputElement | null>(null);
-const openBuckerCreateDialog = () => {
-  console.log("should open bucket create ")
-}
-const handleFileChange = (event: Event) => {
-  console.log('filte changed', event)
-  // console.log(datalistStore.modelFiltersRef.bucketId)
-  const bucketId = { value: 'images' }
-  if (!bucketId.value) {
-    console.error("bucket should be selected to be able to upload")
-    return
-  }
-  const target = event.target as HTMLInputElement;
-  if (!target.files || target.files.length === 0) return;
-
-  const file = target.files[0];
-  const filePath = file.name; // Adjust based on your needs
-  const fileType = file.type;
-
-  const reader = new FileReader();
-
-  reader.onload = () => {
-    if (reader.result instanceof ArrayBuffer) {
-      const fileRequest = {
-        path: filePath,
-        bucketName: bucketId.value,
-        reader: new Uint8Array(reader.result),
-        fileType: fileType,
-      };
-      apiClient.fileCreate(fileRequest).then((response) => {
-        datalistStore.datalistQueryResult.refetch()
-        console.log("response", response)
-      })
-      console.log("FileCreateRequest:", fileRequest);
-    }
-  };
-
-  reader.readAsArrayBuffer(file);
-  console.log("should handle the upload", bucketId.value)
-}
-
-const openUploadDialog = () => {
-  if (fileInput.value) {
-    fileInput.value.click();
-  }
-  console.log("should open the upload")
-}
 const formSections: AppFormSections<BucketCreateUpdateRequest> = {
-  'bucket_info': {
+  bucket_info: {
     isTitleHidden: true,
     isTransparent: true,
     inputs: [
       {
-        $formkit: 'text',
+        $formkit: "text",
         prefixIcon: "tools",
         outerClass: "col-12 sm:col-6 md:col-5",
         name: "bucketName",
         validation: "required",
         placeholder: "bucketName",
-        label: "bucketName"
+        label: "bucketName",
       },
       {
-        $formkit: 'text',
+        $formkit: "text",
         prefixIcon: "tools",
         outerClass: "col-12 sm:col-6 md:col-5",
         name: "fileSizeLimit",
         placeholder: "fileSizeLimit",
-        label: "fileSizeLimit"
+        label: "fileSizeLimit",
       },
       {
-        $formkit: 'devkitMultiDropdown',
+        $formkit: "devkitMultiDropdown",
         options: [{ label: "image/webp", value: "image/webp" }],
-        optionValue: 'label',
-        optionLabel: 'value',
-
+        optionValue: "label",
+        optionLabel: "value",
         prefixIcon: "tools",
         outerClass: "col-12 sm:col-6 md:col-5",
         name: "allowedFileTypes",
         placeholder: "allowedFileTypes",
-        label: "allowedFileTypes"
+        label: "allowedFileTypes",
       },
       {
-        $formkit: 'checkbox',
+        $formkit: "checkbox",
         prefixIcon: "tools",
         outerClass: "col-12 sm:col-6 md:col-5",
         name: "isPulic",
         value: true,
         placeholder: "isPulic",
-        label: "userPassword"
+        label: "userPassword",
       },
-
-    ]
-  }
-}
-const datalistProps: DatalistProps<typeof apiClient, FileListRequest, FileObject, undefined, undefined, BucketCreateUpdateRequest> = {
+    ],
+  },
+};
+const datalistProps: DatalistProps<
+  typeof apiClient,
+  FileListRequest,
+  FileObject,
+  undefined,
+  undefined,
+  BucketCreateUpdateRequest
+> = {
   context: {
-    datalistKey: 'files',
+    datalistKey: "files",
     hideShowDeleted: true,
     title: "files",
     formSections,
     rowIdentifier: "id",
-    execludedColumns: ['$typeName', '$unknown'],
-    filters: [{
-      $formkit: 'devkitSelectButton',
-      options: 'bucketList',
-      responseOptionsKey: 'buckets',
-      optionValue: 'id',
-      optionLabel: 'name',
-      validation: 'required',
-      prefixIcon: "tools",
-      showClear: true,
-      outerClass: "col-12 sm:col-6 md:col-3",
-      name: "bucketId",
-      placeholder: "buckets"
-    }
+    execludedColumns: ["$typeName", "$unknown"],
+    filters: [
+      {
+        $formkit: "devkitSelectButton",
+        options: "bucketList",
+        responseOptionsKey: "buckets",
+        optionValue: "id",
+        optionLabel: "name",
+        validation: "required",
+        prefixIcon: "tools",
+        showClear: true,
+        outerClass: "col-12 sm:col-6 md:col-3",
+        name: "bucketId",
+        placeholder: "buckets",
+      },
     ],
-    records: 'galleryList',
+    records: "galleryList",
     isServerSide: true,
     isPresistFilters: true,
-    displayType: 'card',
+    displayType: "card",
     isLazyFilters: false,
     isActionsDropdown: true,
     options: { title: "asd", description: "asd" },
-  }
-}
-
-const datalistStore = useDatalistStoreWithProps(datalistProps)
-
-// Existing bucket create function
-const bucketCreateOpen = () => {
-  console.log("open the model to create new bucket");
+  },
 };
-const actions = {
-  rename: () => {
-    console.log("rename the file")
-  },
-  move: () => {
-    console.log('move the image')
-  },
-  download: () => {
-    console.log("download the image")
-  },
-  delete: () => {
-    console.log("delete ")
-  }
-}
-// Existing buckets query
-const bucketsQuyeryResult = useQuery({
-  queryKey: ['bucketList'],
-  queryFn: () => new Promise((resolve) => {
-    apiClient.bucketList({}).then((response) => {
-      console.log("reso", response);
-      const r = response.buckets.map(bucket => {
-        return {
-          key: bucket.id.toString(),
-          label: bucket.name,
-          icon: 'pi pi-fw pi-folder',
-        };
-      });
-      resolve(r);
-    });
-  }),
-});
 
-// Add images query (assuming this exists or needs to be added)
-
+const datalistStore = useDatalistStoreWithProps(datalistProps);
 // Drag and drop handlers
 const onDragOver = (event: Event) => {
   event.preventDefault();
@@ -214,22 +147,57 @@ const onDrop = async (event: any) => {
 };
 
 // File upload function
-const uploadFiles = async (files: any) => {
-  console.log('uploading', files)
+const uploadFiles = async (files: FileList) => {
+  console.log("uploading", files);
   try {
-    const formData = new FormData();
-    for (const file of files) {
-      formData.append('files[]', file);
-    }
+    const file = files[0];
+    const filePath = file.name; // Adjust based on your needs
+    const fileType = file.type;
+    const filtersFormValue = datalistStore.filtersFormStore.formValueRef;
 
-    // Assuming you have an upload endpoint in your apiClient
-    //  const reques: FileCreateRequest = { path: "new.webp", bucketName: 'images',fileType: 'webp' ,  }
-    //const response = await apiClient.fileCreate(reques);
+    if (!filtersFormValue || !("bucketName" in filtersFormValue)) return;
+    const bucketName = filtersFormValue.bucketName;
+    if (!bucketName) return;
+    const reader = new FileReader();
 
-    // Refresh the images query after successful upload
+    reader.onload = () => {
+      if (reader.result instanceof ArrayBuffer) {
+        const fileRequest = {
+          path: filePath,
+          bucketName: bucketName as string,
+          reader: new Uint8Array(reader.result),
+          fileType: fileType,
+        };
+        apiClient.fileCreate(fileRequest).then((response) => {
+          datalistStore.datalistQueryResult.refetch();
+          console.log("response", response);
+        });
+        console.log("FileCreateRequest:", fileRequest);
+      }
+    };
+
+    reader.readAsArrayBuffer(file);
   } catch (error) {
-    console.error('Upload failed:', error);
+    console.error("Upload failed:", error);
   }
+};
+const openUploadDialog = () => {
+  if (fileInput.value) {
+    fileInput.value.click();
+  }
+};
+const handleFileChange = (event: Event) => {
+  console.log("filte changed", event);
+  // console.log(datalistStore.modelFiltersRef.bucketId)
+  const bucketId = { value: "images" };
+  if (!bucketId.value) {
+    console.error("bucket should be selected to be able to upload");
+    return;
+  }
+  const target = event.target as HTMLInputElement;
+  if (!target.files || target.files.length === 0) return;
+  console.log("should handle the upload", bucketId.value);
+  uploadFiles(target.files);
 };
 </script>
 

@@ -2,23 +2,24 @@
 import type { FormKitSchemaNode } from '@formkit/core'
 import type { IconFindRequest, IconFindResponse } from './api_types'
 import type { RouteLocationRaw } from 'vue-router'
+import { ApiEndpoint } from 'devkit-apiclient'
 export type StringUnkownRecord = Record<string, unknown>
 export type CacheOptions = {
 	cacheKey: string
 	bypassCache?: boolean
 	cacheTimeout?: number
 }
-export type EndpointFunction<
-	TReq extends Record<string, unknown> = {},
-	TResp extends Record<string, unknown> = {}
-> = ((req: TReq) => Promise<TResp>)
-
-export type ApiEndpoint<
-	TApi extends Record<string, Function>,
-	TReq extends Record<string, unknown> = {},
-	TResp extends Record<string, unknown> = {}
-> = keyof TApi | EndpointFunction<TReq, TResp> | Promise<TResp>
-
+//export type EndpointFunction<
+//	TReq extends Record<string, unknown> = {},
+//	TResp extends Record<string, unknown> = {}
+//> = ((req: TReq) => Promise<TResp>)
+//
+//export type ApiEndpoint<
+//	TApi extends Record<string, Function>,
+//	TReq extends Record<string, unknown> = {},
+//	TResp extends Record<string, unknown> = {}
+//> = keyof TApi | EndpointFunction<TReq, TResp> | Promise<TResp>
+//
 export type DevkitAdminConfig<TApi extends Record<string, Function>> = {
 	apiClient: TApi
 	locales: string[]

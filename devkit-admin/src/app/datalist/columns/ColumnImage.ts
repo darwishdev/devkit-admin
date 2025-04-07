@@ -1,9 +1,10 @@
 
 import { h } from "vue"
-import type { DatalistColumn } from './_types';
+
+import { ColumnBase } from "./ColumnBase"
+import { DatalistColumnBase } from "../types"
 import { AppImage } from 'devkit-base-components'
-import { DatalistColumnBase } from "./ColumnBase";
-export class ColumnImage<TRecord extends Record<string, unknown>> extends DatalistColumnBase<TRecord> implements DatalistColumn<TRecord> {
+export class ColumnImage<TRecord extends Record<string, unknown>> extends ColumnBase<TRecord> implements DatalistColumnBase<TRecord> {
   renderHtml = (value: TRecord) => {
     if (this.columnName in value) {
       if (typeof value[this.columnName] == 'string') {

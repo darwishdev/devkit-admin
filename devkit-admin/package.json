@@ -1,6 +1,6 @@
 {
   "name": "devkit-admin",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Devkit Base Components is a Vue plugin offering a collection of reusable, headless components designed to streamline your Vue.js development workflow. Built for flexibility and maintainability, this library gives you complete control over styling and behavior, integrating seamlessly with PrimeVue, Vue Router, Vue I18n, and Tailwind CSS.",
   "module": "./dist/devkit_admin.es.js",
   "types": "./dist/types/devkit_admin.d.ts",
@@ -11,6 +11,18 @@
       "import": {
         "types": "./dist/types/devkit_admin.d.ts",
         "default": "./dist/devkit_admin.es.js"
+      }
+    },
+    "./datalist": {
+      "import": {
+        "types": "./dist/types/app/datalist/index.d.ts",
+        "default": "./dist/datalist.es.js"
+      }
+    },
+    "./form": {
+      "import": {
+        "types": "./dist/types/app/appform/index.d.ts",
+        "default": "./dist/form.es.js"
       }
     },
     "./style": {
@@ -94,7 +106,13 @@
     "@connectrpc/connect": "^2.0.1",
     "@connectrpc/connect-web": "^2.0.1",
     "@vue/test-utils": "^2.4.6",
+    "devkit-admin": "link:../../../../Library/pnpm/global/5/node_modules/devkit-admin",
     "primeicons": "^7.0.0",
     "vitest": "^3.0.7"
+  },
+  "pnpm": {
+    "overrides": {
+      "devkit-admin": "link:../../../../Library/pnpm/global/5/node_modules/devkit-admin"
+    }
   }
 }

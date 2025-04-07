@@ -4,6 +4,9 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+overrides:
+  devkit-admin: link:../../../../Library/pnpm/global/5/node_modules/devkit-admin
+
 importers:
 
   .:
@@ -35,6 +38,9 @@ importers:
       '@vueuse/core':
         specifier: ^12.5.0
         version: 12.5.0(typescript@5.7.3)
+      devkit-admin:
+        specifier: link:../../../../Library/pnpm/global/5/node_modules/devkit-admin
+        version: link:../../../../Library/pnpm/global/5/node_modules/devkit-admin
       devkit-apiclient:
         specifier: ^1.0.13
         version: 1.0.13(@connectrpc/connect-web@2.0.1(@bufbuild/protobuf@2.2.3)(@connectrpc/connect@2.0.1(@bufbuild/protobuf@2.2.3)))(@connectrpc/connect@2.0.1(@bufbuild/protobuf@2.2.3))

@@ -1,6 +1,6 @@
 
 import { createInput, defaultConfig } from '@formkit/vue'
-import { Dropdown, SelectButton, MultiDropdown, Datepicker } from 'devkit-admin'
+import { Dropdown, SelectButton, MultiDropdown, Datepicker } from 'devkit-admin/form'
 import InputImage from './components/InputImage.vue'
 
 import { rootClasses } from './formkit.theme'

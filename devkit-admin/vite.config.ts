@@ -20,12 +20,24 @@ export default defineConfig({
 	},
 	build: {
 		cssCodeSplit: true,
-		lib: {
-			entry: './src/devkit_admin.ts', // Entry point for your library
+lib: {
+			// Use an object for multiple entry points
+			entry: {
+				'devkit_admin': './src/devkit_admin.ts', // Main entry point
+				'datalist': './src/app/datalist/index.ts', // Additional entry point
+				'form': './src/app/appform/index.ts' // Additional entry point
+			},
 			name: 'VueDevkit', // Global variable name for your library
-			fileName: (format) => `devkit_admin.${format}.js`, // Output file name
 			formats: ['es'], // Only output ESM format
+			// Modify fileName to handle multiple entries
+			fileName: (format, entryName) => `${entryName}.${format}.js`,
 		},
+		//lib: {
+		//	entry: './src/devkit_admin.ts', // Entry point for your library
+		//	name: 'VueDevkit', // Global variable name for your library
+		//	fileName: (format) => `devkit_admin.${format}.js`, // Output file name
+		//	formats: ['es'], // Only output ESM format
+		//},
 		rollupOptions: {
 			external: [
 				'vue',
