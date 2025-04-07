@@ -1,9 +1,41 @@
 
 import { createInput, defaultConfig } from '@formkit/vue'
 import { Dropdown, SelectButton, MultiDropdown, Datepicker } from 'devkit-admin'
+import InputImage from './components/InputImage.vue'
+
 import { rootClasses } from './formkit.theme'
 import { ar, en } from '@formkit/i18n'
+
+import type { FormKitPlugin } from '@formkit/core';
+const isCheckboxAndRadioMultiple: FormKitPlugin = (node: any) => (node.props.type === 'checkbox' || node.props.type === 'radio') && node.props.options
+const addAsteriskPlugin = (node: any) => {
+  node.on('created', () => {
+    const isRequired = node.props.parsedRules.some((rule: any) => rule.name === 'required');
+    if (!isRequired) return
+
+    const isMultiOption = isCheckboxAndRadioMultiple(node)
+    node.props.definition.schemaMemoKey = `required_${isMultiOption ? 'multi_' : ""}${node.props.definition.schemaMemoKey}`
+    const schemaFn = node.props.definition.schema;
+    node.props.definition.schema = (sectionsSchema: any = {}) => {
+      if (isRequired) {
+        if (isMultiOption) {
+          sectionsSchema.legend = {
+            children: ['$label', '*']
+          }
+        } else {
+          sectionsSchema.label = {
+            children: ['$label', '*']
+          }
+        }
+      }
+      return schemaFn(sectionsSchema);
+    }
+  })
+}
 const formKitConfig = () => {
+  const plugins: FormKitPlugin[] = [
+    addAsteriskPlugin,
+  ]
   const commonDropdownProps = [
     "options",
     "cacheKey",
@@ -191,16 +223,23 @@ const formKitConfig = () => {
   const datePickerInput = createInput(Datepicker, {
     props: datepickerContextKeys,
   })
+
+  const imageInput = createInput(InputImage, {
+    props: [''],
+  })
+
   const inputs = {
     'devkitDropdown': dropdownInput,
     'devkitSelectButton': selectButtonInput,
     'devkitMultiDropdown': multDropdownInput,
     'devkitDatepicker': datePickerInput,
+    'devkitImage': imageInput,
 
   }
   return defaultConfig({
     inputs,
     locales: { en, ar },
+    plugins,
     locale: 'en',
     config: {
       rootClasses,

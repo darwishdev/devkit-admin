@@ -8,3 +8,7 @@ link:
 linkc:
 	npm link 
 	
+
+sync_api:
+	pnpm cache delete && pnpm add @buf/ahmeddarwish_devkit-api.bufbuild_es@${V}
+

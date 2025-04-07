@@ -1,6 +1,6 @@
 import type { AppFormOptions, StringUnkownRecord } from "@/pkg/types/types"
 
-import type { Ref } from "vue"
+import type { ComputedRef, Ref } from "vue"
 import type { Store } from "pinia"
 export type AppFormState<TReq extends StringUnkownRecord> = {
   formValueRef: Ref<StringUnkownRecord>
@@ -9,6 +9,7 @@ export type AppFormState<TReq extends StringUnkownRecord> = {
   formOptions: AppFormOptions
 }
 export type AppFormGetters = {
+  formValueString: ComputedRef<string>
 }
 export type AppFormActions<TKey extends string,
   TFormRequest extends StringUnkownRecord = StringUnkownRecord,

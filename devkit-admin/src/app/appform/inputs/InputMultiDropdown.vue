@@ -92,6 +92,7 @@ const forceReload = () => {
 const selectProps = await init()
 const renderInputDropdown = () => {
 	return h(MultiSelect, {
+		pt: { overlay: 'z-2000' },
 		...selectProps,
 		modelValue: formValue.value,
 		"onUpdate:modelValue": onValueChange,

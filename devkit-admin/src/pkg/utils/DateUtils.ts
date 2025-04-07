@@ -1,4 +1,5 @@
 
+import type { Timestamp } from "@bufbuild/protobuf/wkt";
 export const DateToNumber = (dateObject: Date) => {
   console.log(dateObject);
   const year = dateObject.getFullYear();
@@ -22,3 +23,9 @@ export const NumberToDate = (dateInt: number) => {
   return dateObject;
 
 };
+
+export function TimestampToDateString(timestamp: { seconds: number, nanos: number }): string {
+  const milliseconds = Number(Number(timestamp.seconds) * 1000 + Math.floor(Number(timestamp.nanos) / 1_000_000));
+  const date = new Date(milliseconds);
+  return date.toLocaleString(); // or use toISOString(), etc.
+}

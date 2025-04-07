@@ -11,7 +11,9 @@
 import { AppFormProps } from '@/pkg/types/types';
 import FormBase from './components/FormBase.vue'
 import { StringUnkownRecord } from 'devkit-apiclient';
+import { useAppFormStoreWithProps } from './store/AppFormStore';
 const props = defineProps<AppFormProps<TKey, TFormRequest, TApiRequest, TApiResponse, TFindRequestPropName, TFindResponsePropName, TFindCallbakResponse, TCallbakResponse>>()
+useAppFormStoreWithProps<TKey, TFormRequest, TApiRequest, TApiResponse, TFindRequestPropName, TFindResponsePropName, TFindCallbakResponse, TCallbakResponse>(props)
 </script>
 <template>
   <Suspense>

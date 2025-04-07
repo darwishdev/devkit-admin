@@ -20,6 +20,12 @@ const router = createRouter({
     {
       path: '/',
       component: BaseAppBtn,
+    },
+
+    {
+      path: '/user/:id',
+      name: 'user_find',
+      component: BaseAppBtn,
     }
   ]
 })

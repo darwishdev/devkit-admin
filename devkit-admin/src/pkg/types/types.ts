@@ -25,7 +25,8 @@ export type DevkitAdminConfig<TApi extends Record<string, Function>> = {
 	iconFindApi?: ApiEndpoint<TApi, IconFindRequest, IconFindResponse>
 }
 
-export type AppFormSections<TFormRequest> = Record<string, (AppFormSection<TFormRequest> | FormKitSchemaNode[])>
+export type AppFormSections<TFormRequest> = Record<string,
+	(AppFormSection<TFormRequest> | FormKitSchemaNode[])>
 export type AppFormProps<
 	TKey extends string,
 	TFormRequest extends StringUnkownRecord = StringUnkownRecord,
@@ -39,6 +40,13 @@ export type AppFormProps<
 	context: {
 		title: string
 		formKey: TKey,
+		useClear?: boolean
+		usePresist?: boolean
+		useReset?: boolean
+		resetOnSuccess?: boolean
+		syncWithUrl?: boolean
+		isLazy?: boolean
+		invalidateCachesOnChage?: string[]
 		invalidateCaches?: string[]
 		options?: AppFormOptions
 		submitHandler: SubmitHandler<TFormRequest, TApiRequest, TApiResponse, TCallbakResponse>,
@@ -53,6 +61,7 @@ export type SubmitHandler<
 	TApiResponse extends StringUnkownRecord = StringUnkownRecord,
 	TCallbakResponse = unknown> = {
 		endpoint: SubmitHandlerFn<TApiRequest, TApiResponse> | string
+		hideActions?: boolean
 		mapFunction?: (formReq: TFormRequest) => TApiRequest
 		callback?: (formResp: TApiResponse) => TCallbakResponse
 		redirectRoute?: string | RouteLocationRaw

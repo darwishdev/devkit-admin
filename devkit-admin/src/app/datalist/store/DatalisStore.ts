@@ -131,6 +131,8 @@ export const useDatalistStore = <TReq extends StringUnkownRecord, TRecord extend
             title: `${datalistKey}_update`,
             sections: formSections.value,
             invalidateCaches: [datalistKey],
+            syncWithUrl: true,
+            useReset: true,
             findHandler: {
               endpoint: handler.findEndpoint,
               requestPropertyName: handler.findRequestProperty,

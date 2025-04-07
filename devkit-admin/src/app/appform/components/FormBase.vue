@@ -13,6 +13,8 @@
   import { h, inject, ref, resolveComponent } from "vue";
   import { useToast } from "primevue";
   import { useRoute, useRouter } from "vue-router";
+  import { reset } from "@formkit/core";
+  import { AppBtn } from "devkit-base-components";
   import { useMutation, useQueryClient } from "@tanstack/vue-query";
   import { useAppFormStoreWithKey } from "../store/AppFormStore";
   import { ObjectKeys, StringUnkownRecord } from "devkit-apiclient";
@@ -22,6 +24,8 @@
     FindHandlerFn,
     SubmitHandlerFn,
   } from "@/pkg/types/types";
+  import { RouteQueryFind, RouteQueryRemove } from "@/pkg/utils/QueryUtils";
+  import { useDebounceFn } from "@vueuse/core";
   const dialogRef = inject("dialogRef") as any;
   const formkitSchemaComp = resolveComponent("FormKitSchema");
   const queryClient = useQueryClient();
@@ -43,20 +47,50 @@
     >();
   const { submitHandler, options, formKey, findHandler, invalidateCaches } =
     props.context;
-  const formStore = useAppFormStoreWithKey<
-    TKey,
-    TFormRequest,
-    TApiRequest,
-    TApiResponse,
-    TFindRequestPropName,
-    TFindResponsePropName,
-    TFindCallbakResponse,
-    TCallbakResponse
-  >(formKey);
+  const formStore = useAppFormStoreWithKey(formKey);
   const route = useRoute();
+
+  const getInitialValue = (formValues: string) => {
+    console.log('urlvalues', formValues)
+    let formValuesObject: StringUnkownRecord = {}
+    if (formValues != null) {
+      try {
+        formValuesObject = JSON.parse(formValues)
+      } catch (e) {
+        RouteQueryRemove(formKey)
+        console.log('error parsing url', e)
+      }
+    }
+    return formValuesObject
+
+  }
+  const getInitialValueFromLocalStorage = () => {
+    if (!props.context.useReset) return undefined
+    const formValues = localStorage.getItem(formKey)
+    if (!formValues) return {}
+    return getInitialValue(formValues)
+  }
+  const getInitialValueFromUrl = () => {
+    if (!props.context.syncWithUrl) return undefined
+    console.log('urlvalues')
+    const formValues = RouteQueryFind(formKey)
+
+    if (!formValues) return {}
+    return getInitialValue(formValues)
+  }
+
   const init = () => {
     return new Promise<void>((resolve) => {
       if (!findHandler) {
+        if (props.context.syncWithUrl) {
+          const urlFormValues = getInitialValueFromUrl()
+          console.log('urlFormValues', urlFormValues)
+          if (urlFormValues) formStore.formValueRef = urlFormValues
+        }
+        if (props.context.useReset) {
+          const localStorageFormValues = getInitialValueFromLocalStorage()
+          if (localStorageFormValues) formStore.formValueRef = localStorageFormValues
+        }
         resolve();
         return;
       }
@@ -192,19 +226,18 @@
   };
 
   const formSubmitHandler = (req: TFormRequest, formNode: FormKitNode) => {
-    console.log("error is here from handlerRrorrr methoed", req);
+    formStore.formValueRef = req
     const handler = props.context.submitHandler;
     const apiRequest: TApiRequest = handler.mapFunction
       ? handler.mapFunction(req)
       : (req as unknown as TApiRequest);
     return new Promise((resolve, reject) => {
-      console.log("reqis ", req, submitMutation);
-
       submitMutation
         .mutateAsync(apiRequest)
         .then((response: TApiResponse) => {
           const defaultSummary = "api_success_summary";
           const defaultContent = "api_success_detail";
+          if (props.context.resetOnSuccess) formNode.reset()
 
           if (options) {
             if (!options.isSuccessNotificationHidden) {
@@ -224,7 +257,7 @@
             }
           }
           if (dialogRef) {
-            //  dialogRef.value.close()
+            dialogRef.value.close()
           }
           resolve(null);
         })
@@ -241,15 +274,30 @@
       formkitComp,
       {
         type: "form",
-        modelValue: formStore.formValueRef,
-        "onUpdate:modelValue": (value: StringUnkownRecord) =>
-          (formStore.formValueRef = value),
-        ref: (ref) => formStore.formElementRef = ref,
+        actions: !props.context.submitHandler.hideActions,
+        value: props.context.isLazy ? formStore.formValueRef : undefined,
+        modelValue: props.context.isLazy ? undefined : formStore.formValueRef,
+        "onUpdate:modelValue": props.context.isLazy ? undefined : (value: StringUnkownRecord) => {
+          console.log('modechange', value)
+          if (props.context.invalidateCachesOnChage) {
+            useDebounceFn(() => {
+              formStore.formValueRef = value;
+              queryClient.invalidateQueries({ queryKey: props.context.invalidateCachesOnChage })
+
+            }, 1000)()
+          }
+        }
+        ,
+        ref: (ref: any) => {
+          formStore.formElementRef = ref
+        },
         onSubmit: formSubmitHandler,
       },
       {
-        default: () =>
+        default: () => [
           h(formkitSchemaComp, {
+
+            id: props.context.formKey,
             schema: {
               $el: "div",
               attrs: {
@@ -258,9 +306,21 @@
               children: generateFormSchema(),
             },
           }),
+          props.context.useReset ? h(AppBtn, { action: formStore.resetForm, label: 'reset' }) : undefined,
+          props.context.usePresist ? h(AppBtn, { action: formStore.presistForm, label: 'presist' }) : undefined,
+          props.context.useClear ? h(AppBtn, { action: formStore.clearForm, label: 'clear' }) : undefined
+        ],
+
       },
     );
   };
+  const resetForm = () => {
+    console.log('reseting')
+    formStore.formValueRef = {}
+    formStore.formElementRef.node.reset()
+    console.log(formStore.formElementRef.node.reset())
+    reset(formStore.formElementRef)
+  }
 </script>
 <template>
   <component :is="renderAppForm()" />

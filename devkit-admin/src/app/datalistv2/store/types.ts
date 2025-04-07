@@ -15,7 +15,6 @@ export type DatalistStore<TApi extends Record<string, Function>,
 	>
 
 export type DeleteRestoreVariant = {
-	disabled: boolean;
 	hasSelectedData: boolean;
 	hasDeletedRecords: boolean;
 	icon: string;

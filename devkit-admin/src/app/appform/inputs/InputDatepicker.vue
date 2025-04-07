@@ -49,9 +49,9 @@ const primeProps: DatePickerProps = { ...context }
 const formValue = ref<Date | Date[] | Array<Date | null> | undefined | null>()
 
 // SECTION: Watchers
-watch(parentValue, () => {
-	onValueChange(undefined)
-})
+// watch(parentValue, () => {
+// 	onValueChange(undefined)
+// })
 
 // SECTION: Functions - Value Handling and Type Casting
 const checkForSelectionErrors = (value: unknown) => {
@@ -127,6 +127,7 @@ const handleDisabledDatesResponse = (response: unknown[]): Date[] => {
 const onValueChange = (value: any) => {
 	if (formValue.value !== value) {
 		formValue.value = value;
+		console.log("formvalue is", formValue)
 		if (convertToNumber) {
 			const mappedValue = handeDateToNumberCasting(value)
 			emit('valueChange', mappedValue);
@@ -138,7 +139,7 @@ const onValueChange = (value: any) => {
 // SECTION: Vue Query - Disabled Dates Fetching
 const queryFn = () => {
 	return new Promise<Date[]>((resolve) => {
-		if (!disabledDates) return []
+		if (!disabledDates) return resolve([])
 		let request: StringUnkownRecord = {}
 		if (parentValue.value) {
 			if (dsiabledDatesRequestMapper) {

@@ -1,13 +1,13 @@
 import { type Ref, type VNode } from "vue"
 import type { FormKitSchemaNode } from '@formkit/core'
-import type { DatalistMutations, DatalistStore } from './store/types'
 
 import { ColumnSlots, type ColumnProps } from 'primevue/column';
 import type { ApiListOptions, ApiResponseList, DatalistFetchFunction } from './utilities/_apiTypes'
-import type { DatalistFilter } from './utilities/_filtersTypes'
-import type { DatalistColumns } from './columns/_types'
 import { AppFormSections } from "@/pkg/types/types"
 import { ApiEndpoint, StringUnkownRecord } from "devkit-apiclient"
+import { DatalistFilter, DatalistFilterInput } from "../datalist/utilities/_filtersTypes";
+import { useDatalistStore } from "./store/DatalistStore";
+import { AppBtnProps } from "devkit-base-components";
 export type PaginationParams = {
 	sortColumn?: string,
 	sortFunction?: string;
@@ -34,17 +34,18 @@ export type DatalistRouter<TRecord extends Record<string, unknown>> = {
 	paramColumnName: keyof TRecord
 }
 
-export type DatalistGlobalActions = {
-	create?: boolean,
-	delete?: boolean,
-	deleteRestore?: boolean,
-	export?: boolean,
+export type ActionButtonProps<TAvailableKeys = DatalistAvailableActions> = Omit<AppBtnProps, 'action'> & { actionFn: Function, actionKey: keyof TAvailableKeys }
+export type DatalistCommonActions = {
+	delete?: ActionButtonProps,
+	deleteRestore?: ActionButtonProps,
 }
-
-export type DatalistRowActions = {
-	update?: boolean,
-	delete?: boolean,
-	view?: boolean,
+export type DatalistGlobalActions = DatalistCommonActions & {
+	create?: ActionButtonProps,
+	export?: ActionButtonProps,
+}
+export type DatalistRowActions = DatalistCommonActions & {
+	update?: ActionButtonProps,
+	view?: ActionButtonProps,
 }
 
 export type DatalistAvailableActions = DatalistGlobalActions & DatalistRowActions
@@ -61,28 +62,39 @@ export type DatalistRecords<TApi extends Record<string, Function>, TReq extends 
 
 export type DatalistClientFilter<TRecord> = {
 	matchMode: FilterMatchModeValues,
-	input: FormKitSchemaNode & { name: keyof TRecord }
+	input: FormKitSchemaNode & { name: keyof TRecord, value?: unknown }
 }
 export type DatalistFlags = {
 	isPresistFilters?: boolean;
+	hideShowDeleted?: boolean
 	isLazy?: boolean
+	hideActions?: boolean
 	isLazyFilters?: boolean;
 	isFilterPersist?: boolean;
 	isActionsDropdown?: boolean;
 	isExportable?: boolean;
 }
-export interface DatalistColumn<TRecord extends Record<string, unknown>> {
+export type DatalistColumnBase<TRecord extends Record<string, unknown>, TFiltersReq extends StringUnkownRecord | undefined = undefined> = {
 	props?: ColumnProps
-	filters?: DatalistFilter<TRecord>[]
 	slots?: ColumnSlots
+	isGlobalFilter?: boolean
 	router?: DatalistRouter<TRecord>
 	editInput?: FormKitSchemaNode
 	renderHtml?: (value: TRecord) => VNode
 }
 
+export type DatalistColumnClientSide<TRecord extends Record<string, unknown>, TFiltersReq extends StringUnkownRecord | undefined = undefined> = DatalistColumnBase<TRecord, TFiltersReq> & {
+	filters?: DatalistFilter<TFiltersReq>[]
+}
+export type DatalistColumnServerSide<TRecord extends Record<string, unknown>, TFiltersReq extends StringUnkownRecord | undefined = undefined> = DatalistColumnBase<TRecord, TFiltersReq> & {
+	filters?: DatalistFilterInput<TFiltersReq>[]
+}
 
 
-export type DatalistColumns<TRecord extends Record<string, unknown>> = Record<keyof TRecord, DatalistColumn<TRecord>>
+export type DatalistColumnsClientSide<TRecord extends StringUnkownRecord, TFiltersReq extends StringUnkownRecord | undefined = undefined> = Partial<Record<keyof TRecord, DatalistColumnClientSide<TRecord, TFiltersReq>>>
+export type DatalistColumnsServerSide<TRecord extends StringUnkownRecord, TFiltersReq extends StringUnkownRecord | undefined = undefined> = Partial<Record<keyof TRecord, DatalistColumnServerSide<TRecord, TFiltersReq>>>
+export type DatalistColumnsBase<TRecord extends StringUnkownRecord, TFiltersReq extends StringUnkownRecord | undefined = undefined> = Partial<Record<keyof TRecord, DatalistColumnBase<TRecord, TFiltersReq>>>
+
 
 
 export type DatalistContext<
@@ -91,22 +103,28 @@ export type DatalistContext<
 	TRecord extends StringUnkownRecord,
 	TFiltersReq extends StringUnkownRecord | undefined = undefined,
 	TApiResponse extends StringUnkownRecord | undefined = undefined,
-	TFormSectionsRequest extends StringUnkownRecord | undefined = undefined
-> = DatalistFlags & {
+	TFormSectionsRequest extends StringUnkownRecord | undefined = undefined,
+> = DatalistFlags & DatalistMappers<TReq, TRecord> & {
 	datalistKey: string;
+	title?: string,
 	records: DatalistRecords<TApi, TReq, TRecord, TFiltersReq, TApiResponse>
 	options?: ApiListOptions;
-	filters?: DatalistFilter<TRecord>[];
-	columns?: DatalistColumns<TRecord>;
-	clientFilters?: DatalistClientFilter<TRecord>[];
-	serverFilters?: (FormKitSchemaNode & { name: keyof TReq })[];
-	formSections?: AppFormSections<TFormSectionsRequest>;
+	formSections?: AppFormSections<TFormSectionsRequest extends undefined ? StringUnkownRecord : TFormSectionsRequest>;
 	execludedColumns?: (keyof TRecord)[];
+	displayType?: DisplayType
 	debounceInMilliseconds?: number;
 	rowIdentifier?: keyof TRecord;
 	viewRouter?: DatalistRouter<TRecord>;
 	initiallySelectedItems?: TRecord[];
-};
+} & ({
+	isServerSide?: true
+	columns?: DatalistColumnsServerSide<TRecord, TFiltersReq>;
+	filters?: DatalistFilterInput<TFiltersReq>[];
+} | {
+	isServerSide?: false
+	columns?: DatalistColumnsClientSide<TRecord, TFiltersReq>;
+	filters?: DatalistFilter<TFiltersReq>[];
+});
 
 export type DatalistProps<
 	TApi extends Record<string, Function>,
@@ -119,69 +137,58 @@ export type DatalistProps<
 	context: DatalistContext<TApi, TReq, TRecord, TFiltersReq, TApiResponse, TFormSectionsRequest>
 }
 //slots 
-export type BaseDatalistSlots<TReq extends StringUnkownRecord, TRecord extends Record<string, unknown>> = {
-	default(): VNode | undefined;
-	expansion(props: { data: TRecord }): VNode | undefined;
-	header(store: DatalistStore<TReq, TRecord>): VNode | undefined;
-};
-export type SharedSlots<TReq extends StringUnkownRecord, TRecord extends Record<string, unknown>> = {
-	dropdownActions(props: { data: TRecord }): VNode | undefined;
-	actions(props: { data: TRecord }): VNode | undefined;
-	headerActionsStartPrepend(store: DatalistStore<TReq, TRecord>): VNode | undefined;
-	headerActionsStartAppend(store: DatalistStore<TReq, TRecord>): VNode | undefined;
-	headerActionsEndPrepend(store: DatalistStore<TReq, TRecord>): VNode | undefined;
-	headerActionsEndAppend(store: DatalistStore<TReq, TRecord>): VNode | undefined;
-	prependActions(props: { data: TRecord }): VNode | undefined;
-	appendActions(props: { data: TRecord }): VNode | undefined;
-	filtersPanel(store: DatalistStore<TReq, TRecord>): VNode | undefined;
-	filtersForm(store: DatalistStore<TReq, TRecord>): VNode | undefined;
-} & {
-	[K in keyof TRecord as K extends string ? `filters.${K}` : never]: (props: {
-		store: DatalistStore<TReq, TRecord>;
-		modelFilterFormRef: Ref<Record<string, any>>;
-	}) => VNode;
-};
+export type DatalistStore<
+	TApi extends Record<string, Function>,
+	TReq extends StringUnkownRecord,
+	TRecord extends StringUnkownRecord,
+	TFiltersReq extends StringUnkownRecord | undefined = undefined,
+	TApiResponse extends StringUnkownRecord | undefined = undefined,
+	TFormSectionsRequest extends StringUnkownRecord | undefined = undefined
+> = ReturnType<ReturnType<typeof useDatalistStore<TApi, TReq, TRecord, TFiltersReq, TApiResponse, TFormSectionsRequest>>>
+export type DatalistSlots<
+	TApi extends Record<string, Function>,
+	TReq extends StringUnkownRecord,
+	TRecord extends StringUnkownRecord,
+	TFiltersReq extends StringUnkownRecord | undefined = undefined,
+	TApiResponse extends StringUnkownRecord | undefined = undefined,
+	TFormSectionsRequest extends StringUnkownRecord | undefined = undefined
 
-export type CardSlots<TReq extends StringUnkownRecord, TRecord extends Record<string, unknown>> = Pick<DatalistSlots<TReq, TRecord>, 'cardEnd' | 'card' | 'cardStart'>;
-
-export type TableSlots<TRecord extends Record<string, unknown>> = {
-	columnHeader(props: { column: keyof TRecord }): VNode;
-	columnFooter(props: { column: keyof TRecord }): VNode;
-} & {
-	[K in keyof TRecord as K extends string ? `column.${K}` : never]: (props: { data: TRecord }) => VNode;
-};
-export type ListSlots<TRecord extends Record<string, unknown>> = {
-	listItem(props: { data: TRecord }): VNode;
-};
-
-export type DatalistSlots<TReq extends StringUnkownRecord, TRecord extends Record<string, unknown>> = {
+> = {
 	default(): VNode | undefined
 	card?: (props: { data: TRecord }) => VNode[]
 	cardStart?: (props: { data: TRecord }) => VNode[]
 	cardEnd?: (props: { data: TRecord }) => VNode[]
 	expansion(props: { data: TRecord }): VNode | undefined
-	headerActionsStartPrepend(store: DatalistStore<TReq, TRecord>): VNode | undefined
-	headerActionsStartAppend(store: DatalistStore<TReq, TRecord>): VNode | undefined
-	headerActionsEndPrepend(store: DatalistStore<TReq, TRecord>): VNode | undefined
-	headerActionsEndAppend(store: DatalistStore<TReq, TRecord>): VNode | undefined
-	filtersPanel(store: DatalistStore<TReq, TRecord>): VNode | undefined
-	filtersPresist(store: DatalistStore<TReq, TRecord>): VNode | undefined
-	filtersReset(store: DatalistStore<TReq, TRecord>): VNode | undefined
-	filtersForm(store: DatalistStore<TReq, TRecord>): VNode | undefined
-	filtersFormAppend(store: DatalistStore<TReq, TRecord>): VNode | undefined
-	filtersFormPrepend(store: DatalistStore<TReq, TRecord>): VNode | undefined
-	header(store: DatalistStore<TReq, TRecord>): VNode | undefined
+
+	globalActions(props:{store: DatalistStore<TApi, TReq, TRecord, TFiltersReq, TApiResponse, TFormSectionsRequest>}): VNode | undefined
+	globalActionsStartPrepend(props:{store: DatalistStore<TApi, TReq, TRecord, TFiltersReq, TApiResponse, TFormSectionsRequest>}): VNode | undefined
+	empty(): VNode | undefined
+	globalActionsStartAppend(props:{store: DatalistStore<TApi, TReq, TRecord, TFiltersReq, TApiResponse, TFormSectionsRequest>}): VNode | undefined
+	globalActionsEndPrepend(props:{store: DatalistStore<TApi, TReq, TRecord, TFiltersReq, TApiResponse, TFormSectionsRequest>}): VNode | undefined
+	globalActionsEndAppend(props:{store: DatalistStore<TApi, TReq, TRecord, TFiltersReq, TApiResponse, TFormSectionsRequest>}): VNode | undefined
+	loading(props:{store: DatalistStore<TApi, TReq, TRecord, TFiltersReq, TApiResponse, TFormSectionsRequest>}): VNode | undefined
+	paginatorcontainer(props:{store: DatalistStore<TApi, TReq, TRecord, TFiltersReq, TApiResponse, TFormSectionsRequest>}): VNode | undefined
+	paginatorstart(props:{store: DatalistStore<TApi, TReq, TRecord, TFiltersReq, TApiResponse, TFormSectionsRequest>}): VNode | undefined
+	paginatorend(props:{store: DatalistStore<TApi, TReq, TRecord, TFiltersReq, TApiResponse, TFormSectionsRequest>}): VNode | undefined
+	empty(props:{store: DatalistStore<TApi, TReq, TRecord, TFiltersReq, TApiResponse, TFormSectionsRequest>}): VNode | undefined
+	filtersPanel(props:{store: DatalistStore<TApi, TReq, TRecord, TFiltersReq, TApiResponse, TFormSectionsRequest>}): VNode | undefined
+	filtersPresist(props:{store: DatalistStore<TApi, TReq, TRecord, TFiltersReq, TApiResponse, TFormSectionsRequest>}): VNode | undefined
+	filtersReset(props:{store: DatalistStore<TApi, TReq, TRecord, TFiltersReq, TApiResponse, TFormSectionsRequest>}): VNode | undefined
+	filtersForm(props:{store: DatalistStore<TApi, TReq, TRecord, TFiltersReq, TApiResponse, TFormSectionsRequest>}): VNode | undefined
+	filtersFormAppend(props:{store: DatalistStore<TApi, TReq, TRecord, TFiltersReq, TApiResponse, TFormSectionsRequest>}): VNode | undefined
+	filtersFormPrepend(props:{store: DatalistStore<TApi, TReq, TRecord, TFiltersReq, TApiResponse, TFormSectionsRequest>}): VNode | undefined
+	header(props:{store: DatalistStore<TApi, TReq, TRecord, TFiltersReq, TApiResponse, TFormSectionsRequest>}): VNode | undefined
 	dropdownActions(props: { data: TRecord }): VNode | undefined
 	actions(props: { data: TRecord }): VNode | undefined
-	prependActions(props: { data: TRecord }): VNode | undefined
-	appendActions(props: { data: TRecord }): VNode | undefined
+	actionsPrepend(props: { data: TRecord }): VNode | undefined
+	actionsAppend(props: { data: TRecord }): VNode | undefined
 } & {
-	[K in keyof TRecord as K extends string ? `column.${K}` : never]: (props: { data: TRecord }) => VNode;
-} & {
-	[K in keyof DatalistGlobalActions as K extends string ? `globalActions.${K}` : never]: (props: { store: DatalistStore<TReq, TRecord> }) => VNode;
-} & {
-	[K in keyof DatalistRowActions as K extends string ? `rowActions.${K}` : never]: (props: { store: DatalistStore<TReq, TRecord> }) => VNode;
-} & {
-	[K in keyof TRecord as K extends string ? `filters.${K}` : never]: (props: { store: DatalistStore<TReq, TRecord>, modelFilterFormRef: Ref<Record<string, any>> }) => VNode;
-}
+		[K in keyof TRecord as K extends string ? `column.${K}` : never]: (props: { data: TRecord }) => VNode;
+	} & {
+		[K in keyof DatalistGlobalActions as K extends string ? `globalActions.${K}` : never]: (props: { props:{store: DatalistStore<TApi, TReq, TRecord, TFiltersReq, TApiResponse, TFormSectionsRequest>} }) => VNode;
+	} & {
+		[K in keyof DatalistRowActions as K extends string ? `rowActions.${K}` : never]: (props: { props:{store: DatalistStore<TApi, TReq, TRecord, TFiltersReq, TApiResponse, TFormSectionsRequest>} }) => VNode;
+	} & {
+		[K in keyof TRecord as K extends string ? `filters.${K}` : never]: (props: { props:{store: DatalistStore<TApi, TReq, TRecord, TFiltersReq, TApiResponse, TFormSectionsRequest>}, modelFilterFormRef: Ref<Record<string, any>> }) => VNode;
+	}
 

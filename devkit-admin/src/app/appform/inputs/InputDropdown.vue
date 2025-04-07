@@ -140,6 +140,7 @@
       return resolve(primevuePops);
     });
   const onBeforeShow = () => {
+    console.log('onbeforwdshow')
     if (!useLazy || !options || (queryResult.data.value?.length && !dependsOn))
       return;
     queryResult.refetch();
@@ -159,6 +160,7 @@
       Select,
       {
         ...selectProps,
+        pt: { overlay: 'z-2000' },
         modelValue: formValue.value,
         "onUpdate:modelValue": onValueChange,
         loading: queryResult.isLoading.value || queryResult.isFetching.value,

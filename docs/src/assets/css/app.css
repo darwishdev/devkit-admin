@@ -105,3 +105,7 @@
 		--tw-border-opacity: 0;
 	}
 }
+
+.z-2000 {
+	z-index: 2000 !important;
+}

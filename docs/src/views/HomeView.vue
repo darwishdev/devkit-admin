@@ -106,9 +106,11 @@ const tableProps: DatalistProps<UserListRequest, AccountsSchemaUser> = {
       matchMode: "contains",
       input: {
         $formkit: 'text',
+        validation: 'required',
         prefixIcon: "tools",
         outerClass: "col-12 sm:col-6 md:col-3",
         name: "userName",
+        label: 'userName',
         placeholder: t("userName")
       }
     }],

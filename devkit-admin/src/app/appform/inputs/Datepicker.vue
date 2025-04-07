@@ -18,6 +18,7 @@ onErrorCaptured((err: unknown) => {
 		errRef.value = 'An unexpected error occurred in the date picker';
 	}
 })
+
 </script>
 <template>
 	<Suspense>
