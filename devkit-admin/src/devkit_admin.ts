@@ -8,8 +8,8 @@ import { NumberToDate, DateToNumber } from './pkg/utils/DateUtils'
 
 const db = new DevkitAdminDB()
 
-export { db,  NumberToDate, DateToNumber,  Datepicker,    adminTypes}
-const DevkitAdminPlugin: Plugin<DevkitAdminConfig<Record<string, Function>>> = {
+export { db, NumberToDate, DateToNumber, Datepicker, adminTypes }
+const DevkitAdminPlugin: Plugin<DevkitAdminConfig<any>> = {
 	install<TApi extends Record<string, Function>>(app: App, { apiClient, locales, iconFindApi }: DevkitAdminConfig<TApi>) {
 		console.log("admin installed", app, apiClient, locales, iconFindApi)
 	}

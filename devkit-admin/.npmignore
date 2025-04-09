@@ -1,0 +1,10 @@
+
+src/
+tests/
+vite.config.*
+playground/
+*.ts
+*.tsx
+*.vue
+*.md
+node_modules/

@@ -274,7 +274,7 @@
       formkitComp,
       {
         type: "form",
-        actions: !props.context.submitHandler.hideActions,
+        actions: false,
         value: props.context.isLazy ? formStore.formValueRef : undefined,
         modelValue: props.context.isLazy ? undefined : formStore.formValueRef,
         "onUpdate:modelValue": props.context.isLazy ? undefined : (value: StringUnkownRecord) => {
@@ -306,22 +306,27 @@
               children: generateFormSchema(),
             },
           }),
-          props.context.useReset ? h(AppBtn, { action: formStore.resetForm, label: 'reset' }) : undefined,
-          props.context.usePresist ? h(AppBtn, { action: formStore.presistForm, label: 'presist' }) : undefined,
-          props.context.useClear ? h(AppBtn, { action: formStore.clearForm, label: 'clear' }) : undefined
-        ],
+          h('div', { class: 'custom-form-actions' }, [
+            !props.context.submitHandler.hideActions ? h(AppBtn, { type: 'submit', label: 'submit', icon: 'send' }) : undefined,
+            props.context.useReset ? h(AppBtn, { action: formStore.resetForm, label: 'reset' }) : undefined,
+            props.context.useReset ? h(AppBtn, { action: formStore.resetForm, label: 'reset' }) : undefined,
+            props.context.usePresist ? h(AppBtn, { action: formStore.presistForm, label: 'presist' }) : undefined,
+          ])],
 
       },
     );
   };
-  const resetForm = () => {
-    console.log('reseting')
-    formStore.formValueRef = {}
-    formStore.formElementRef.node.reset()
-    console.log(formStore.formElementRef.node.reset())
-    reset(formStore.formElementRef)
-  }
 </script>
 <template>
   <component :is="renderAppForm()" />
 </template>
+<style>
+.custom-form-actions {
+  display: flex;
+  gap: var(--gap);
+
+  button:first-child {
+    flex: 1
+  }
+}
+</style>

@@ -5,13 +5,13 @@ import { FormKitSchemaNode } from '@formkit/core'
 import { ObjectKeys, resolveApiEndpoint, StringUnkownRecord } from 'devkit-apiclient'
 import { useAppFormStoreWithProps } from '@/app/appform/store/AppFormStore'
 import { _constructColumns } from '../utilites/_columnUtils'
-import {  keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
+import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
 import { objectEntries, useDebounceFn } from '@vueuse/core'
-import {  AppDialog } from 'devkit-base-components'
+import { AppDialog } from 'devkit-base-components'
 import { useRouter } from 'vue-router'
 import { useDialog } from 'primevue'
 import AppForm from '@/app/appform/AppForm.vue'
-import {  FindHandler} from '@/pkg/types/types'
+import { FindHandler } from '@/pkg/types/types'
 import { DeleteRestoreVariant } from '../types'
 
 export const useDatalistStore = <
@@ -33,7 +33,6 @@ export const useDatalistStore = <
 		const paginationParamsRef = ref<PaginationParams>()
 		const dialog = useDialog()
 		const globalFilters: string[] = []
-
 		const queryClient = useQueryClient();
 		const datatableColumnsRef: Ref<DatalistColumnsBase<TRecord, TFiltersReq>
 		> = ref(context.columns || {})
@@ -137,7 +136,7 @@ export const useDatalistStore = <
 		})
 		function isApiResponseList<TRecord extends StringUnkownRecord>(response: object): response is ApiResponseList<TRecord> {
 			return (
-        'records' in response &&
+				'records' in response &&
 				response &&
 				Array.isArray(response.records)
 			);
@@ -170,6 +169,7 @@ export const useDatalistStore = <
 				}
 				return apiResponse
 			} catch (e) {
+				console.log('error on fetching data' , e)
 				if (e instanceof Error) {
 					errorRef.value = e.message;
 				}
@@ -181,7 +181,7 @@ export const useDatalistStore = <
 			const initialVariant: DeleteRestoreVariant = {
 				hasSelectedData: modelSelectionRef.value.length > 0,
 				hasDeletedRecords: false,
-        disabled: false,
+				disabled: false,
 				icon: isShowDeletedRef.value ? 'back' : 'trash',
 				label: isShowDeletedRef.value ? 'restore' : 'delete',
 				empty: isShowDeletedRef.value ? 'empty_records_deleted' : 'empty_records',
@@ -251,10 +251,10 @@ export const useDatalistStore = <
 			if (!(viewRouter.paramColumnName in record)) return
 			try {
 				const params: Record<string, string> = {}
-			if(viewRouter.paramColumnName in record)	params[viewRouter.paramName] = record[viewRouter.paramColumnName] as string
+				if (viewRouter.paramColumnName in record) params[viewRouter.paramName] = record[viewRouter.paramColumnName] as string
 				push({ name: viewRouter.name, params })
-			} catch (e : unknown) {
-				console.error('error routing to view route' , e)
+			} catch (e: unknown) {
+				console.error('error routing to view route', e)
 			}
 			console.log('view record', record)
 		}
@@ -281,30 +281,31 @@ export const useDatalistStore = <
 				queryClient.invalidateQueries({ queryKey: [context.datalistKey] });
 			},
 		});
-    const exportData = () => {
+		const exportData = () => {
 
-    }
+		}
 		const initAvailableActions = async (options?: ApiListOptions) => {
-      if(!options) return
+			if (!options) return
 			console.log("initialaizee", datalistQueryResult.data.value, options)
 			const cuurentAvailableOptions: DatalistAvailableActions = {}
 			if (context.viewRouter) {
-				cuurentAvailableOptions.view = { actionKey: 'view', label: 'view', actionFn: (record: TRecord) => viewRecord(record) } }
+				cuurentAvailableOptions.view = { actionKey: 'view', label: 'view', actionFn: (record: TRecord) => viewRecord(record) }
+			}
 			if (options.deleteHandler) {
-				cuurentAvailableOptions.delete = { actionKey: 'view',label: 'delete', actionFn: () => {} }
+				cuurentAvailableOptions.delete = { actionKey: 'view', label: 'delete', actionFn: () => { } }
 			}
 			if (options.deleteRestoreHandler) {
-				cuurentAvailableOptions.deleteRestore = { actionKey: 'view',label: 'delete', actionFn:  () => {}}
+				cuurentAvailableOptions.deleteRestore = { actionKey: 'view', label: 'delete', actionFn: () => { } }
 			}
 
 			if (options.updateHandler) {
-				cuurentAvailableOptions.update = { actionKey: 'view',label: 'update', actionFn: (record: TRecord) => createUpdateRecord(record) }
+				cuurentAvailableOptions.update = { actionKey: 'view', label: 'update', actionFn: (record: TRecord) => createUpdateRecord(record) }
 			}
 			if (options.createHandler) {
 				cuurentAvailableOptions.create = { actionKey: 'create', label: 'create', actionFn: createUpdateRecord }
 			}
 			if (context.isExportable) {
-				cuurentAvailableOptions.export = {actionKey: 'export', label: 'export', actionFn: () => exportData() }
+				cuurentAvailableOptions.export = { actionKey: 'export', label: 'export', actionFn: () => exportData() }
 			}
 
 			availableActions.value = cuurentAvailableOptions
@@ -369,7 +370,7 @@ export const useDatalistStore = <
 			filtersFormStore,
 			createUpdateRecord,
 			isShowDeletedRef,
-      debouncedRefetch,
+			debouncedRefetch,
 			deleteRestoreVariants,
 			filtersFormKey,
 			// actions
