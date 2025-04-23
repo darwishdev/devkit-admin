@@ -23,6 +23,9 @@ importers:
       '@formkit/core':
         specifier: ^1.6.9
         version: 1.6.9
+      '@formkit/inputs':
+        specifier: ^1.6.9
+        version: 1.6.9
       '@formkit/vue':
         specifier: ^1.6.9
         version: 1.6.9(tailwindcss@3.4.17)(vue@3.5.13(typescript@5.7.3))
@@ -74,6 +77,9 @@ importers:
       vue-router:
         specifier: ^4.4.5
         version: 4.5.0(vue@3.5.13(typescript@5.7.3))
+      zod:
+        specifier: ^3.24.3
+        version: 3.24.3
     devDependencies:
       '@eslint/js':
         specifier: ^9.22.0
@@ -1963,6 +1969,9 @@ packages:
     resolution: {integrity: sha512-rVksvsnNCdJ/ohGc6xgPwyN8eheCxsiLM8mxuE/t/mOVqJewPuO1miLpTHQiRgTKCLexL4MeAFVagts7HmNZ2Q==}
     engines: {node: '>=10'}
 
+  zod@3.24.3:
+    resolution: {integrity: sha512-HhY1oqzWCQWuUqvBFnsyrtZRhyPeR7SUGv+C4+MsisMuVfSPx8HpwWqH8tRahSlt6M3PiFAcoeFhZAqIXTxoSg==}
+
 snapshots:
 
   '@alloc/quick-lru@5.2.0': {}
@@ -3793,3 +3802,5 @@ snapshots:
   yaml@2.7.0: {}
 
   yocto-queue@0.1.0: {}
+
+  zod@3.24.3: {}

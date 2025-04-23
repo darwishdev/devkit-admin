@@ -1,46 +1,49 @@
 
 import type { FormKitSchemaNode } from '@formkit/core'
-import type { IconFindRequest, IconFindResponse } from './api_types'
+import type { BucketCreateUpdateRequest, BucketListRequest, BucketListResponse, DeleteRequest, FileCreateBulkRequest, FileCreateRequest, FileCreateResponse, FileListRequest, FileListResponse, FileObject, IconFindRequest, IconFindResponse } from './api_types'
 import type { RouteLocationRaw } from 'vue-router'
 import { ApiEndpoint } from 'devkit-apiclient'
+import { BucketCreateUpdateResponse } from '@buf/ahmeddarwish_devkit-api.bufbuild_es/devkit/v1/public_storage_pb'
+import { DatalistRecords } from '@/app/datalist'
 export type StringUnkownRecord = Record<string, unknown>
 export type CacheOptions = {
 	cacheKey: string
 	bypassCache?: boolean
 	cacheTimeout?: number
 }
-//export type EndpointFunction<
-//	TReq extends Record<string, unknown> = {},
-//	TResp extends Record<string, unknown> = {}
-//> = ((req: TReq) => Promise<TResp>)
-//
-//export type ApiEndpoint<
-//	TApi extends Record<string, Function>,
-//	TReq extends Record<string, unknown> = {},
-//	TResp extends Record<string, unknown> = {}
-//> = keyof TApi | EndpointFunction<TReq, TResp> | Promise<TResp>
-//
+
+export type FilesHandler<TApi extends Record<string, Function>> = {
+	bucketList: ApiEndpoint<TApi, BucketListRequest, BucketListResponse>
+	fileCreate: ApiEndpoint<TApi, FileCreateRequest, FileCreateResponse>
+	fileList: DatalistRecords<TApi, FileListRequest, FileObject, FileListRequest, FileListResponse>
+	fileBulkCreate?: ApiEndpoint<TApi, FileCreateBulkRequest, FileCreateResponse>
+	bucketCreateUpdate?: ApiEndpoint<TApi, BucketCreateUpdateRequest, BucketCreateUpdateResponse>
+	fileDelete?: ApiEndpoint<TApi, DeleteRequest<'records', string, 'bulk'>, any>
+	bucketDelete?: ApiEndpoint<TApi, DeleteRequest<'records', string, 'bulk'>, any>
+
+}
 export type DevkitAdminConfig<TApi extends Record<string, Function>> = {
 	apiClient: TApi
 	locales: string[]
 	iconFindApi?: ApiEndpoint<TApi, IconFindRequest, IconFindResponse>
+	filesHandler?: FilesHandler<TApi>
 }
 
 export type AppFormSections<TFormRequest> = Record<string,
-	(AppFormSection<TFormRequest> | FormKitSchemaNode[])>
+	(AppFormSection<TFormRequest> | (FormKitSchemaNode & { name: keyof TFormRequest })[])>
 export type AppFormProps<
-	TKey extends string,
+	TApi extends Record<string, Function>,
 	TFormRequest extends StringUnkownRecord = StringUnkownRecord,
-	TApiRequest extends StringUnkownRecord = TFormRequest,
+	TApiRequest extends StringUnkownRecord = StringUnkownRecord,
 	TApiResponse extends StringUnkownRecord = StringUnkownRecord,
-	TFindRequestPropName extends string | undefined = 'recordId',
-	TFindResponsePropName extends string | undefined = 'request',
+	TFindRequestPropName extends string = 'recordId',
+	TFindResponsePropName extends string = 'request',
 	TFindCallbakResponse = unknown,
 	TCallbakResponse = unknown
 > = {
 	context: {
 		title: string
-		formKey: TKey,
+		formKey: string,
 		useClear?: boolean
 		usePresist?: boolean
 		useReset?: boolean
@@ -50,18 +53,19 @@ export type AppFormProps<
 		invalidateCachesOnChage?: string[]
 		invalidateCaches?: string[]
 		options?: AppFormOptions
-		submitHandler: SubmitHandler<TFormRequest, TApiRequest, TApiResponse, TCallbakResponse>,
-		findHandler?: FindHandler<TFindRequestPropName, TFindResponsePropName, TApiRequest, TFindCallbakResponse>,
+		submitHandler: SubmitHandler<TApi, TFormRequest, TApiRequest, TApiResponse, TCallbakResponse>,
+		findHandler?: FindHandler<TApi, TFormRequest, TFindRequestPropName, TFindResponsePropName, TFindCallbakResponse>,
 		sections: AppFormSections<TFormRequest>
 	}
 }
 export type SubmitHandlerFn<TApiRequest, TApiResponse> = (req: TApiRequest) => Promise<TApiResponse>
 export type SubmitHandler<
+	TApi extends Record<string, Function>,
 	TFormRequest extends StringUnkownRecord = StringUnkownRecord,
 	TApiRequest extends StringUnkownRecord = TFormRequest,
 	TApiResponse extends StringUnkownRecord = StringUnkownRecord,
 	TCallbakResponse = unknown> = {
-		endpoint: SubmitHandlerFn<TApiRequest, TApiResponse> | string
+		endpoint: ApiEndpoint<TApi, TApiRequest, TApiResponse>
 		hideActions?: boolean
 		mapFunction?: (formReq: TFormRequest) => TApiRequest
 		callback?: (formResp: TApiResponse) => TCallbakResponse
@@ -71,12 +75,14 @@ export type SubmitHandler<
 export type FindHandlerEndpointFn<TFindPropName extends string, TReq> = ((req: Record<TFindPropName, unknown>) => TReq)
 export type FindHandlerEndpoint<TFindPropName extends string, TReq> = FindHandlerEndpointFn<TFindPropName, TReq> | string
 
-export type FindHandlerFn<TFindRequestPropName extends string | undefined, TFindResponsePropName extends string | undefined, TApiRequest extends StringUnkownRecord> = TFindResponsePropName extends string
-	? (req: Record<TFindRequestPropName extends string ? TFindRequestPropName : 'recordId', unknown>) => Promise<Record<TFindResponsePropName, TApiRequest>>
-	: (req: Record<TFindRequestPropName extends string ? TFindRequestPropName : 'recordId', unknown>) => Promise<TApiRequest>;
 
-export type FindHandler<TFindRequestPropName extends string | undefined, TFindResponsePropName extends string | undefined, TApiRequest extends StringUnkownRecord, TFindCallbakResponse> = {
-	endpoint: FindHandlerFn<TFindRequestPropName, TFindRequestPropName, TApiRequest> | string
+export type FindHandler<TApi extends Record<string, Function>,
+	TFormRequest extends StringUnkownRecord,
+	TFindRequestPropName extends string = 'recordId',
+	TFindResponsePropName extends string = 'request',
+	TFindCallbakResponse = unknown
+> = {
+	endpoint: ApiEndpoint<TApi, Record<TFindRequestPropName, unknown>, Record<TFindResponsePropName, TFormRequest>>
 	requestPropertyName: TFindRequestPropName,
 	responsePropertyName: TFindResponsePropName,
 	requestValue?: unknown,

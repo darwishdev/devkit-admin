@@ -20,12 +20,13 @@ export default defineConfig({
 	},
 	build: {
 		cssCodeSplit: true,
-lib: {
+		lib: {
 			// Use an object for multiple entry points
 			entry: {
 				'devkit_admin': './src/devkit_admin.ts', // Main entry point
 				'datalist': './src/app/datalist/index.ts', // Additional entry point
-				'form': './src/app/appform/index.ts' // Additional entry point
+				'form': './src/app/appform/index.ts', // Additional entry point
+				'filemanager': './src/app/filemanager/index.ts' // Additional entry point
 			},
 			name: 'VueDevkit', // Global variable name for your library
 			formats: ['es'], // Only output ESM format

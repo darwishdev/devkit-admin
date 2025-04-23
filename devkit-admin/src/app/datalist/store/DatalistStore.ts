@@ -1,6 +1,6 @@
 import { ref, computed, h, inject, type Ref, watch } from 'vue'
 import { defineStore, getActivePinia } from 'pinia'
-import { ActionButtonProps, ApiListOptions, ApiResponseList, DatalistAvailableActions, DatalistColumnsBase, DatalistFilter, DatalistFilterInput, DatalistFiltersModel, DatalistGlobalActions, DatalistProps, DatalistRowActions, FilterMatchModeValues, PaginationParams } from '../types'
+import { ActionButtonProps, ApiListOptions, ApiResponseList, DatalistColumnsBase, DatalistFilter, DatalistFilterInput, DatalistFiltersModel, DatalistGlobalActions, DatalistProps, DatalistRowActions, FilterMatchModeValues, PaginationParams } from '../types'
 import { FormKitSchemaNode } from '@formkit/core'
 import { ObjectKeys, resolveApiEndpoint, StringUnkownRecord } from 'devkit-apiclient'
 import { useAppFormStoreWithProps } from '@/app/appform/store/AppFormStore'
@@ -9,9 +9,9 @@ import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tansta
 import { objectEntries, useDebounceFn } from '@vueuse/core'
 import { AppDialog } from 'devkit-base-components'
 import { useRouter } from 'vue-router'
-import { useDialog } from 'primevue'
+import { useDialog, useToast } from 'primevue'
 import AppForm from '@/app/appform/AppForm.vue'
-import { FindHandler } from '@/pkg/types/types'
+import { AppFormProps, FindHandler } from '@/pkg/types/types'
 import { DeleteRestoreVariant } from '../types'
 
 export const useDatalistStore = <
@@ -26,8 +26,9 @@ export const useDatalistStore = <
 		const filtersMatchModesMap: Map<string, FilterMatchModeValues> = new Map()
 		const isShowDeletedRef = ref(false)
 		const modelSelectionRef = ref<TRecord[]>(context.initiallySelectedItems || [])
+		const contextOptions: ApiListOptions = { title: context.datalistKey, ...context.options }
 		let initialCallbackFinished = false
-		const availableActions = ref<DatalistAvailableActions>({})
+		const toast = useToast()
 		const apiClient = inject<TApi>('apiClient')
 		const debounceInMilliseconds = context.debounceInMilliseconds || 1000
 		const paginationParamsRef = ref<PaginationParams>()
@@ -39,7 +40,7 @@ export const useDatalistStore = <
 		const errorRef = ref('')
 		const filtersFormKey = `${context.datalistKey}-filter-form`
 		const { datalistKey, rowIdentifier, isServerSide } = context
-		const filtersFormProps = {
+		const filtersFormProps: AppFormProps<TApi, Record<string, unknown>, Record<string, unknown>> = {
 			context: {
 				title: filtersFormKey,
 				syncWithUrl: true,
@@ -66,19 +67,29 @@ export const useDatalistStore = <
 
 			}
 		}
-		const rowActions = computed(() => {
-			const availableActionsProps: ActionButtonProps<DatalistRowActions>[] = []
-			for (const [actionKey, actionProps] of objectEntries(availableActions.value)) {
-				if (actionProps && ['view', 'update'].includes(actionKey)) availableActionsProps.push({ ...actionProps, actionKey: actionKey as 'view' | 'update' })
+		const optionsInUse = computed(() => datalistQueryResult.data.value?.options || contextOptions)
+		const permittedActions = computed(() => {
+			const rowActions: ActionButtonProps<DatalistRowActions>[] = []
+			const globalActions: ActionButtonProps<DatalistGlobalActions>[] = []
+			const rowActionsMap = {
+				'view': { hidden: !context.viewRouter, fn: (record: TRecord) => viewRecord(record) },
+				'update': { hidden: !optionsInUse.value.updateHandler, fn: (emitFn : (response : StringUnkownRecord) => void , record: TRecord) => createUpdateRecord(emitFn , record) },
 			}
-			return availableActionsProps
-		})
-		const globalActions = computed(() => {
-			const availableActionsProps: ActionButtonProps<DatalistGlobalActions>[] = []
-			for (const [actionKey, actionProps] of objectEntries(availableActions.value)) {
-				if (actionProps && ['create', 'export'].includes(actionKey)) availableActionsProps.push({ ...actionProps, actionKey: actionKey as 'create' | 'export' })
+			const globalActionsMap = {
+				'create': { hidden: !optionsInUse.value.createHandler, fn: (emitFn : (response : StringUnkownRecord) => void  ) => createUpdateRecord(emitFn) },
+				'export': { hidden: !context.viewRouter, fn: (  record: TRecord) => viewRecord(record ) },
 			}
-			return availableActionsProps
+			for (const [k, v] of objectEntries(rowActionsMap)) {
+				if (!v.hidden) {
+					rowActions.push({ actionKey: k, label: k, actionFn: v.fn })
+				}
+			}
+			for (const [k, v] of objectEntries(globalActionsMap)) {
+				if (!v.hidden) {
+					globalActions.push({ actionKey: k, label: k, actionFn: v.fn })
+				}
+			}
+			return { rowActions, globalActions }
 		})
 
 		const filtersFormStore = useAppFormStoreWithProps(filtersFormProps)
@@ -89,6 +100,7 @@ export const useDatalistStore = <
 
 
 		const generateFilters = async () => {
+			if (filtersFormSchema.length > 0) return
 			const { filters, columns } = context
 			let allFiltersCombined: (DatalistFilterInput<TFiltersReq> | DatalistFilter<TFiltersReq>)[] = [...filters || []]
 			if (columns) {
@@ -117,18 +129,18 @@ export const useDatalistStore = <
 				filtersFormSchema.push(inputField)
 			})
 		}
-		watch(filtersFormStore.formValueRef, async (newValue) => {
-			console.log('formvaluechanged', newValue)
-			if (context.isLazyFilters || !isFiltersFormValid.value || ObjectKeys(newValue).length == 0) return
-			if (context.isServerSide) {
-				console.log('context', context.isServerSide)
-				queryClient.invalidateQueries({ queryKey: [datalistKey] })
-			}
-		})
+		// watch(filtersFormStore.formValueRef, async (newValue) => {
+		// 	console.log('formvaluechanged', newValue)
+		// 	if (context.isLazyFilters || !isFiltersFormValid.value || ObjectKeys(newValue).length == 0) return
+		// 	if (context.isServerSide) {
+		// 		console.log('context', context.isServerSide)
+		// 		queryClient.invalidateQueries({ queryKey: [datalistKey] })
+		// 	}
+		// })
 		const filterFormValue = computed(() => {
 			const datalistFiltersModel: DatalistFiltersModel = {}
 			if (context.isServerSide) return datalistFiltersModel
-			for (const [filterName, filterValue] of Object.entries(filtersFormStore.formValueRef)) {
+			for (const [filterName, filterValue] of Object.entries(filtersFormStore.formValue)) {
 				datalistFiltersModel[filterName] = { value: filterValue, matchMode: filtersMatchModesMap.get(filterName) }
 			}
 
@@ -142,36 +154,32 @@ export const useDatalistStore = <
 			);
 		}
 		const datalistQueryFn = async (): Promise<ApiResponseList<TRecord>> => {
-			console.log("query is called", isFiltersFormValid.value)
+			console.log("query is called", isFiltersFormValid.value, filtersFormStore.formValue)
 			const { records, responseMapper, isServerSide, requestMapper } = context
 			if (Array.isArray(records)) {
 				return { records };
 			}
-			const requestPayload = { filters: filtersFormStore.formValueRef, paginationParams: paginationParamsRef.value }
+			const requestPayload = { filters: filtersFormStore.formValue, paginationParams: paginationParamsRef.value }
 			let request: TFiltersReq extends undefined ? TReq : TFiltersReq
 			try {
 				const requestBody = requestMapper ? requestMapper(requestPayload) : isServerSide ? requestPayload : filterFormValue.value;
 				request = requestBody as TFiltersReq extends undefined ? TReq : TFiltersReq
-
 				const apiResponse = await resolveApiEndpoint<TApi, typeof request, TApiResponse extends undefined ? ApiResponseList<TRecord> : TApiResponse>(
 					records,
 					apiClient,
 					request,
 				)
 				console.log("api response is", apiResponse)
-				let newResponse: ApiResponseList<TRecord>
-				if (responseMapper) {
-					newResponse = responseMapper(apiResponse)
-					return newResponse
-				}
-				if (!isApiResponseList<TRecord>(apiResponse)) {
+				const newResponse = responseMapper ? responseMapper(apiResponse) : apiResponse
+				if (!isApiResponseList<TRecord>(newResponse)) {
 					throw new Error('invalid response type. pass a response mapper or return object with key records as response')
 				}
-				return apiResponse
+				return newResponse
 			} catch (e) {
-				console.log('error on fetching data' , e)
+				console.log('error on fetching data', e)
 				if (e instanceof Error) {
 					errorRef.value = e.message;
+					toast.add({ severity: "error", summary: 'failed', detail: e.message, life: 3000 });
 				}
 				throw e
 			}
@@ -208,7 +216,7 @@ export const useDatalistStore = <
 				])
 			}))
 		}
-		const createUpdateRecord = (record?: TRecord) => {
+		const createUpdateRecord = (emitFn: (response: StringUnkownRecord) => void, record?: TRecord) => {
 			const options: ApiListOptions | undefined = datalistQueryResult.data.value?.options || context.options
 			if (!options || !rowIdentifier) return
 			const variant = record ? 'update' : 'create'
@@ -220,7 +228,7 @@ export const useDatalistStore = <
 				return
 			}
 			type FormReq = TFormSectionsRequest extends undefined ? StringUnkownRecord : TFormSectionsRequest
-			let findHandler: FindHandler<string, string, FormReq, unknown> | undefined
+			let findHandler: any = {}
 			if (record && options.updateHandler) {
 				const updateHandler = options.updateHandler
 				findHandler = {
@@ -230,7 +238,7 @@ export const useDatalistStore = <
 					requestValue: record[rowIdentifier]
 				}
 			}
-			dialog.open(h(AppForm<string, FormReq, FormReq, StringUnkownRecord, string, string>, {
+			dialog.open(h(AppForm<TApi, TFormSectionsRequest extends undefined ? StringUnkownRecord : TFormSectionsRequest>, {
 				context: {
 					title: `${datalistKey}_${variant}`,
 					sections: formSections,
@@ -240,6 +248,8 @@ export const useDatalistStore = <
 					resetOnSuccess: true,
 					submitHandler: {
 						endpoint: handler.endpoint,
+						callback: (response) => { emitFn(response) },
+
 					}
 				}
 			}))
@@ -254,6 +264,7 @@ export const useDatalistStore = <
 				if (viewRouter.paramColumnName in record) params[viewRouter.paramName] = record[viewRouter.paramColumnName] as string
 				push({ name: viewRouter.name, params })
 			} catch (e: unknown) {
+				toast.add({ severity: "error", summary: 'error routing to view route', detail: e, life: 3000 });
 				console.error('error routing to view route', e)
 			}
 			console.log('view record', record)
@@ -272,6 +283,7 @@ export const useDatalistStore = <
 			try {
 				await resolveApiEndpoint(handler.endpoint, apiClient, deleteRestoreRequest)
 			} catch (e) {
+				toast.add({ severity: "error", summary: 'failed', detail: e, life: 3000 });
 				console.error('delete restore failed', e)
 			}
 		}
@@ -284,32 +296,6 @@ export const useDatalistStore = <
 		const exportData = () => {
 
 		}
-		const initAvailableActions = async (options?: ApiListOptions) => {
-			if (!options) return
-			console.log("initialaizee", datalistQueryResult.data.value, options)
-			const cuurentAvailableOptions: DatalistAvailableActions = {}
-			if (context.viewRouter) {
-				cuurentAvailableOptions.view = { actionKey: 'view', label: 'view', actionFn: (record: TRecord) => viewRecord(record) }
-			}
-			if (options.deleteHandler) {
-				cuurentAvailableOptions.delete = { actionKey: 'view', label: 'delete', actionFn: () => { } }
-			}
-			if (options.deleteRestoreHandler) {
-				cuurentAvailableOptions.deleteRestore = { actionKey: 'view', label: 'delete', actionFn: () => { } }
-			}
-
-			if (options.updateHandler) {
-				cuurentAvailableOptions.update = { actionKey: 'view', label: 'update', actionFn: (record: TRecord) => createUpdateRecord(record) }
-			}
-			if (options.createHandler) {
-				cuurentAvailableOptions.create = { actionKey: 'create', label: 'create', actionFn: createUpdateRecord }
-			}
-			if (context.isExportable) {
-				cuurentAvailableOptions.export = { actionKey: 'export', label: 'export', actionFn: () => exportData() }
-			}
-
-			availableActions.value = cuurentAvailableOptions
-		}
 
 		const currenData = computed(() => {
 			if (!datalistQueryResult.data.value) return [];
@@ -319,7 +305,7 @@ export const useDatalistStore = <
 
 		})
 		const isFiltersFormValid = computed(() => {
-			return filtersFormStore?.formElementRef?.node?.context.state.valid || false
+			return filtersFormStore?.formElementContext?.state?.valid || false
 		})
 
 		const datalistQueryResult = useQuery<ApiResponseList<TRecord>, Error>({
@@ -337,8 +323,6 @@ export const useDatalistStore = <
 					);
 					datatableColumnsRef.value = datalistColumns;
 				}
-
-				if (response.options) await initAvailableActions(response.options)
 				initialCallbackFinished = true
 				return response
 			}),
@@ -348,7 +332,6 @@ export const useDatalistStore = <
 		const init = async () => {
 			await Promise.all([
 				generateFilters(),
-				initAvailableActions(context.options)
 			])
 		}
 		return {
@@ -357,13 +340,10 @@ export const useDatalistStore = <
 			datatableColumnsRef,
 			filterFormValue,
 			currenData,
-			rowActions,
-			globalActions,
 			globalFilters,
 			datalistQueryResult,
 			filtersFormProps,
 			deleteRestoreOpenDialog,
-			availableActions,
 			modelSelectionRef,
 			isFiltersFormValid,
 			viewRecord,
@@ -371,6 +351,8 @@ export const useDatalistStore = <
 			createUpdateRecord,
 			isShowDeletedRef,
 			debouncedRefetch,
+			permittedActions,
+			optionsInUse,
 			deleteRestoreVariants,
 			filtersFormKey,
 			// actions

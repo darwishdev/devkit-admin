@@ -8,7 +8,7 @@
   import { computed, h, inject, ref } from "vue";
   import { DatePickerProps, Skeleton } from "primevue";
   import DatePicker from "primevue/datepicker";
-  import { InputDatepickerProps } from "./DatepickerTypes";
+  import { InputDatepickerProps } from "./types";
   import { DateToNumber, NumberToDate } from "@/devkit_admin";
   import { useFormKitContext } from "@formkit/vue";
   import { useQuery } from "@tanstack/vue-query";
@@ -58,10 +58,6 @@
   const primeProps: DatePickerProps = { ...context };
   const formValue = ref<Date | Date[] | Array<Date | null> | undefined | null>();
 
-  // SECTION: Watchers
-  // watch(parentValue, () => {
-  // 	onValueChange(undefined)
-  // })
 
   // SECTION: Functions - Value Handling and Type Casting
   const checkForSelectionErrors = (value: unknown) => {
@@ -126,15 +122,12 @@
 
   // SECTION: Functions - Event Handlers
   const onValueChange = (value: Date) => {
-    if (formValue.value !== value) {
-      formValue.value = value;
-      console.log("formvalue is", formValue);
-      if (convertToNumber) {
-        const mappedValue = handeDateToNumberCasting(value);
-        emit("valueChange", mappedValue);
-      }
+    if (!convertToNumber) {
       emit("valueChange", value);
+      return
     }
+    const mappedValue = handeDateToNumberCasting(value);
+    emit("valueChange", mappedValue);
   };
 
   // SECTION: Vue Query - Disabled Dates Fetching
@@ -227,7 +220,7 @@
       DatePicker,
       {
         ...primeProps,
-        modelValue: formValue.value,
+        modelValue: node.context ? node.context._value : undefined,
         disabledDates: disabledDatesQueryResult.data.value,
         "onUpdate:modelValue": onValueChange,
       },

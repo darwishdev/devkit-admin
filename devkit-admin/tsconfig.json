@@ -12,6 +12,7 @@
     "outDir": "dist", // Output directory for compiled files
     "declaration": true, // Generate .d.ts files
     "declarationDir": "dist/types", // Output directory for .d.ts files
+    "typeRoots": ["./src/pkg/types", "./node_modules/@types"],
     "baseUrl": ".",
     "types": ["vite/client"],
     "paths": {

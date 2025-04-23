@@ -1,10 +1,10 @@
 <script setup lang="ts" generic="
-    TKey extends string,
+    TApi extends Record<string, Function>,
     TFormRequest extends StringUnkownRecord = StringUnkownRecord,
     TApiRequest extends StringUnkownRecord = StringUnkownRecord,
     TApiResponse extends StringUnkownRecord = StringUnkownRecord,
-    TFindRequestPropName extends string | undefined = 'recordId',
-    TFindResponsePropName extends string | undefined = 'request',
+    TFindRequestPropName extends string = 'recordId',
+    TFindResponsePropName extends string = 'request',
     TFindCallbakResponse = unknown,
     TCallbakResponse = unknown
   ">
@@ -13,29 +13,25 @@
   import { h, inject, ref, resolveComponent } from "vue";
   import { useToast } from "primevue";
   import { useRoute, useRouter } from "vue-router";
-  import { reset } from "@formkit/core";
   import { AppBtn } from "devkit-base-components";
   import { useMutation, useQueryClient } from "@tanstack/vue-query";
   import { useAppFormStoreWithKey } from "../store/AppFormStore";
-  import { ObjectKeys, StringUnkownRecord } from "devkit-apiclient";
+  import { ObjectKeys, resolveApiEndpoint, StringUnkownRecord } from "devkit-apiclient";
   import { AppFormProps } from "@/pkg/types/types";
   import {
     AppFormSection,
-    FindHandlerFn,
-    SubmitHandlerFn,
   } from "@/pkg/types/types";
   import { RouteQueryFind, RouteQueryRemove } from "@/pkg/utils/QueryUtils";
-  import { useDebounceFn } from "@vueuse/core";
   const dialogRef = inject("dialogRef") as any;
   const formkitSchemaComp = resolveComponent("FormKitSchema");
   const queryClient = useQueryClient();
   const formkitComp = resolveComponent("FormKit");
-  const apiClient = inject<Record<string, Function>>("apiClient");
+  const apiClient = inject<TApi>("apiClient");
   const toast = useToast();
   const props =
     defineProps<
       AppFormProps<
-        TKey,
+        TApi,
         TFormRequest,
         TApiRequest,
         TApiResponse,
@@ -50,19 +46,16 @@
   const formStore = useAppFormStoreWithKey(formKey);
   const route = useRoute();
 
-  const getInitialValue = (formValues: string) => {
-    console.log('urlvalues', formValues)
-    let formValuesObject: StringUnkownRecord = {}
+  const getInitialValue = (formValues: string): TFormRequest | undefined => {
     if (formValues != null) {
       try {
-        formValuesObject = JSON.parse(formValues)
+        return JSON.parse(formValues) as TFormRequest
       } catch (e) {
         RouteQueryRemove(formKey)
+        localStorage.removeItem(formKey)
         console.log('error parsing url', e)
       }
     }
-    return formValuesObject
-
   }
   const getInitialValueFromLocalStorage = () => {
     if (!props.context.useReset) return undefined
@@ -72,81 +65,72 @@
   }
   const getInitialValueFromUrl = () => {
     if (!props.context.syncWithUrl) return undefined
-    console.log('urlvalues')
     const formValues = RouteQueryFind(formKey)
 
     if (!formValues) return {}
     return getInitialValue(formValues)
   }
 
-  const init = () => {
-    return new Promise<void>((resolve) => {
-      if (!findHandler) {
-        if (props.context.syncWithUrl) {
-          const urlFormValues = getInitialValueFromUrl()
-          console.log('urlFormValues', urlFormValues)
-          if (urlFormValues) formStore.formValueRef = urlFormValues
+  const getDefaultFormValue = () => {
+    if (!props.context.syncWithUrl && !props.context.usePresist) {
+      return
+    }
+    if (props.context.usePresist) {
+      const localStorageFormValues = getInitialValueFromLocalStorage()
+      if (localStorageFormValues) {
+        if (ObjectKeys(localStorageFormValues).length > 0) {
+          formStore.formValueRef = localStorageFormValues
+          return localStorageFormValues
         }
-        if (props.context.useReset) {
-          const localStorageFormValues = getInitialValueFromLocalStorage()
-          if (localStorageFormValues) formStore.formValueRef = localStorageFormValues
-        }
-        resolve();
-        return;
       }
-      const findHandlerFn =
-        typeof findHandler.endpoint == "string"
-          ? (apiClient![findHandler.endpoint] as FindHandlerFn<
-            TFindRequestPropName,
-            TFindResponsePropName,
-            TApiRequest
-          >)
-          : findHandler.endpoint;
+    }
+    const urlFormValues = getInitialValueFromUrl()
+    if (urlFormValues) {
+      if (ObjectKeys(urlFormValues).length > 0) {
+        formStore.formValueRef = urlFormValues
+        return urlFormValues
+      }
+    }
+
+
+  }
+  const init = () => {
+    return new Promise<TFormRequest | null>((resolve) => {
+      if (!findHandler) {
+        return resolve(null)
+      }
       const findHandlerRequest: any = {};
       const requestValue = findHandler.requestValue
         ? findHandler.requestValue
         : route.params[findHandler.routerParamName || "id"];
       findHandlerRequest[findHandler.requestPropertyName] = requestValue;
-      findHandlerFn(findHandlerRequest)
-        .then((resp: any) => {
+      resolveApiEndpoint(findHandler.endpoint, apiClient, findHandlerRequest)
+        .then((resp) => {
           if (findHandler.responsePropertyName) {
-            const propName = findHandler.responsePropertyName as string;
-            if (propName in resp) {
-              const formValue = resp[propName];
+            if (findHandler.responsePropertyName in resp) {
+              const formValue = resp[findHandler.responsePropertyName];
               if (typeof formValue == "object" && formValue) {
-                formStore.formValueRef = formValue;
-                resolve();
-                return;
+                return resolve(formValue);
               }
             }
-            formStore.formValueRef = resp;
-            resolve();
-            return;
           }
-          resolve();
+          return resolve(resp as TFormRequest);
         })
         .catch((e: Error) => {
           console.error("find handler failed", e);
-          resolve();
+          resolve(null);
         });
     });
   };
-  await init();
+  const findhandlerRequest = await init();
   const mutationFn = (req: TApiRequest) =>
     new Promise<TApiResponse>((resolve, reject) => {
       if (typeof submitHandler.endpoint == "string" && !apiClient) {
         reject("apiclient is not provided");
         return;
       }
-      const endpoint =
-        typeof submitHandler.endpoint == "string"
-          ? (apiClient![submitHandler.endpoint] as SubmitHandlerFn<
-            TApiRequest,
-            TApiResponse
-          >)
-          : submitHandler.endpoint;
-      endpoint(req)
-        .then((response: TApiResponse) => {
+      resolveApiEndpoint(submitHandler.endpoint, apiClient, req)
+        .then((response) => {
           resolve(response);
         })
         .catch((error: Error) => {
@@ -227,11 +211,15 @@
 
   const formSubmitHandler = (req: TFormRequest, formNode: FormKitNode) => {
     formStore.formValueRef = req
+    if (props.context.syncWithUrl) {
+      formStore.debouncedRouteQueryAppend()
+    }
+
     const handler = props.context.submitHandler;
     const apiRequest: TApiRequest = handler.mapFunction
       ? handler.mapFunction(req)
       : (req as unknown as TApiRequest);
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
       submitMutation
         .mutateAsync(apiRequest)
         .then((response: TApiResponse) => {
@@ -274,23 +262,13 @@
       formkitComp,
       {
         type: "form",
+        id: props.context.formKey,
+        "onInput": props.context.invalidateCachesOnChage ? () => {
+          queryClient.invalidateQueries({ queryKey: props.context.invalidateCachesOnChage })
+          console.log("form updated")
+        } : undefined,
         actions: false,
-        value: props.context.isLazy ? formStore.formValueRef : undefined,
-        modelValue: props.context.isLazy ? undefined : formStore.formValueRef,
-        "onUpdate:modelValue": props.context.isLazy ? undefined : (value: StringUnkownRecord) => {
-          console.log('modechange', value)
-          if (props.context.invalidateCachesOnChage) {
-            useDebounceFn(() => {
-              formStore.formValueRef = value;
-              queryClient.invalidateQueries({ queryKey: props.context.invalidateCachesOnChage })
-
-            }, 1000)()
-          }
-        }
-        ,
-        ref: (ref: any) => {
-          formStore.formElementRef = ref
-        },
+        value: findhandlerRequest || getDefaultFormValue(),
         onSubmit: formSubmitHandler,
       },
       {
@@ -306,9 +284,9 @@
               children: generateFormSchema(),
             },
           }),
-          h('div', { class: 'custom-form-actions' }, [
-            !props.context.submitHandler.hideActions ? h(AppBtn, { type: 'submit', label: 'submit', icon: 'send' }) : undefined,
-            props.context.useReset ? h(AppBtn, { action: formStore.resetForm, label: 'reset' }) : undefined,
+          h('div', { class: 'custom-form-actions' }, props.context.submitHandler.hideActions ? undefined : [
+            h(AppBtn, { type: 'submit', label: 'submit', icon: 'send' }),
+            props.context.useClear ? h(AppBtn, { action: formStore.clearForm, label: 'clear' }) : undefined,
             props.context.useReset ? h(AppBtn, { action: formStore.resetForm, label: 'reset' }) : undefined,
             props.context.usePresist ? h(AppBtn, { action: formStore.presistForm, label: 'presist' }) : undefined,
           ])],

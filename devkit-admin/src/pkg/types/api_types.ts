@@ -1,4 +1,5 @@
 
+import { ApiListOptions } from '@/app/datalist';
 import { Timestamp } from 'google-protobuf/google/protobuf/timestamp_pb';
 export type TenantsSchemaTenantView = {
 	tenantId: number;
@@ -94,4 +95,82 @@ export type IconFindRequest = {
 }
 export type IconFindResponse = {
 	icon: Icon;
+}
+export type FileListRequest = {
+	bucketId: string;
+	queryPath: string;
+	limit: number;
+	offest: number;
+}
+
+export interface FileMetadata {
+	eTag: string;
+	size: bigint;
+	mimetype: string;
+	cacheControl: string;
+	lastModified?: Timestamp;
+	contentLength: bigint;
+	httpStatusCode: number;
+}
+
+export type StorageBucket = {
+	id: string;
+	name: string;
+	public: boolean;
+	createdAt: string;
+	updatedAt: string;
+	owner: string;
+	fileSizeLimit: bigint;
+	allowedMimeTypes: string[];
+}
+export type FileObject = {
+	name: string;
+	bucketId: string;
+	owner: string;
+	id: string;
+	updatedAt: string;
+	createdAt: string;
+	lastAccessedAt: string;
+	metadata?: FileMetadata; // Assuming FileMetadata is another defined type
+	buckets?: StorageBucket; // Assuming StorageBucket is another defined type
+}
+export type FileListResponse<T extends string = 'records'> = {
+	[K in T]: FileObject[]
+} & {
+	options?: ApiListOptions
+}
+export type FileCreateRequest = {
+	path: string;
+	bucketName: string;
+	reader: Uint8Array;
+	fileType: string;
+}
+export type FileCreateResponse = {
+	path: string;
+}
+export type FileCreateBulkRequest = {
+	files: FileCreateRequest[];
+}
+export type FileCreateBulkResponse = {
+	path: string[];
+}
+
+export type BucketListRequest = {
+}
+
+export type BucketListResponse = {
+	buckets: StorageBucket[]
+}
+export type BucketCreateUpdateRequest = {
+	bucketName: string;
+	isPulic: boolean;
+	fileSizeLimit: string;
+	allowedFileTypes: string[];
+	isUpdate: boolean;
+}
+export type BucketCreateUpdateResponse = {
+	bucket: StorageBucket
+}
+export type DeleteRequest<TProp extends string = 'records', TRecord extends string | number = number, TVariant extends 'single' | 'bulk'> = {
+	[K in TProp]: TVariant extends 'single' ? TRecord : TRecord[]
 }

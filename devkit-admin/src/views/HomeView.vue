@@ -128,14 +128,34 @@
 <!-- } -->
 <!---->
 <!-- </script> -->
-<!-- <template> -->
-<!--   <Datalistv2 :context="tableProps.context"> -->
-<!--     <template #globalActions="{ store }"> -->
-<!--       <h2>asdasdasd</h2> -->
-<!--       {{ store.filtersFormKey }} -->
-<!--     </template> -->
-<!--     <template #card="{ data }"> -->
-<!--       {{ data.userName }} -->
-<!--     </template> -->
-<!--   </Datalistv2> -->
-<!-- </template> -->
+<script setup lang="ts">
+import { DropdownContext, DropdownOptions } from '@/app/appform';
+import { ApiEndpoint, EndpointFunction, StringUnkownRecord } from 'devkit-apiclient';
+import { ref } from 'vue';
+
+const optionsGetter: ApiEndpoint<any, any, any> = async (req: StringUnkownRecord) => {
+	return { options: [{ label: 'a1', value: 1 }, { label: 'a2', value: 2 }] }
+}
+// cast it in the template
+const formModel = ref({})
+</script>
+
+<template>
+	{{ formModel }}
+	<FormKit v-model="formModel" type="form">
+		<FormKit type="text" name="name" value="Asd" label="name" />
+		<FormKit dependsOn="asd" :multiple="true" :virtualScrollerOptions="{ lazy: true, itemSize: 50 }" filter
+			type="devkitDropdown" optionLabel="iconName" optionValue="iconName" responseOptionsKey="icons"
+			label="icon" cacheKey="icon" name="icon" :useLazy="true" options="iconList">
+			<template #option="{ option, selected }">
+				<div class="flex items-center" :class="{ 'selected': selected }">
+					<AppIcon v-if="option.iconName" :icon="option.iconName" />
+				</div>
+			</template>
+			<template #value="{ placeholder, value }">
+				<AppIcon v-if="value" v-for="icon in value" :icon="icon" />
+				<span v-else>{{ placeholder }}</span>
+			</template>
+		</FormKit>
+	</FormKit>
+</template>

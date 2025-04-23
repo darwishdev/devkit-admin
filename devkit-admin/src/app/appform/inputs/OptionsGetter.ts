@@ -24,7 +24,6 @@ export const fetchDropdownOptions =
 		if (Array.isArray(options)) return resolve(options)
 		resolveApiEndpoint<TApi, TOptionsReq, TOptionsResp>(options, apiClient, request)
 			.then((response) => {
-
 				console.log("fetching from api", response)
 				if (optionsMapper) {
 					return resolve(optionsMapper(response))

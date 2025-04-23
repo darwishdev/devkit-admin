@@ -22,12 +22,13 @@
 		<template #header>
 			<div class="filters-header flex gap-4">
 				<strong>Filters</strong>
-				<Chip v-for="[key, value] in objectEntries(datalistStore.filtersFormStore.activeInputs)"
-					removable class='z-10 cursor-pointer'
-					@click="datalistStore.filtersFormStore.clearInput(key)"
-					@remove="datalistStore.filtersFormStore.clearInput(key)">
-					<h2>{{ key }} : {{ value }}</h2>
-				</Chip>
+				<div v-for="[key, value] in objectEntries(datalistStore.filtersFormStore.formValue)" :key="key">
+					<Chip removable class='z-10 cursor-pointer'
+						@click="datalistStore.filtersFormStore.clearInput(key)"
+						@remove="datalistStore.filtersFormStore.clearInput(key)">
+						<h2>{{ key }} : {{ value }}</h2>
+					</Chip>
+				</div>
 			</div>
 		</template>
 		<AppForm

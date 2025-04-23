@@ -17,11 +17,13 @@
     InputText,
     ToggleSwitch,
   } from "primevue";
-  import type { DatalistProps, DatalistSlots, DatalistStore } from "./types";
+  import { type DatalistEmits, type DatalistProps, type DatalistSlots, type DatalistStore } from "./types";
   import DatalistFiltersForm from "./components/DatalistFiltersForm.vue";
   import { AppBtn } from "devkit-base-components";
   import { objectEntries } from "@vueuse/core";
-  import { computed } from "vue";
+  import { computed, h } from "vue";
+  import { StringUnkownRecord } from "@/pkg/types/types";
+  const emit = defineEmits<DatalistEmits<TRecord, TApiResponse>>()
   const props =
     defineProps<
       DatalistProps<
@@ -44,7 +46,7 @@
   > = useDatalistStoreWithProps(props);
   const isDeleteVisibile = computed(
     () =>
-      datalistStore.availableActions.delete &&
+      datalistStore.optionsInUse.deleteHandler &&
       (hideShowDeleted || datalistStore.isShowDeletedRef),
   );
   const isShowDeletedSwitctVisible = computed(
@@ -53,7 +55,7 @@
       (datalistStore.deleteRestoreVariants.hasDeletedRecords ||
         datalistStore.isShowDeletedRef),
   );
-  defineSlots<
+  const slots = defineSlots<
     DatalistSlots<
       TApi,
       TReq,
@@ -71,7 +73,19 @@
     };
   });
   await datalistStore.init();
-  console.log("propsis", props);
+  const renderRowActions = (record: TRecord) => {
+    return datalistStore.permittedActions.rowActions.map(actionBtn => {
+      const callback = (value: StringUnkownRecord) => emit('update:submited', value)
+      return slots[`rowActions.${actionBtn.actionKey}`] ? slots[`rowActions.${actionBtn.actionKey}`]!({ store: datalistStore, data: record }) : h(AppBtn, { action: () => actionBtn.actionFn(callback, record), ...actionBtn })
+    })
+  }
+  const renderGlobalActions = () => {
+    return datalistStore.permittedActions.globalActions.map(actionBtn => {
+      const callback = (value: StringUnkownRecord) => emit('create:submited', value)
+      return slots[`globalActions.${actionBtn.actionKey}`] ? slots[`globalActions.${actionBtn.actionKey}`]!({ store: datalistStore }) : h(AppBtn, { action: () => actionBtn.actionFn(callback), ...actionBtn })
+    })
+  }
+
 </script>
 <template>
   <DataTable v-model:selection="datalistStore.modelSelectionRef"
@@ -89,10 +103,11 @@
             <div class="global-actions">
               <div class="global-actions__start">
                 <slot name="globalActionsStartPrepend" :store="datalistStore" />
-                <slot v-for="actionBtn in datalistStore.globalActions" :name="`globalActions.${actionBtn.actionKey}`"
-                  :store="datalistStore">
-                  <AppBtn v-bind="actionBtn" :action="() => actionBtn.actionFn()" :key="actionBtn.label" />
-                </slot>
+                <component v-for="(slotContent, index) in renderGlobalActions()" :key="index" :is="slotContent" />
+                <!-- <slot v-for="actionBtn in datalistStore.permittedActions.globalActions" -->
+                <!--   :name="`globalActions.${actionBtn.actionKey}`" :store="datalistStore"> -->
+                <!--   <AppBtn v-bind="actionBtn" :action="() => actionBtn.actionFn()" :key="actionBtn.label" /> -->
+                <!-- </slot> -->
 
                 <slot name="globalActionsStartAppend" :store="datalistStore" />
               </div>
@@ -100,12 +115,12 @@
                 <slot name="globalActionsEndPrepend" :store="datalistStore" />
                 <slot name="globalActions.delete" v-if="isDeleteVisibile" :store="datalistStore">
                   <AppBtn :action="() =>
-                      datalistStore.deleteRestoreOpenDialog({
-                        isHardDelete: true,
-                      })
+                    datalistStore.deleteRestoreOpenDialog({
+                      isHardDelete: true,
+                    })
                     " label="hard_delete" severity="danger" />
                 </slot>
-                <slot name="globalActions.deleteRestore" v-if="datalistStore.availableActions.deleteRestore"
+                <slot name="globalActions.deleteRestore" v-if="datalistStore.optionsInUse.deleteRestoreHandler"
                   :store="datalistStore">
                   <AppBtn v-bind="deleteRestoreButtonProps" />
                 </slot>
@@ -118,19 +133,18 @@
             show deleted
             <ToggleSwitch v-model="datalistStore.isShowDeletedRef" />
           </div>
-          <IconField v-if="datalistStore.globalActions.length">
+          <IconField v-if="datalistStore.permittedActions.globalActions.length">
             <InputIcon>
               <i class="pi pi-search" />
             </InputIcon>
             <InputText :modelValue="(datalistStore.filtersFormStore.initialFormValue[
-                'global'
-              ] as string) || ''
-              " @update:modelValue="
-                (value: unknown) => {
-                  console.log('val; ', value);
-                  datalistStore.filtersFormStore.setInputValue('global', value);
-                }
-              " placeholder="Keyword Search" />
+              'global'
+            ] as string) || ''
+              " @update:modelValue="(value: unknown) => {
+                console.log('val; ', value);
+                datalistStore.filtersFormStore.setInputValue('global', value);
+              }
+                " placeholder="Keyword Search" />
           </IconField>
         </div>
         <slot name="filtersPanel" :store="datalistStore">
@@ -140,7 +154,8 @@
     </template>
     <template #empty>
       <slot name="empty">
-        <h2>{{ datalistStore.deleteRestoreVariants.empty }}</h2>
+        <h2 v-if="!datalistStore.isFiltersFormValid">select filters</h2>
+        <h2 v-else>{{ datalistStore.deleteRestoreVariants.empty }}</h2>
       </slot>
     </template>
     <Column selection-mode="multiple" :pt="{ headerCell: 'transparent' }">
@@ -148,10 +163,10 @@
 
     <Column v-if="context.displayType == 'card'" key="card">
       <template #body="{ data }">
-        <slot name="card" :data="data">
+        <slot name="card" :data="data as TRecord">
           <div class="card-item">
-            <slot name="cardStart" :props="{ data }" />
-            <slot name="cardEnd" :props="{ data }" />
+            <slot name="cardStart" :data="data as TRecord" />
+            <slot name="cardEnd" :data="data as TRecord" />
           </div>
         </slot>
       </template>
@@ -160,7 +175,7 @@
       datalistStore.datatableColumnsRef,
     )" :key="columnKey" v-bind="columnValue?.props">
       <template v-if="columnValue" #body="{ data }">
-        <slot :name="`column.${columnKey}`" :data="data">
+        <slot :name="`column.${columnKey}`" :data="data as TRecord" :store="datalistStore">
           <component v-if="typeof columnValue.renderHtml == 'function'" :is="() => columnValue.renderHtml!(data)" />
         </slot>
       </template>
@@ -170,22 +185,24 @@
         <slot name="actions" :data="record" />
         <div class="d-flex">
           <slot name="actionsPrepend" :data="record" />
-          <slot name="rowActions.delete" v-if="isDeleteVisibile" :store="datalistStore">
+          <slot name="rowActions.delete" v-if="isDeleteVisibile" :data="record as TRecord" :store="datalistStore">
             <AppBtn :action="() =>
-                datalistStore.deleteRestoreOpenDialog({
-                  record,
-                  isHardDelete: true,
-                })
+              datalistStore.deleteRestoreOpenDialog({
+                record,
+                isHardDelete: true,
+              })
               " label="hard_delete" severity="danger" />
           </slot>
-          <slot name="rowActions.deleteRestore" v-if="datalistStore.availableActions.deleteRestore" :data="record">
+          <slot name="rowActions.deleteRestore" v-if="datalistStore.optionsInUse.deleteRestoreHandler"
+            :store="datalistStore" :data="record as TRecord">
             <AppBtn v-bind="deleteRestoreButtonProps"
               :action="() => datalistStore.deleteRestoreOpenDialog({ record })" />
           </slot>
-          <slot v-for="actionBtn in datalistStore.rowActions" :key="actionBtn.label"
-            :name="`rowActions.${actionBtn.actionKey}`" :data="record">
-            <AppBtn v-bind="actionBtn" :action="() => actionBtn.actionFn(record)" />
-          </slot>
+          <component v-for="(slotContent, index) in renderRowActions(record)" :key="index" :is="slotContent" />
+          <!-- <slot v-for="actionBtn in datalistStore.permittedActions.rowActions" :key="actionBtn.label" -->
+          <!--   :name="`rowActions.${actionBtn.actionKey}`" :data="record"> -->
+          <!--   <AppBtn v-bind="actionBtn" :action="() => actionBtn.actionFn(record)" /> -->
+          <!-- </slot> -->
           <slot name="actionsAppend" :data="record" />
         </div>
       </template>

@@ -6,7 +6,6 @@ import { DatalistColumnBase } from "../types"
 export class ColumnText<TRecord extends Record<string, unknown>> extends ColumnBase<TRecord> implements DatalistColumnBase<TRecord> {
 	renderHtml = (value: TRecord) => {
 		try {
-			console.log('typeos', typeof value[this.columnName])
 			if (this.columnName in value) {
 				if (typeof value[this.columnName] == 'string') {
 					return h('span', value[this.columnName] as string)

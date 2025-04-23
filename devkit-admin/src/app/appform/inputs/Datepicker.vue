@@ -4,7 +4,7 @@ TDisabledDatesReq extends StringUnkownRecord,
 TDisabledDatesResp extends StringUnkownRecord">
 import { StringUnkownRecord } from 'devkit-apiclient';
 import InputDatepicker from './InputDatepicker.vue'
-import { InputDatepickerProps } from './DatepickerTypes';
+import { InputDatepickerProps } from './types';
 import { onErrorCaptured, ref } from 'vue';
 
 import Message from 'primevue/message';

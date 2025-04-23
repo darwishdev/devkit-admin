@@ -11,7 +11,9 @@ import { QueryClient } from '@tanstack/vue-query'
 import { DialogService } from 'primevue';
 import { createPinia } from 'pinia'
 import 'devkit-base-components/style';
-import { plugin, defaultConfig } from '@formkit/vue'
+import { plugin } from '@formkit/vue'
+
+import formkitConfig from '@/pkg/plugins/formkit.config'
 import App from './App.vue';
 import { apiClient } from './apiClient';
 import DevkitBaseComponentsPlugin, { DevkitBaseConfig } from 'devkit-base-components';
@@ -37,7 +39,7 @@ const formktiConfig = {
 app.use(pinia)
 app.use(ToastService)
 app.use(DialogService)
-app.use(plugin, defaultConfig(formktiConfig))
+app.use(plugin, formkitConfig())
 const i18n = createI18n({
 	locale: 'en',
 	fallbackLocale: 'en',
