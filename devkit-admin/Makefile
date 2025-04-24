@@ -22,3 +22,5 @@ publish:
 sync_api:
 	pnpm cache delete && pnpm add @buf/ahmeddarwish_devkit-api.bufbuild_es@${V}
 
+run:
+	pnpm run dev

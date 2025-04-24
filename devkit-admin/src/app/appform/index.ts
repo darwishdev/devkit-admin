@@ -3,6 +3,8 @@ export { default as FormBase } from './components/FormBase.vue';
 export * from './inputs/index'
 export * from './types'
 export { OptionsGetterPlugin, DependencyManagerPlugin } from './plugins/OptionsGetter'
-export type { AppFormProps, AppFormSections, SubmitHandlerFn, FindHandlerEndpointFn, FindHandlerEndpoint, FindHandlerFn, AppFormSection, AppFormOptions } from '../../pkg/types/types'
+export {FormDataGetter} from './plugins/FormDataGetter'
+
+export type { AppFormProps, AppFormSections, SubmitHandlerFn, FindHandlerEndpointFn, FindHandlerEndpoint,  AppFormSection, AppFormOptions } from '../../pkg/types/types'
 export * from './store/AppFormStore'
 export default AppForm

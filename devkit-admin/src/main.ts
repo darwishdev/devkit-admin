@@ -10,6 +10,8 @@ import { createI18n } from 'vue-i18n'
 import { QueryClient } from '@tanstack/vue-query'
 import { DialogService } from 'primevue';
 import { createPinia } from 'pinia'
+
+import DevkitAdminPlugin, { DevkitAdminConfig } from '@/devkit_admin';
 import 'devkit-base-components/style';
 import { plugin } from '@formkit/vue'
 
@@ -20,6 +22,19 @@ import DevkitBaseComponentsPlugin, { DevkitBaseConfig } from 'devkit-base-compon
 const pinia = createPinia()
 const app = createApp(App)
 app.use(router)
+
+const adminConfig: DevkitAdminConfig<typeof apiClient> = {
+  apiClient,
+  locales: ['en', 'ar'],
+  iconFindApi: 'iconFind',
+  filesHandler: {
+    fileList: 'galleryList',
+    bucketList: 'bucketList',
+    bucketCreateUpdate: 'bucketCreateUpdate',
+    fileCreate: 'fileCreate',
+    fileBulkCreate: 'fileCreateBulk'
+  }
+}
 const queryClient = new QueryClient({
 	defaultOptions: {
 		queries: {
@@ -60,5 +75,6 @@ const baseConfig: DevkitBaseConfig<typeof apiClient> = {
 app.use(PrimeVue, {
 	theme: 'none'
 }).use(i18n)
+  .use(DevkitAdminPlugin , adminConfig)
 	.use(DevkitBaseComponentsPlugin, baseConfig)
 	.mount('#app')

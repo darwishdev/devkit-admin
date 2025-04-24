@@ -2,15 +2,6 @@ import { DBDropdownOptions } from '@/pkg/database/DbTypes';
 import { CacheOptions } from '@/pkg/types/types';
 import { ApiEndpoint, StringUnkownRecord } from 'devkit-apiclient';
 import type { DatePickerProps, MultiSelectProps, MultiSelectSlots, SelectButtonProps, SelectProps, SelectSlots } from 'primevue';
-import type { FormKitNode } from '@formkit/core';
-export type FormKitInputContext<V = unknown> = {
-	node: FormKitNode<V>
-	_value: V
-	slots: any
-}
-export type InputEmits = {
-	(e: 'valueChange', value: unknown): void
-}
 
 export type DropdownOption<TValue = string | number> = {
 	label: string

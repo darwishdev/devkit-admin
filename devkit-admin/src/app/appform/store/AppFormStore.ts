@@ -2,14 +2,11 @@
 import { defineStore, getActivePinia } from 'pinia'
 import type { AppFormProps, StringUnkownRecord } from '@/pkg/types/types'
 import type { AppFormOptions } from '@/pkg/types/types'
-
-import { db } from '@/devkit_admin';
 import { computed } from 'vue'
 import { objectEntries, useDebounceFn } from '@vueuse/core'
 import { RouteQueryAppend } from '@/pkg/utils/QueryUtils'
-import { useFormKitContext, useFormKitContextById, useFormKitNodeById } from '@formkit/vue'
-import { ObjectKeys } from 'devkit-apiclient'
-import { FormKitNode } from '@formkit/core';
+import {  useFormKitContextById, useFormKitNodeById } from '@formkit/vue'
+
 export const useAppFormStore = <
   TApi extends Record<string, Function>,
   TFormRequest extends StringUnkownRecord = StringUnkownRecord,
@@ -36,14 +33,13 @@ export const useAppFormStore = <
   const debounceInMilliseconds = 1000
   const formElementContext = useFormKitContextById(context.formKey)
   const formElementNode = useFormKitNodeById(context.formKey)
-  const debouncedRouteQueryAppend = useDebounceFn(() => {
-    RouteQueryAppend(context.formKey, formValueString.value)
+  const debouncedRouteQueryAppend = useDebounceFn((req) => {
+      if(typeof req == 'object') {
+        RouteQueryAppend(context.formKey, JSON.stringify(req))
+        return
+      }
+    RouteQueryAppend(context.formKey, req)
   }, debounceInMilliseconds)
-
-  // watch(formValueRef.value, async () => {
-  //   if (!context.syncWithUrl) return
-  //   debouncedRouteQueryAppend()
-  // })
   const resetForm = () => {
     if (!formElementNode.value) return
     formElementNode.value.reset()
@@ -56,7 +52,7 @@ export const useAppFormStore = <
     if (!formElementNode.value) return ''
     if (!formElementNode.value.value) return ''
     try {
-      const stringValue = JSON.stringify(formElementNode.value.value)
+      const stringValue = JSON.stringify(formElementNode.value._value)
       if (stringValue == '{}') return ''
       return stringValue
     } catch (e) {
