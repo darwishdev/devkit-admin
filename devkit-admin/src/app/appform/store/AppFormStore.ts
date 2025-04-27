@@ -68,7 +68,9 @@ export const useAppFormStore = <
     if (!formElementNode.value) return
     const newInputObject: Record<string, unknown> = {}
     newInputObject[inputName] = inputValue
-    formElementNode.value.reset({ ...formElementNode.value, ...newInputObject })
+      console.log('new obj is'  , newInputObject)
+      formElementNode.value.input(newInputObject)
+    //formElementNode.value.reset({ ...formElementNode.value, ...newInputObject })
   }
 
   const refetchDropdownInput = async (inputName: string) => {

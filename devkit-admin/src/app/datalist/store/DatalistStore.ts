@@ -29,6 +29,7 @@ export const useDatalistStore = <
 		const contextOptions: ApiListOptions = { title: context.datalistKey, ...context.options }
 		let initialCallbackFinished = false
 		const toast = useToast()
+    const dialogRef = inject('dialogRef')
 		const apiClient = inject<TApi>('apiClient')
 		const debounceInMilliseconds = context.debounceInMilliseconds || 1000
 		const paginationParamsRef = ref<PaginationParams>()
@@ -299,6 +300,7 @@ export const useDatalistStore = <
 
 		const currenData = computed(() => {
 			if (!datalistQueryResult.data.value) return [];
+      if(!isFiltersFormValid.value) return []
 			const { records, deletedRecords = [] } = datalistQueryResult.data.value;
 			if (isShowDeletedRef.value) return context.isServerSide ? records : deletedRecords;
 			return records;
@@ -355,6 +357,7 @@ export const useDatalistStore = <
 			optionsInUse,
 			deleteRestoreVariants,
 			filtersFormKey,
+      dialogRef,
 			// actions
 			init,
 		}

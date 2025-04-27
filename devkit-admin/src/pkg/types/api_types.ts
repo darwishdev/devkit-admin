@@ -1,5 +1,5 @@
 
-import { ApiListOptions } from '@/app/datalist';
+import { ApiListOptions, PaginationParams } from '@/app/datalist';
 import { Timestamp } from 'google-protobuf/google/protobuf/timestamp_pb';
 export type TenantsSchemaTenantView = {
 	tenantId: number;
@@ -173,4 +173,24 @@ export type BucketCreateUpdateResponse = {
 }
 export type DeleteRequest<TProp extends string = 'records', TRecord extends string | number = number, TVariant extends 'single' | 'bulk'> = {
 	[K in TProp]: TVariant extends 'single' ? TRecord : TRecord[]
+}
+export type GalleryListFilters = {
+  bucketId: string;
+  fileName?: string;
+  path?: string;
+  mimeType?: string;
+  queryPath?: string;
+  minSize?: number;
+  maxSize?: number;
+  createdAtBetween?: number[]; 
+}
+
+export type GalleryListRequest = {
+  filters: GalleryListFilters;
+  paginationParams?: PaginationParams;
+}
+
+export type GalleryListResponse = {
+  records: FileObject[];
+  options: ApiListOptions;
 }

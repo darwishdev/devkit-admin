@@ -1,7 +1,7 @@
 
 
 import { createInput, defaultConfig } from '@formkit/vue'
-import { Dropdown, Datepicker , DependencyManagerPlugin,  OptionsGetterPlugin , FormDataGetter } from '@/app/appform/index'
+import { Upload ,  Dropdown, Datepicker , DependencyManagerPlugin,  OptionsGetterPlugin , FormDataGetter } from '@/app/appform/index'
 import { rootClasses } from '@/formkit.theme'
 
 import type { FormKitPlugin } from '@formkit/core';
@@ -231,17 +231,17 @@ const formKitConfig = () => {
     props: datepickerContextKeys,
   })
 
+  const uploadInput = createInput(Upload, {
+    props: ['bucketName'],
+  })
   // const imageInput = createInput(InputImage, {
   //   props: [''],
   // })
 
   const inputs = {
     'devkitDropdown': dropdownInput,
-    // 'devkitSelectButton': selectButtonInput,
-    // 'devkitMultiDropdown': multDropdownInput,
     'devkitDatepicker': datePickerInput,
-    // 'devkitImage': imageInput,
-
+    'devkitUpload': uploadInput,
   }
   return defaultConfig({
     inputs,

@@ -212,51 +212,52 @@ export type DatalistStore<
 	TApiResponse extends StringUnkownRecord | undefined = undefined,
 	TFormSectionsRequest extends StringUnkownRecord | undefined = undefined
 > = ReturnType<ReturnType<typeof useDatalistStore<TApi, TReq, TRecord, TFiltersReq, TApiResponse, TFormSectionsRequest>>>
+
 export type DatalistSlots<
-	TApi extends Record<string, Function>,
-	TReq extends StringUnkownRecord,
-	TRecord extends StringUnkownRecord,
-	TFiltersReq extends StringUnkownRecord | undefined = undefined,
-	TApiResponse extends StringUnkownRecord | undefined = undefined,
-	TFormSectionsRequest extends StringUnkownRecord | undefined = undefined
-
+  TApi extends Record<string, Function>,
+  TReq extends StringUnkownRecord,
+  TRecord extends StringUnkownRecord,
+  TFiltersReq extends StringUnkownRecord | undefined = undefined,
+  TApiResponse extends StringUnkownRecord | undefined = undefined,
+  TFormSectionsRequest extends StringUnkownRecord | undefined = undefined
 > = {
-	card?: (props: { data: TRecord }) => VNode[]
-	cardStart?: (props: { data: TRecord }) => VNode[]
-	cardEnd?: (props: { data: TRecord }) => VNode[]
-	expansion(props: { data: TRecord }): VNode | undefined
+  card?: (props: { data: TRecord }) => VNode | VNode[];
+  cardStart?: (props: { data: TRecord }) => VNode | VNode[];
+  cardEnd?: (props: { data: TRecord }) => VNode | VNode[];
+  expansion: (props: { data: TRecord }) => VNode[] | VNode;
 
-	globalActions(props: { store: DatalistStore<TApi, TReq, TRecord, TFiltersReq, TApiResponse, TFormSectionsRequest> }): VNode | undefined
-	globalActionsStartPrepend(props: { store: DatalistStore<TApi, TReq, TRecord, TFiltersReq, TApiResponse, TFormSectionsRequest> }): VNode | undefined
-	globalActionsStartAppend(props: { store: DatalistStore<TApi, TReq, TRecord, TFiltersReq, TApiResponse, TFormSectionsRequest> }): VNode | undefined
-	globalActionsEndPrepend(props: { store: DatalistStore<TApi, TReq, TRecord, TFiltersReq, TApiResponse, TFormSectionsRequest> }): VNode | undefined
-	globalActionsEndAppend(props: { store: DatalistStore<TApi, TReq, TRecord, TFiltersReq, TApiResponse, TFormSectionsRequest> }): VNode | undefined
-	loading(props: { store: DatalistStore<TApi, TReq, TRecord, TFiltersReq, TApiResponse, TFormSectionsRequest> }): VNode | undefined
-	paginatorcontainer(props: { store: DatalistStore<TApi, TReq, TRecord, TFiltersReq, TApiResponse, TFormSectionsRequest> }): VNode | undefined
-	paginatorstart(props: { store: DatalistStore<TApi, TReq, TRecord, TFiltersReq, TApiResponse, TFormSectionsRequest> }): VNode | undefined
-	paginatorend(props: { store: DatalistStore<TApi, TReq, TRecord, TFiltersReq, TApiResponse, TFormSectionsRequest> }): VNode | undefined
-	empty(): VNode | VNode[] | undefined
-	filtersPanel(props: { store: DatalistStore<TApi, TReq, TRecord, TFiltersReq, TApiResponse, TFormSectionsRequest> }): VNode | undefined
-	filtersPresist(props: { store: DatalistStore<TApi, TReq, TRecord, TFiltersReq, TApiResponse, TFormSectionsRequest> }): VNode | undefined
-	filtersReset(props: { store: DatalistStore<TApi, TReq, TRecord, TFiltersReq, TApiResponse, TFormSectionsRequest> }): VNode | undefined
-	filtersForm(props: { store: DatalistStore<TApi, TReq, TRecord, TFiltersReq, TApiResponse, TFormSectionsRequest> }): VNode | undefined
-	filtersFormAppend(props: { store: DatalistStore<TApi, TReq, TRecord, TFiltersReq, TApiResponse, TFormSectionsRequest> }): VNode | undefined
-	filtersFormPrepend(props: { store: DatalistStore<TApi, TReq, TRecord, TFiltersReq, TApiResponse, TFormSectionsRequest> }): VNode | undefined
-	header(props: { store: DatalistStore<TApi, TReq, TRecord, TFiltersReq, TApiResponse, TFormSectionsRequest> }): VNode | undefined
-	dropdownActions(props: { data: TRecord }): VNode | undefined
-	actions(props: { data: TRecord }): VNode | undefined
-	actionsPrepend(props: { data: TRecord }): VNode | undefined
-	actionsAppend(props: { data: TRecord }): VNode | undefined
+  globalActions: (props: { store: DatalistStore<TApi, TReq, TRecord, TFiltersReq, TApiResponse, TFormSectionsRequest> }) => VNode[] | VNode;
+  globalActionsStartPrepend: (props: { store: DatalistStore<TApi, TReq, TRecord, TFiltersReq, TApiResponse, TFormSectionsRequest> }) => VNode[] | VNode;
+  globalActionsStartAppend: (props: { store: DatalistStore<TApi, TReq, TRecord, TFiltersReq, TApiResponse, TFormSectionsRequest> }) => VNode[] | VNode;
+  globalActionsEndPrepend: (props: { store: DatalistStore<TApi, TReq, TRecord, TFiltersReq, TApiResponse, TFormSectionsRequest> }) => VNode[] | VNode;
+  globalActionsEndAppend: (props: { store: DatalistStore<TApi, TReq, TRecord, TFiltersReq, TApiResponse, TFormSectionsRequest> }) => VNode[] | VNode;
+  
+  loading: (props: { store: DatalistStore<TApi, TReq, TRecord, TFiltersReq, TApiResponse, TFormSectionsRequest> }) => VNode[] | VNode;
+  paginatorcontainer: (props: { store: DatalistStore<TApi, TReq, TRecord, TFiltersReq, TApiResponse, TFormSectionsRequest> }) => VNode[] | VNode;
+  paginatorstart: (props: { store: DatalistStore<TApi, TReq, TRecord, TFiltersReq, TApiResponse, TFormSectionsRequest> }) => VNode[] | VNode;
+  paginatorend: (props: { store: DatalistStore<TApi, TReq, TRecord, TFiltersReq, TApiResponse, TFormSectionsRequest> }) => VNode[] | VNode;
+  
+  empty: () => VNode | VNode[];
+
+  filtersPanel: (props: { store: DatalistStore<TApi, TReq, TRecord, TFiltersReq, TApiResponse, TFormSectionsRequest> }) => VNode[] | VNode;
+  filtersPresist: (props: { store: DatalistStore<TApi, TReq, TRecord, TFiltersReq, TApiResponse, TFormSectionsRequest> }) => VNode[] | VNode;
+  filtersReset: (props: { store: DatalistStore<TApi, TReq, TRecord, TFiltersReq, TApiResponse, TFormSectionsRequest> }) => VNode[] | VNode;
+  filtersForm: (props: { store: DatalistStore<TApi, TReq, TRecord, TFiltersReq, TApiResponse, TFormSectionsRequest> }) => VNode[] | VNode;
+  filtersFormAppend: (props: { store: DatalistStore<TApi, TReq, TRecord, TFiltersReq, TApiResponse, TFormSectionsRequest> }) => VNode[] | VNode;
+  filtersFormPrepend: (props: { store: DatalistStore<TApi, TReq, TRecord, TFiltersReq, TApiResponse, TFormSectionsRequest> }) => VNode[] | VNode;
+  
+  header: (props: { store: DatalistStore<TApi, TReq, TRecord, TFiltersReq, TApiResponse, TFormSectionsRequest> }) => VNode[] | VNode;
+  dropdownActions: (props: { data: TRecord }) => VNode[] | VNode;
+  actions: (props: { data: TRecord }) => VNode[] | VNode;
+  actionsPrepend: (props: { data: TRecord }) => VNode[] | VNode;
+  actionsAppend: (props: { data: TRecord }) => VNode[] | VNode;
 } & {
-		[K in keyof TRecord as K extends string ? `column.${K}` : never]: (props: { store: DatalistStore<TApi, TReq, TRecord, TFiltersReq, TApiResponse, TFormSectionsRequest>, data: TRecord }) => VNode;
-	} & {
-		[K in keyof DatalistGlobalActions as K extends string ? `globalActions.${K}` : never]: (props: { store: DatalistStore<TApi, TReq, TRecord, TFiltersReq, TApiResponse, TFormSectionsRequest> }) => VNode;
-	} & {
-		[K in keyof DatalistRowActions as K extends string ? `rowActions.${K}` : never]: (props: { store: DatalistStore<TApi, TReq, TRecord, TFiltersReq, TApiResponse, TFormSectionsRequest>, data: TRecord }) => VNode;
-	}
-
-
-
+  [K in keyof TRecord as K extends string ? `column.${K}` : never]: (props: { store: DatalistStore<TApi, TReq, TRecord, TFiltersReq, TApiResponse, TFormSectionsRequest>, data: TRecord }) => VNode[] | VNode;
+} & {
+  [K in keyof DatalistGlobalActions as K extends string ? `globalActions.${K}` : never]: (props: { store: DatalistStore<TApi, TReq, TRecord, TFiltersReq, TApiResponse, TFormSectionsRequest> }) => VNode[] | VNode;
+} & {
+  [K in keyof DatalistRowActions as K extends string ? `rowActions.${K}` : never]: (props: { store: DatalistStore<TApi, TReq, TRecord, TFiltersReq, TApiResponse, TFormSectionsRequest>, data: TRecord }) => VNode[] | VNode;
+}
 
 export type DatalistEmits<TRecord extends StringUnkownRecord, TApiResponse extends StringUnkownRecord | undefined = undefined> = {
 	(e: 'create:submited', response: StringUnkownRecord): void

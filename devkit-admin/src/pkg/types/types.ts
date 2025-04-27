@@ -1,6 +1,6 @@
 
 import type { FormKitSchemaNode } from '@formkit/core'
-import type { BucketCreateUpdateRequest, BucketListRequest, BucketListResponse, DeleteRequest, FileCreateBulkRequest, FileCreateRequest, FileCreateResponse, FileListRequest, FileListResponse, FileObject, IconFindRequest, IconFindResponse } from './api_types'
+import type { BucketCreateUpdateRequest, BucketListRequest, BucketListResponse, DeleteRequest, FileCreateBulkRequest, FileCreateRequest, FileCreateResponse, FileListRequest, FileListResponse, FileObject, GalleryListRequest, GalleryListResponse, IconFindRequest, IconFindResponse } from './api_types'
 import type { RouteLocationRaw } from 'vue-router'
 import { ApiEndpoint } from 'devkit-apiclient'
 import { BucketCreateUpdateResponse } from '@buf/ahmeddarwish_devkit-api.bufbuild_es/devkit/v1/public_storage_pb'
@@ -15,7 +15,7 @@ export type CacheOptions = {
 export type FilesHandler<TApi extends Record<string, Function>> = {
 	bucketList: ApiEndpoint<TApi, BucketListRequest, BucketListResponse>
 	fileCreate: ApiEndpoint<TApi, FileCreateRequest, FileCreateResponse>
-	fileList: DatalistRecords<TApi, FileListRequest, FileObject, FileListRequest, FileListResponse>
+	fileList: DatalistRecords<TApi, GalleryListRequest, FileObject, GalleryListRequest, GalleryListResponse>
 	fileBulkCreate?: ApiEndpoint<TApi, FileCreateBulkRequest, FileCreateResponse>
 	bucketCreateUpdate?: ApiEndpoint<TApi, BucketCreateUpdateRequest, BucketCreateUpdateResponse>
 	fileDelete?: ApiEndpoint<TApi, DeleteRequest<'records', string, 'bulk'>, any>

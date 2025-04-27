@@ -1,6 +1,6 @@
 {
   "name": "devkit-admin",
-  "version": "0.0.155",
+  "version": "0.0.156",
   "description": "Devkit Base Components is a Vue plugin offering a collection of reusable, headless components designed to streamline your Vue.js development workflow. Built for flexibility and maintainability, this library gives you complete control over styling and behavior, integrating seamlessly with PrimeVue, Vue Router, Vue I18n, and Tailwind CSS.",
   "module": "./dist/devkit_admin.es.js",
   "types": "./dist/types/devkit_admin.d.ts",
@@ -91,7 +91,6 @@
   "homepage": "https://github.com/darwishdev/devkit_admin#readme",
   "peerDependencies": {
     "@formkit/core": "^1.6.9",
-    "zod": "^3.24.3",
     "@formkit/vue": "^1.6.9",
     "@tanstack/query-persist-client-core": "^5.66.0",
     "@tanstack/vue-query": "^5.66.0",
@@ -105,7 +104,8 @@
     "tailwindcss-primeui": "^0.4.0",
     "vue": "^3.0.0",
     "vue-i18n": "^10.0.5",
-    "vue-router": "^4.4.5"
+    "vue-router": "^4.4.5",
+    "zod": "^3.24.3"
   },
   "devDependencies": {
     "@eslint/js": "^9.22.0",
@@ -131,6 +131,7 @@
     "@connectrpc/connect-web": "^2.0.1",
     "@formkit/inputs": "^1.6.9",
     "@vue/test-utils": "^2.4.6",
+    "@vueuse/router": "^13.1.0",
     "primeicons": "^7.0.0",
     "vitest": "^3.0.7"
   },

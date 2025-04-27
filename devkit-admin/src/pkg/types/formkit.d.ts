@@ -1,5 +1,5 @@
 import { type FormKitInputs } from "@formkit/inputs"
-import { DropdownContext, InputDropdownSlots } from "@/app/appform"
+import { DropdownContext, InputDropdownSlots, InputUploadContext } from "@/app/appform"
 import { PropType } from "@formkit/inputs"
 declare module '@formkit/inputs' {
 	interface FormKitInputProps<Props extends FormKitInputs<Props>> {
@@ -7,7 +7,12 @@ declare module '@formkit/inputs' {
 		'devkitDropdown': {
 			type: 'devkitDropdown',
 
-		} & Omit<DropdownContext<any, any, any, any>, 'node' | 'slots' | '_value'>
+		} & Omit<DropdownContext<any, any, any, any>, 'node' | 'slots' | '_value'>,
+		'devkitUpload': {
+			type: 'devkitUpload',
+
+		} & Omit<InputUploadContext, 'node' | 'slots' | '_value'>
+
 	}
 	interface FormKitInputSlots<Props extends FormKitInputs<Props>> {
 		'devkitDropdown': InputDropdownSlots<PropType<Props, 'multiple'> extends true ? 'multi' : 'single'>
