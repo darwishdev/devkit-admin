@@ -1,6 +1,7 @@
 <script setup lang="ts" generic="TApi extends Record<string, Function>">
 import { ref, inject, computed, VNode } from "vue";
 import Datalist, {
+  DatalistStore,
   useDatalistStoreWithProps,
   type DatalistProps,
 } from "@/app/datalist/";
@@ -22,6 +23,17 @@ const props = defineProps<{ bucketName?: string }>();
 const slots = defineSlots<{
   card?: (props: { data: FileObject }) => VNode[];
   actions?: (props: { data: FileObject }) => VNode | VNode[];
+  globalActions?: (props: {
+    store: DatalistStore<
+      TApi,
+      GalleryListRequest,
+      FileObject,
+      GalleryListRequest,
+      GalleryListResponse,
+      GalleryListRequest
+    >;
+  }) => VNode[] | VNode;
+  //global?: (props: { data: FileObject }) => VNode | VNode[];
 }>();
 const datalistProps:
   | DatalistProps<
@@ -153,6 +165,10 @@ const createSubmitted = (value: StringUnkownRecord) => {
         <slot name="card" :data="data">
           <AppImage :src="data.name" class="w-150" />
         </slot>
+      </template>
+
+      <template v-if="slots.globalActions" #globalActions="{ store }">
+        <slot name="globalActions" :store="store" />
       </template>
       <template v-if="slots.actions" #actions="{ data }">
         <slot name="actions" :data="data" />

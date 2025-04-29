@@ -5,28 +5,21 @@
     TComponentType extends 'single' | 'multi' | 'button' = 'single'
   ">
   import { FileObject } from "@/pkg/types/api_types";
-  import { ObjectKeys, StringUnkownRecord } from "devkit-apiclient";
+  import { StringUnkownRecord } from "devkit-apiclient";
   import { InputUploadProps, DropdownOptions } from "./types";
   import FileUpload, {
     FileUploadSelectEvent,
-    FileUploadRemoveEvent,
     FileUploadUploadEvent,
   } from "primevue/fileupload";
-  import { h, inject, ref, Suspense } from "vue";
+  import { h, inject, ref } from "vue";
   import { usePrimeVue } from "primevue/config";
-  import { useToast } from "primevue/usetoast";
-  import type { FileUploadRemoveUploadedFileEvent } from "primevue/fileupload"; // depending on your primevue version
-  import type { UploadEvent } from "primevue/fileupload";
+  import Button from "primevue/button";
+  import InputUploadDialog from "./InputUploadDialog.vue";
   import { useDialog } from "primevue";
-  import FileManager from "@/app/filemanager/FileManager.vue";
-  import { AppBtn } from "devkit-base-components";
 
-  const $primevue = usePrimeVue();
-  const toast = useToast();
+  //const toast = useToast();
 
   const props = defineProps<InputUploadProps>();
-  const { context } = props;
-  const baseImage = import.meta.env.VITE_BASE_IMAGE_URL;
   const totalSize = ref(0);
   const totalSizePercent = ref(0);
   const files = ref<File[]>([]);
@@ -38,7 +31,7 @@
   const formatSize = (bytes: number): string => {
     const k = 1024;
     const dm = 3;
-    const sizes = $primevue.config.locale.fileSizeTypes as string[];
+    const sizes: string[] = [""];
 
     if (bytes === 0) {
       return `0 ${sizes[0]}`;
@@ -76,42 +69,13 @@
     });
   };
   const dialog = useDialog();
-
-  const dialogRef = inject("dialogRef") as any;
-  const chooseImage = (img: FileObject) => {
-    if (dialogRef) {
-      if (dialogRef.value) dialogRef.value.close();
-    }
-    console.log("choosing", dialogRef, img);
-  };
   const openGallery = () => {
     console.log("should open gallery");
     dialog.open(
-      h(Suspense, null, {
-        default: () =>
-          h(
-            FileManager,
-            { bucketName: "images" },
-            {
-              card: ({ data }: { data: FileObject }) => [
-                h("img", { src: `${baseImage}/${data.name}`, width: "150px" }),
-              ],
-              actions: ({ data }: { data: FileObject }) => [
-                h(AppBtn, {
-                  action: () => {
-                    const dialogRef = inject("dialogRef");
-                    console.log("ref is", dialogRef);
-                    if (dialogRef) {
-                      dialogRef.value.close();
-                    }
-                    chooseImage(data);
-                  },
-                  label: "choose",
-                }),
-              ],
-            },
-          ),
-        fallback: () => h("div", "Loading..."), // you can customize this fallback
+      h(InputUploadDialog, {
+        onChoose: (file) => {
+          console.log("choosen file is ", file);
+        },
       }),
     );
     //dialog.open(h(FileManager));
@@ -124,27 +88,27 @@
 
         // On successful upload
         const onTemplatedUpload = (event: FileUploadUploadEvent): void => {
-        toast.add({
-        severity: "info",
-        summary: "Success",
-        detail: "File Uploaded",
-        life: 3000,
-        });
+        console.log("this is the upload evenet here", event);
+        //toast.add({
+        //severity: "info",
+        //summary: "Success",
+        //detail: "File Uploaded",
+        //life: 3000,
+        //});
         };
         </script>
         <template>
           <div class="card">
-            <Toast />
             <FileUpload name="demo[]" url="/api/upload" @upload="onTemplatedUpload($event)" :multiple="true"
               accept="image/*" :maxFileSize="1000000" @select="onSelectedFiles">
               <template #header="{ chooseCallback, uploadCallback, clearCallback, files }">
                 <div class="flex flex-wrap justify-between items-center flex-1 gap-4">
                   <div class="flex gap-2">
-                    <Button @click="chooseCallback()" icon="pi pi-images" rounded outlined
-                      severity="secondary"></Button>
-                    <Button @click="uploadEvent(uploadCallback)" icon="pi pi-cloud-upload" rounded outlined
-                      severity="success" :disabled="!files || files.length === 0"></Button>
-                    <Button @click="clearCallback()" icon="pi pi-times" rounded outlined severity="danger"
+                    <Button @click="chooseCallback()" icon="pi pi-images" rounded outlined severity="secondary"
+                      label="choose file"></Button>
+                    <!-- <AppBtn label="upload" :action="() => uploadEvent(uploadCallback)" icon="pi pi-cloud-upload" rounded -->
+                    <!--   outlined severity="success" :disabled="!files || files.length === 0"></AppBtn> -->
+                    <Button @click="clearCallback()" label="clear" icon="pi pi-times" rounded outlined severity="danger"
                       :disabled="!files || files.length === 0"></Button>
 
                     <Button @click="openGallery" icon="pi pi-times" rounded outlined severity="success">open from

@@ -67,9 +67,11 @@ const i18n = createI18n({
 		}
 	}
 })
+  const baseImage = import.meta.env.VITE_BASE_IMAGE_URL;
 const baseConfig: DevkitBaseConfig<typeof apiClient> = {
 	apiClient,
 	locales: ['en', 'ar'],
+  baseImageUrl : baseImage,
 	iconFindApi: 'iconFind'
 }
 app.use(PrimeVue, {
