@@ -28,7 +28,14 @@ const baseConfig: DevkitBaseConfig<typeof apiClient> = {
 const adminConfig: DevkitAdminConfig<typeof apiClient> = {
   apiClient,
   locales: ['en', 'ar'],
-  iconFindApi: 'iconFind'
+  iconFindApi: 'iconFind',
+  filesHandler: {
+    fileList: 'galleryList',
+    bucketList: 'bucketList',
+    bucketCreateUpdate: 'bucketCreateUpdate',
+    fileCreate: 'fileCreate',
+    fileBulkCreate: 'fileCreateBulk'
+  }
 }
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -44,6 +51,9 @@ app.use(VueQueryPlugin, {
 app.use(pinia)
 app.use(ToastService)
 app.use(DialogService)
+app.use(PrimeVue, {
+  theme: 'none'
+})
 app.use(DevkitBaseComponentsPlugin, baseConfig)
 app.use(plugin, formkitConfig())
 const i18n = createI18n({
@@ -60,9 +70,7 @@ const i18n = createI18n({
     }
   }
 })
-app.use(PrimeVue, {
-  theme: 'none'
-}).use(i18n)
+app.use(i18n)
 app.use(router)
   .use(DevkitAdminPlugin, adminConfig)
   .mount('#app')

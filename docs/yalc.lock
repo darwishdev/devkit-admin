@@ -1,0 +1,9 @@
+{
+  "version": "v1",
+  "packages": {
+    "devkit-admin": {
+      "signature": "4b1f56eb7804f77c3632a9f3f3063ae9",
+      "file": true
+    }
+  }
+}

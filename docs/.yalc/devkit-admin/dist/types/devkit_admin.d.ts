@@ -1,0 +1,11 @@
+import { Plugin } from 'vue';
+import { DevkitAdminConfig } from './pkg/types/types';
+import { default as Datepicker } from './app/appform/inputs/Datepicker.vue';
+import { default as DevkitAdminDB } from './pkg/database/DB';
+import { NumberToDate, DateToNumber } from './pkg/utils/DateUtils';
+import * as adminTypes from './pkg/types/types';
+export type { DevkitAdminConfig };
+declare const db: DevkitAdminDB;
+export { db, NumberToDate, DateToNumber, Datepicker, adminTypes };
+declare const DevkitAdminPlugin: Plugin<DevkitAdminConfig<any>>;
+export default DevkitAdminPlugin;
