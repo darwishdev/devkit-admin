@@ -1,6 +1,6 @@
 import { createApp } from 'vue'
 import { VueQueryPlugin } from '@tanstack/vue-query'
-//import './assets/css/app.css'
+import './assets/css/app.css'
 import PrimeVue from 'primevue/config';
 
 import ToastService from 'primevue/toastservice';
@@ -24,16 +24,18 @@ const app = createApp(App)
 app.use(router)
 
 const adminConfig: DevkitAdminConfig<typeof apiClient> = {
-  apiClient,
-  locales: ['en', 'ar'],
-  iconFindApi: 'iconFind',
-  filesHandler: {
-    fileList: 'galleryList',
-    bucketList: 'bucketList',
-    bucketCreateUpdate: 'bucketCreateUpdate',
-    fileCreate: 'fileCreate',
-    fileBulkCreate: 'fileCreateBulk'
-  }
+	apiClient,
+	locales: ['en', 'ar'],
+	iconFindApi: 'iconFind',
+	filesHandler: {
+		fileList: 'galleryList',
+		fileDelete: 'fileDelete',
+		bucketList: 'bucketList',
+		fileBulkCreate: 'fileCreateBulk',
+		fileDeleteByBucket: 'fileDeleteByBucket',
+		bucketCreateUpdate: 'bucketCreateUpdate',
+		fileCreate: 'fileCreate',
+	}
 }
 const queryClient = new QueryClient({
 	defaultOptions: {
@@ -67,16 +69,16 @@ const i18n = createI18n({
 		}
 	}
 })
-  const baseImage = import.meta.env.VITE_BASE_IMAGE_URL;
+const baseImage = import.meta.env.VITE_BASE_IMAGE_URL;
 const baseConfig: DevkitBaseConfig<typeof apiClient> = {
 	apiClient,
 	locales: ['en', 'ar'],
-  baseImageUrl : baseImage,
+	baseImageUrl: baseImage,
 	iconFindApi: 'iconFind'
 }
 app.use(PrimeVue, {
 	theme: 'none'
 }).use(i18n)
-  .use(DevkitAdminPlugin , adminConfig)
+	.use(DevkitAdminPlugin, adminConfig)
 	.use(DevkitBaseComponentsPlugin, baseConfig)
 	.mount('#app')

@@ -1,8 +1,5 @@
 import { FormKitPlugin } from "@formkit/core";
-import { ObjectKeys, resolveApiEndpoint, StringUnkownRecord } from "devkit-apiclient";
-import { useMemoizedDropdownOptions } from "./OptionsGetterUtils";
-import { inject, ref, } from "vue";
-import { DropdownContext } from "../inputs";
+import { ObjectKeys, resolveApiEndpoint } from "devkit-apiclient";
 import { FindHandler } from "@/pkg/types/types";
 import { apiClient } from "@/apiClient";
 import { useRoute } from "vue-router";
@@ -10,26 +7,26 @@ import { RouteQueryFind, RouteQueryRemove } from "@/pkg/utils/QueryUtils";
 
 export const FormDataGetter: FormKitPlugin = (node) => {
   if (!node.props) return
-  if(node.props.type  == 'form') {
-    const {id : formKey , attrs} = node.props
-    const { findHandler , syncWithUrl , usePresist } = attrs
-    console.log("asdsyncWithUrl" , syncWithUrl)
-    const getDataFromFindHandler = (handler : FindHandler<any , any ,any> ) => {
+  if (node.props.type == 'form') {
+    const { id: formKey, attrs } = node.props
+    const { findHandler, syncWithUrl, usePresist } = attrs
+    console.log("asdsyncWithUrl", syncWithUrl)
+    const getDataFromFindHandler = (handler: FindHandler<any, any, any>) => {
       const route = useRoute()
-      if(!handler) return
+      if (!handler) return
       const findHandlerRequest: any = {};
       const requestValue = handler.requestValue
         ? handler.requestValue
         : route.params[handler.routerParamName || "id"];
       findHandlerRequest[handler.requestPropertyName] = requestValue;
-      resolveApiEndpoint<any , any , any>(handler.endpoint, apiClient, findHandlerRequest)
+      resolveApiEndpoint<any, any, any>(handler.endpoint, apiClient, findHandlerRequest)
         .then((resp) => {
           if (handler.responsePropertyName) {
             if (handler.responsePropertyName in resp) {
               const formValue = resp[handler.responsePropertyName];
               if (typeof formValue == "object" && formValue) {
                 node.input(formValue)
-                return 
+                return
               }
             }
           }
@@ -40,11 +37,11 @@ export const FormDataGetter: FormKitPlugin = (node) => {
         });
     }
 
-    const getInitialValue = (formValues: string)  => {
+    const getInitialValue = (formValues: string) => {
       console.log("initial", formValues)
       if (formValues != null) {
         try {
-          return JSON.parse(formValues) ;
+          return JSON.parse(formValues);
         } catch (e) {
           RouteQueryRemove(formKey);
           localStorage.removeItem(formKey);
@@ -81,21 +78,21 @@ export const FormDataGetter: FormKitPlugin = (node) => {
         }
       }
 
-      console.log("default fetcher" , node.props)
+      console.log("default fetcher", node.props)
       const urlFormValues = getInitialValueFromUrl();
       if (urlFormValues) {
         if (ObjectKeys(urlFormValues).length > 0) {
           // formStore.formValueRef = urlFormValues
-            node.input(urlFormValues)
+          node.input(urlFormValues)
         }
       }
     };
 
-    if(findHandler) {
+    if (findHandler) {
       getDataFromFindHandler(findHandler)
       return
     }
     getDefaultFormValue()
-    console.log("node is node" , node.props.attrs.findHandler)
+    console.log("node is node", node.props.attrs.findHandler)
   }
 }

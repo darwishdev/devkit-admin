@@ -1,6 +1,8 @@
 @import "tailwindcss/base";
 @import "tailwindcss/components";
 @import "tailwindcss/utilities";
+
+@import "./primevue/tailwind.css";
 @import 'primeicons/primeicons.css';
 
 :root {
@@ -10,6 +12,8 @@
 	--p-content-inline-spacing: 15rem;
 	--p-surface-0: var(--surface-a);
 	--header-height: 80px;
+	--p-primary-color: red;
+	--p-progressbar-value-background: red;
 	color-scheme: light;
 }
 

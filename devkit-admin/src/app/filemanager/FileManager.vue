@@ -19,7 +19,10 @@ import { resolveApiEndpoint, StringUnkownRecord } from "devkit-apiclient";
 const fileInput = ref<HTMLInputElement | null>(null);
 const apiClient = inject<TApi>("apiClient");
 const filesHandler = inject<FilesHandler<TApi>>("filesHandler");
-const props = defineProps<{ bucketName?: string }>();
+const props = defineProps<{
+  bucketName?: string;
+  isSelectionHidden?: boolean;
+}>();
 const slots = defineSlots<{
   card?: (props: { data: FileObject }) => VNode[];
   actions?: (props: { data: FileObject }) => VNode | VNode[];
@@ -37,16 +40,16 @@ const slots = defineSlots<{
 }>();
 const datalistProps:
   | DatalistProps<
-    TApi,
-    GalleryListRequest,
-    FileObject,
-    GalleryListRequest,
-    GalleryListResponse,
-    BucketCreateUpdateRequest
-  >
+      TApi,
+      GalleryListRequest,
+      FileObject,
+      GalleryListRequest,
+      GalleryListResponse,
+      BucketCreateUpdateRequest
+    >
   | undefined = !filesHandler
-    ? undefined
-    : {
+  ? undefined
+  : {
       context: {
         datalistKey: "files",
         hideShowDeleted: true,
@@ -54,16 +57,17 @@ const datalistProps:
         formSections: bucketsForm,
         rowIdentifier: "id",
         filters: props.bucketName ? undefined : [bucketInput],
+        isSelectionHidden: props.isSelectionHidden,
         requestMapper: props.bucketName
           ? (req) => {
-            return {
-              filters: {
-                ...req.filters,
-                bucketId: props.bucketName as string,
-              },
-              paginationParams: req.paginationParams,
-            };
-          }
+              return {
+                filters: {
+                  ...req.filters,
+                  bucketId: props.bucketName as string,
+                },
+                paginationParams: req.paginationParams,
+              };
+            }
           : undefined,
         records: filesHandler.fileList,
         isServerSide: true,
@@ -159,8 +163,16 @@ const createSubmitted = (value: StringUnkownRecord) => {
     files handler is not passed on config
   </div>
   <div v-else class="buckets">
-    <input type="file" ref="fileInput" @change="handleFileChange" style="display: none" />
-    <Datalist :context="datalistProps.context" @create:submited="createSubmitted">
+    <input
+      type="file"
+      ref="fileInput"
+      @change="handleFileChange"
+      style="display: none"
+    />
+    <Datalist
+      :context="datalistProps.context"
+      @create:submited="createSubmitted"
+    >
       <template #card="{ data }">
         <slot name="card" :data="data">
           <AppImage :src="data.name" class="w-150" />

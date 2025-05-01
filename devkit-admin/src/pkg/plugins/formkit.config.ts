@@ -1,19 +1,19 @@
 
 
 import { createInput, defaultConfig } from '@formkit/vue'
-import { Upload ,  Dropdown, Datepicker , DependencyManagerPlugin,  OptionsGetterPlugin , FormDataGetter } from '@/app/appform/index'
+import { Upload, Dropdown, Datepicker, DependencyManagerPlugin, OptionsGetterPlugin, FormDataGetter } from '@/app/appform/index'
 import { rootClasses } from '@/formkit.theme'
 
 import type { FormKitPlugin } from '@formkit/core';
 const isCheckboxAndRadioMultiple: FormKitPlugin = (node: any) => (node.props.type === 'checkbox' || node.props.type === 'radio') && node.props.options
 const addAsteriskPlugin: FormKitPlugin = (node) => {
-	node.on('created', () => {
-		const isRequired = node.props.parsedRules.some((rule: any) => rule.name === 'required');
-		if (!isRequired || !node.props) return
-		if (!node.props.definition) return
-		const isMultiOption = isCheckboxAndRadioMultiple(node)
-		node.props.definition.schemaMemoKey = `required_${isMultiOption ? 'multi_' : ""}${node.props.definition.schemaMemoKey}`
-		const schemaFn = node.props.definition.schema;
+  node.on('created', () => {
+    const isRequired = node.props.parsedRules.some((rule: any) => rule.name === 'required');
+    if (!isRequired || !node.props) return
+    if (!node.props.definition) return
+    const isMultiOption = isCheckboxAndRadioMultiple(node)
+    node.props.definition.schemaMemoKey = `required_${isMultiOption ? 'multi_' : ""}${node.props.definition.schemaMemoKey}`
+    const schemaFn = node.props.definition.schema;
     node.props.definition.schema = (sectionsSchema: any = {}) => {
       if (isRequired) {
         if (isMultiOption) {
@@ -29,7 +29,7 @@ const addAsteriskPlugin: FormKitPlugin = (node) => {
       if (typeof schemaFn === 'function') {
         return schemaFn(sectionsSchema);
       }
-      return schemaFn ?? [];		
+      return schemaFn ?? [];
     }
   })
 }
@@ -40,6 +40,40 @@ const formKitConfig = () => {
     FormDataGetter,
     OptionsGetterPlugin,
   ]
+  const fileUploadPropKeys = [
+    "name",
+    "url",
+    "mode",
+    "multiple",
+    "accept",
+    "disabled",
+    "auto",
+    "maxFileSize",
+    "invalidFileSizeMessage",
+    "invalidFileLimitMessage",
+    "invalidFileTypeMessage",
+    "fileLimit",
+    "withCredentials",
+    "previewWidth",
+    "chooseLabel",
+    "uploadLabel",
+    "cancelLabel",
+    "customUpload",
+    "showUploadButton",
+    "showCancelButton",
+    "chooseIcon",
+    "uploadIcon",
+    "cancelIcon",
+    "style",
+    "class",
+    "chooseButtonProps",
+    "uploadButtonProps",
+    "cancelButtonProps",
+    "dt",
+    "pt",
+    "ptOptions",
+    "unstyled"
+  ];
   const commonDropdownProps = [
     "options",
     "cacheKey",
@@ -232,7 +266,7 @@ const formKitConfig = () => {
   })
 
   const uploadInput = createInput(Upload, {
-    props: ['bucketName'],
+    props: ['bucketName', 'filesHandler', ...fileUploadPropKeys],
   })
   // const imageInput = createInput(InputImage, {
   //   props: [''],

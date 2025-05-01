@@ -19,6 +19,7 @@ export type FilesHandler<TApi extends Record<string, Function>> = {
 	fileBulkCreate?: ApiEndpoint<TApi, FileCreateBulkRequest, FileCreateResponse>
 	bucketCreateUpdate?: ApiEndpoint<TApi, BucketCreateUpdateRequest, BucketCreateUpdateResponse>
 	fileDelete?: ApiEndpoint<TApi, DeleteRequest<'records', string, 'bulk'>, any>
+	fileDeleteByBucket?: ApiEndpoint<TApi, { records: string[], bucketName: string }, any>
 	bucketDelete?: ApiEndpoint<TApi, DeleteRequest<'records', string, 'bulk'>, any>
 
 }

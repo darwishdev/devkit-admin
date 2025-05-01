@@ -11,7 +11,10 @@ import { DynamicDialogInstance } from "primevue/dynamicdialogoptions";
 import { DatalistStore } from "@/app/datalist";
 
 const dialog = inject<ComputedRef<DynamicDialogInstance>>("dialogRef");
-
+const props = defineProps<{
+  isSelectionHidden?: boolean;
+  bucketName?: string;
+}>();
 const emit = defineEmits<{
   (e: "choose", file: FileObject[]): void;
 }>();
@@ -41,7 +44,7 @@ const chooseFiles = (
 </script>
 <template>
   <Suspense>
-    <FileManager bucketName="images">
+    <FileManager v-bind="props">
       <template #actions="{ data }">
         <AppBtn :action="() => chooseFile(data)" label="choose" />
       </template>

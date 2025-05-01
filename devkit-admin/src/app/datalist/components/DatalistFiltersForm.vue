@@ -7,15 +7,12 @@
     TFormSectionsRequest extends Record<string, unknown> | undefined = undefined
   ">
   import { useDatalistStoreWithKey } from "../store/DatalistStore";
-  import { reset } from "@formkit/core";
   import { Panel } from "primevue";
   import AppForm from "@/app/appform/AppForm.vue";
   import { objectEntries } from "@vueuse/core";
-  import { useRouteQuery } from "@vueuse/router";
   import { useFormKitContextById } from "@formkit/vue";
 
   const props = defineProps<{ datalistKey: string }>();
-  const value = useRouteQuery(`files-filter-form`);
   const datalistStore = useDatalistStoreWithKey(props.datalistKey);
   const formkCtx = useFormKitContextById(`files-filter-form`);
   const pannelPassThrough = {

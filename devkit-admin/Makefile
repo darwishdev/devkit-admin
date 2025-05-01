@@ -20,7 +20,7 @@ publish:
 	make buld && npm publish 
 	
 sync_api:
-	pnpm cache delete && pnpm add @buf/ahmeddarwish_devkit-api.bufbuild_es@${V}
+	pnpm cache delete && rm -rf node_modules/@buf/ahmeddarwish_devkit-api.bufbuild_es && pnpm add @buf/ahmeddarwish_devkit-api.bufbuild_es@${V}
 
 run:
 	pnpm run dev
