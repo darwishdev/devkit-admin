@@ -1,5 +1,5 @@
 import { defineComponent as F, ref as N, inject as k, useSlots as x, computed as P, resolveComponent as $, unref as r, openBlock as g, createElementBlock as h, createElementVNode as L, createVNode as p, createSlots as D, withCtx as u, renderSlot as f } from "vue";
-import { b as T, _ as V } from "./Datalist.vue_vue_type_script_setup_true_lang-upv7h8G1.mjs";
+import { b as T, _ as V } from "./Datalist.vue_vue_type_script_setup_true_lang-DYcm5TLa.mjs";
 import { AppBtn as B } from "devkit-base-components";
 import { resolveApiEndpoint as z } from "devkit-apiclient";
 const q = {

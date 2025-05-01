@@ -28,7 +28,7 @@ importers:
         version: 5.66.0(vue@3.5.13(typescript@5.6.3))
       devkit-admin:
         specifier: file:.yalc/devkit-admin
-        version: file:.yalc/devkit-admin(62777b51d0745fe77b4b8b1fd12a5a6f)
+        version: file:.yalc/devkit-admin(slkxck6kcc3p7zndhdfwh4qah4)
       devkit-apiclient:
         specifier: ^1.0.13
         version: 1.0.13(@connectrpc/connect-web@2.0.1(@bufbuild/protobuf@2.2.3)(@connectrpc/connect@2.0.1(@bufbuild/protobuf@2.2.3)))(@connectrpc/connect@2.0.1(@bufbuild/protobuf@2.2.3))
@@ -887,19 +887,8 @@ packages:
   '@vueuse/metadata@12.8.2':
     resolution: {integrity: sha512-rAyLGEuoBJ/Il5AmFHiziCPdQzRt88VxR+Y/A/QhJ1EWtWqPBBAxTAFaSkviwEuOEZNtW8pvkPgoCZQ+HxqW1A==}
 
-  '@vueuse/router@13.1.0':
-    resolution: {integrity: sha512-rfSIK1VMmKO+M+vo6PMcL3hSmvqFbTbQ7hdAYHKSba8E6V2fV8xXTjho3OM3rjguIsl7Ml9FU7tSuKQFUvkApg==}
-    peerDependencies:
-      vue: ^3.5.0
-      vue-router: ^4.0.0
-
   '@vueuse/shared@12.8.2':
     resolution: {integrity: sha512-dznP38YzxZoNloI0qpEfpkms8knDtaoQ6Y/sfS0L7Yki4zh40LFHEhur0odJC6xTHG5dxWVPiUWBXn+wCG2s5w==}
-
-  '@vueuse/shared@13.1.0':
-    resolution: {integrity: sha512-IVS/qRRjhPTZ6C2/AM3jieqXACGwFZwWTdw5sNTSKk2m/ZpkuuN+ri+WCVUP8TqaKwJYt/KuMwmXspMAw8E6ew==}
-    peerDependencies:
-      vue: ^3.5.0
 
   abbrev@2.0.0:
     resolution: {integrity: sha512-6/mh1E2u2YgEsCHdY0Yx5oW+61gZU+1vXaoiHHrpKeuRNNgFvS+/jrwHiQhB5apAf5oB7UB7E19ol2R2LKH8hQ==}
@@ -2973,21 +2962,11 @@ snapshots:
 
   '@vueuse/metadata@12.8.2': {}
 
-  '@vueuse/router@13.1.0(vue-router@4.5.0(vue@3.5.13(typescript@5.6.3)))(vue@3.5.13(typescript@5.6.3))':
-    dependencies:
-      '@vueuse/shared': 13.1.0(vue@3.5.13(typescript@5.6.3))
-      vue: 3.5.13(typescript@5.6.3)
-      vue-router: 4.5.0(vue@3.5.13(typescript@5.6.3))
-
   '@vueuse/shared@12.8.2(typescript@5.6.3)':
     dependencies:
       vue: 3.5.13(typescript@5.6.3)
     transitivePeerDependencies:
       - typescript
-
-  '@vueuse/shared@13.1.0(vue@3.5.13(typescript@5.6.3))':
-    dependencies:
-      vue: 3.5.13(typescript@5.6.3)
 
   abbrev@2.0.0: {}
 
@@ -3196,7 +3175,7 @@ snapshots:
 
   dequal@2.0.3: {}
 
-  devkit-admin@file:.yalc/devkit-admin(62777b51d0745fe77b4b8b1fd12a5a6f):
+  devkit-admin@file:.yalc/devkit-admin(slkxck6kcc3p7zndhdfwh4qah4):
     dependencies:
       '@buf/ahmeddarwish_devkit-api.bufbuild_es': 2.2.5-20250409230356-8091c2c5ab40.1(@bufbuild/protobuf@2.2.3)
       '@connectrpc/connect': 2.0.1(@bufbuild/protobuf@2.2.3)
@@ -3208,7 +3187,6 @@ snapshots:
       '@tanstack/vue-query': 5.66.0(vue@3.5.13(typescript@5.6.3))
       '@vue/test-utils': 2.4.6
       '@vueuse/core': 12.8.2(typescript@5.6.3)
-      '@vueuse/router': 13.1.0(vue-router@4.5.0(vue@3.5.13(typescript@5.6.3)))(vue@3.5.13(typescript@5.6.3))
       devkit-apiclient: 1.0.13(@connectrpc/connect-web@2.0.1(@bufbuild/protobuf@2.2.3)(@connectrpc/connect@2.0.1(@bufbuild/protobuf@2.2.3)))(@connectrpc/connect@2.0.1(@bufbuild/protobuf@2.2.3))
       devkit-base-components: 0.0.11(devkit-apiclient@1.0.13(@connectrpc/connect-web@2.0.1(@bufbuild/protobuf@2.2.3)(@connectrpc/connect@2.0.1(@bufbuild/protobuf@2.2.3)))(@connectrpc/connect@2.0.1(@bufbuild/protobuf@2.2.3)))(dexie@4.0.11)(primevue@4.2.5(vue@3.5.13(typescript@5.6.3)))(tailwindcss-primeui@0.4.0(tailwindcss@3.4.17))(tailwindcss@3.4.17)(vue-i18n@10.0.5(vue@3.5.13(typescript@5.6.3)))(vue-router@4.5.0(vue@3.5.13(typescript@5.6.3)))(vue@3.5.13(typescript@5.6.3))
       dexie: 4.0.11
