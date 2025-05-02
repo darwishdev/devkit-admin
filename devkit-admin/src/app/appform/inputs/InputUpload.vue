@@ -1,160 +1,175 @@
-<
 <script lang="ts" setup generic="TApi extends Record<string, Function>">
 import { FileCreateBulkRequest, FileObject } from "@/pkg/types/api_types";
 import { resolveApiEndpoint } from "devkit-apiclient";
 import { InputUploadProps } from "./types";
 import FileUpload, {
-  FileUploadRemoveUploadedFile,
   FileUploadSelectEvent,
-  FileUploadSlots,
   FileUploadUploaderEvent,
 } from "primevue/fileupload";
-import { computed, h, inject, ref } from "vue";
+import { h, inject, ref } from "vue";
 import InputUploadDialog from "./InputUploadDialog.vue";
 import { FilesHandler } from "@/pkg/types/types";
 import { useDialog } from "primevue/usedialog";
-import { AppBtn } from "devkit-base-components";
-import { ProgressBar } from "primevue";
+import { AppBtn, AppImage } from "devkit-base-components";
+import { createFileBulkRequestFromFiles } from "./InputUploadAdapter";
 const { context } = defineProps<InputUploadProps>();
 const { bucketName, auto, fileLimit, node, multiple } = context;
-const slots = defineSlots<FileUploadSlots>();
 const apiClient = inject<TApi>("apiClient");
-const totalSize = ref(0);
-const totalSizePercent = ref(0);
-const files = ref<File[]>([]);
+const selectedFilesRef = ref<File[]>([]);
+const galleryFilesRef = ref<FileObject[]>([]);
 const dialog = useDialog();
 const filesHandler = inject<FilesHandler<TApi>>("filesHandler");
 const fileUploadElementRef = ref();
-// Emit types
-const emit = defineEmits<{ (e: "valueChange", value: unknown): void }>();
-// When files are selected
-const onSelectedFiles = (event: FileUploadSelectEvent): void => {
-  if (!auto) {
-    if (!multiple) {
-      node.input(`${bucketName}/${event.files[0].name}`);
-    } else {
-      node.input(event.files.map((f: File) => `${bucketName}/${f.name}`));
-    }
-    createFileBulkRequest(event).then((req) => {
-      if (node.parent) {
-        console.log("createFileBulkRequest", node.parent.props.type);
-        if (node.parent.props.type == "form") {
-          node.parent.props.uploads = req;
-        }
-      }
-    });
-  }
-  files.value = event.files as File[];
+const totalFilesLength = () => {
+  return selectedFilesRef.value.length + galleryFilesRef.value.length;
 };
-
-const baseImage = import.meta.env.VITE_BASE_IMAGE_URL;
-const convertToFile = async (fileObject: FileObject): Promise<File> => {
-  const fileUrl = `${baseImage}${fileObject.name}`;
-  const response = await fetch(fileUrl);
-  if (!response.ok) {
-    throw new Error(`Failed to fetch file from ${fileUrl}`);
+const inputValue = (): string[] | string => {
+  if (!galleryFilesRef.value.length) return multiple ? [] : "";
+  if (multiple) {
+    return [
+      ...galleryFilesRef.value.map((f) => `${f.bucketId}/${f.name}`),
+      ...selectedFilesRef.value.map((f) => `${bucketName}/${f.name}`),
+    ];
   }
-
-  const blob = await response.blob();
-  const lastModified = new Date(fileObject.updatedAt).getTime();
-
-  return new File([blob], fileObject.name, {
-    type: blob.type || "application/octet-stream",
-    lastModified,
-  });
+  const file = galleryFilesRef.value[0];
+  return `${file.bucketId}/${file.name}`;
+};
+// Emit types
+// When files are selected
+const onSelectedFiles = async (event: FileUploadSelectEvent) => {
+  console.log("files selected", event.files);
+  // if not auto means the uploader will not be loaded so we need to update the input and bind the request to parent form
+  if (!event.files.length) return;
+  if (!multiple) {
+    galleryFilesRef.value = [];
+    const files = [event.files[event.files.length - 1]];
+    fileUploadElementRef.value.files = files;
+    selectedFilesRef.value = files;
+  } else {
+    const files = [...selectedFilesRef.value, ...event.files];
+    fileUploadElementRef.value.files = files;
+    selectedFilesRef.value = files;
+  }
+  if (fileLimit && multiple) {
+    if (totalFilesLength() + event.files.length > fileLimit) {
+      console.error("exceeded file limit");
+      return;
+    }
+  }
+  if (!auto) {
+    node.input(inputValue());
+    if (node.parent) {
+      if (node.parent.props.type == "form") {
+        const request = await createFileBulkRequestFromFiles(
+          event.files,
+          bucketName,
+        );
+        node.parent.props.uploads = request;
+      }
+    }
+  }
 };
 const openGallery = () => {
   dialog.open(
     h(InputUploadDialog, {
       bucketName,
       isSelectionHidden: !multiple,
-      onChoose: async (file) => {
-        fileUploadElementRef.value.uploadedFiles.push(
-          await convertToFile(file[0]),
-        );
-        console.log("choosen file is ", await convertToFile(file[0]));
+      onChoose: async (files) => {
+        if (!multiple) {
+          galleryFilesRef.value = [files[0]];
+          fileUploadElementRef.value.uploadedFiles = [files[0]];
+
+          selectedFilesRef.value = [];
+          node.input(inputValue());
+          return;
+        }
+
+        fileUploadElementRef.value.uploadedFiles = [
+          ...galleryFilesRef.value,
+          ...files,
+        ];
+        galleryFilesRef.value = [...galleryFilesRef.value, ...files];
+        node.input(inputValue());
       },
     }),
   );
 };
-// Upload action
-const createFileRequest = async (file: File) => {
-  console.log("filecalledis", file);
-  const arrayBuffer = await file.arrayBuffer();
-  return {
-    path: `${file.name}`,
-    bucketName: bucketName,
-    reader: new Uint8Array(arrayBuffer),
-    fileType: file.type,
-  };
+const removeSelectedFile = (file: File) => {
+  const index = selectedFilesRef.value.indexOf(file);
+  if (index !== -1) {
+    selectedFilesRef.value.splice(index, 1);
+    node.input(inputValue());
+    if (auto) {
+      removeUploadedFile(file);
+    }
+  }
+};
+const removeGalleryFile = (file: FileObject) => {
+  const index = galleryFilesRef.value.indexOf(file);
+  if (index !== -1) {
+    galleryFilesRef.value.splice(index, 1);
+    node.input(inputValue());
+  }
 };
 
-// Function to create the bulk file request
-const createFileBulkRequest = async (
-  event: FileUploadUploaderEvent,
-): Promise<FileCreateBulkRequest> => {
-  const inputFiles = Array.isArray(event.files) ? event.files : [event.files];
-  const fileRequests = await Promise.all(
-    inputFiles.map((file) => createFileRequest(file)),
-  );
-  return {
-    files: fileRequests,
-  };
-};
-
-const onRemoveUploadedFile = (event: FileUploadRemoveUploadedFile) => {
+const removeUploadedFile = async (file: File | File[]) => {
   if (!filesHandler) return;
   if (!filesHandler.fileDeleteByBucket) return;
-  resolveApiEndpoint(filesHandler.fileDeleteByBucket, apiClient, {
+  await resolveApiEndpoint(filesHandler.fileDeleteByBucket, apiClient, {
     bucketName: bucketName,
-    records: [`${event.file.name}`],
+    records: Array.isArray(file) ? file.map((f) => f.name) : [file.name],
   });
 };
+const uploadSingleFile = async (request: FileCreateBulkRequest) => {
+  if (!filesHandler) return;
+  if (filesHandler.fileCreate) {
+    await resolveApiEndpoint(
+      filesHandler.fileCreate,
+      apiClient,
+      request.files[0],
+    );
+    return;
+  }
+  if (filesHandler.fileBulkCreate) {
+    await resolveApiEndpoint(filesHandler.fileBulkCreate, apiClient, request);
+    return;
+  }
+};
+const uploadMultipleFiles = async (request: FileCreateBulkRequest) => {
+  if (!filesHandler) return;
+  if (filesHandler.fileBulkCreate) {
+    await resolveApiEndpoint(filesHandler.fileBulkCreate, apiClient, request);
+    return;
+  }
+
+  if (filesHandler.fileCreate) {
+    for (let i = 0; i < request.files.length; i++) {
+      await resolveApiEndpoint(
+        filesHandler.fileCreate,
+        apiClient,
+        request.files[i],
+      );
+    }
+    return;
+  }
+};
+
 // On successful upload
 const uploader = async (e: FileUploadUploaderEvent) => {
   if (!filesHandler) return;
   if (!filesHandler.fileBulkCreate && !filesHandler.fileCreate) return;
   if (!e.files) return;
   if (Array.isArray(e.files) && e.files.length == 0) return;
-  totalSizePercent.value = totalSize.value / 10;
-  fileUploadElementRef.value.uploadedFiles.push(...files.value);
-  let request = await createFileBulkRequest(e);
+  const filesArr = Array.isArray(e.files) ? e.files : [e.files];
+  let request = await createFileBulkRequestFromFiles(filesArr, bucketName);
   if (!request.files.length) return;
   if (!multiple) {
-    if (filesHandler.fileCreate) {
-      await resolveApiEndpoint(
-        filesHandler.fileCreate,
-        apiClient,
-        request.files[0],
-      );
-      node.input(`${bucketName}/${request.files[0].path}`);
-      return;
-    }
-    if (filesHandler.fileBulkCreate) {
-      await resolveApiEndpoint(filesHandler.fileBulkCreate, apiClient, request);
-      node.input(`${bucketName}/${request.files[0].path}`);
-    }
-  }
-  if (multiple) {
-    if (filesHandler.fileBulkCreate) {
-      await resolveApiEndpoint(filesHandler.fileBulkCreate, apiClient, request);
-      node.input(
-        fileUploadElementRef.value.uploadedFiles.map(
-          (f: File) => `${bucketName}/${f.name}`,
-        ),
-      );
-      return;
-    }
-    const inpuValue: string[] = [];
-    await Promise.all(
-      request.files.map((req) => {
-        inpuValue.push(req.path);
-        return resolveApiEndpoint(filesHandler.fileCreate, apiClient, req);
-      }),
-    );
-    node.input(inpuValue);
+    await uploadSingleFile(request);
+    node.input(inputValue());
     return;
   }
+  await uploadMultipleFiles(request);
+  node.input(inputValue());
 };
 const renderFileUpload = () => {
   return h(
@@ -164,11 +179,58 @@ const renderFileUpload = () => {
       ref: (r) => (fileUploadElementRef.value = r),
       onSelect: onSelectedFiles,
       onUploader: uploader,
-      onRemoveUploadedFile,
       fileLimit: !multiple ? 1 : fileLimit,
       customUpload: true,
     },
     {
+      content: () =>
+        h(
+          "div",
+          {
+            class: "flex",
+          },
+          [
+            selectedFilesRef.value.map((f) =>
+              h(
+                "div",
+                {
+                  class: "card",
+                },
+                [
+                  h("img", {
+                    width: "150px",
+                    src: URL.createObjectURL(f),
+                  }),
+                  h(AppBtn, {
+                    label: "remove",
+                    icon: "trash",
+                    action: () => removeSelectedFile(f),
+                  }),
+                ],
+              ),
+            ),
+            galleryFilesRef.value.map((f) =>
+              h(
+                "div",
+                {
+                  class: "card",
+                },
+                [
+                  h(AppImage, {
+                    width: "150px",
+                    src: f.name,
+                  }),
+                  h(AppBtn, {
+                    label: "remove",
+                    icon: "trash",
+                    action: () => removeGalleryFile(f),
+                  }),
+                ],
+              ),
+            ),
+          ],
+        ),
+      empty: () => h("h2", "drop files hear"),
       header: ({
         chooseCallback,
         clearCallback,
@@ -209,54 +271,18 @@ const renderFileUpload = () => {
               rounded: true,
               outlined: true,
               severity: "danger",
-              action: () => {
+              action: async () => {
+                if (auto) {
+                  await removeUploadedFile(selectedFilesRef.value);
+                }
+                galleryFilesRef.value = [];
+                selectedFilesRef.value = [];
+                node.input(inputValue());
                 clearCallback();
               },
             }),
           ],
         ),
-      // content: ({
-      //   removeUploadedFileCallback,
-      //   removeFileCallback,
-      // }: {
-      //   files: File[];
-      //   uploadedFiles: File[];
-      //   removeUploadedFileCallback: (index: number) => void;
-      //   removeFileCallback: (index: number) => void;
-      // }) =>
-      //   h(
-      //     "div",
-      //     {
-      //       class: "flex",
-      //     },
-      //     [
-      //       previews.value.map(({ file, url }) =>
-      //         h(
-      //           "div",
-      //           {
-      //             key: `${file.name}${file.size}${file.type}`,
-      //           },
-      //           [
-      //             h("img", {
-      //               src: url,
-      //               width: "150px",
-      //             }),
-      //             h(AppBtn, {
-      //               label: "delete",
-      //               icon: "trash",
-      //               action: () => {
-      //                 removeFile(
-      //                   file,
-      //                   removeUploadedFileCallback,
-      //                   removeFileCallback,
-      //                 );
-      //               },
-      //             }),
-      //           ],
-      //         ),
-      //       ),
-      //     ],
-      //   ),
     },
   );
 };
