@@ -1,93 +1,130 @@
 <script setup lang="ts">
+import { useI18n } from "vue-i18n";
+import type {
+  AccountsSchemaUser,
+  UserListRequest,
+} from "@buf/ahmeddarwish_devkit-api.bufbuild_es/devkit/v1/accounts_user_pb";
+import Datalist, {
+  DatalistColumnsBase,
+  ColumnText,
+  DatalistProps,
+} from "@/app/datalist";
 import { apiClient } from "@/apiClient";
-import AppForm, { AppFormProps } from "@/app/appform";
-import FileManager from "@/app/filemanager/FileManager.vue";
-import {
-  PartialCreateUpdateRequest,
-  PartialCreateUpdateResponse,
-} from "@buf/ahmeddarwish_devkit-api.bufbuild_es/devkit/v1/tenant_partial_pb";
-import { FormKit } from "@formkit/vue";
-import { ref } from "vue";
-const model = ref({});
-const submit = (req) => {
-  console.log("Req is", req);
+import { AppFormSection } from "@/app/appform";
+const { t } = useI18n();
+
+const formSections: Record<string, AppFormSection> = {
+  user_info: {
+    isTitleHidden: true,
+    isTransparent: true,
+    inputs: [
+      {
+        $formkit: "text",
+        prefixIcon: "tools",
+        outerClass: "col-12 sm:col-6 md:col-5",
+        name: "userName",
+        validation: "required",
+        placeholder: t("userName"),
+        label: t("userName"),
+      },
+      {
+        $formkit: "text",
+        prefixIcon: "tools",
+        outerClass: "col-12 sm:col-6 md:col-5",
+        name: "userEmail",
+        validation: "required",
+        placeholder: t("userEmail"),
+        label: t("userEmail"),
+      },
+      {
+        $formkit: "text",
+        prefixIcon: "tools",
+        outerClass: "col-12 sm:col-6 md:col-5",
+        name: "userPhone",
+        placeholder: t("userPhone"),
+        label: t("userPhone"),
+      },
+      {
+        $formkit: "textarea",
+        prefixIcon: "text",
+        outerClass: "col-12 sm:col-6 md:col-7",
+        name: "userDescription",
+        placeholder: t("userDescription"),
+        label: t("userDescription"),
+      },
+      {
+        $formkit: "number",
+        prefixIcon: "text",
+        outerClass: "col-12 sm:col-6 md:col-7",
+        name: "userSecurityLevel",
+        number: "integer",
+        placeholder: t("securityLevel"),
+        label: t("userSecurityLevel"),
+      },
+    ],
+  },
 };
-const formProps: AppFormProps<
+//const columns: DatalistColumns<AccountsSchemaUser> = {
+//  userId: new ColumnText<AccountsSchemaUser>('userId', {
+//    isSortable: true,
+//    isGlobalFilter: true,
+//    //router: viewRoute
+//  }),
+//  //
+//  userName: new ColumnText('userName', {
+//    isSortable: true,
+//    isGlobalFilter: true,
+//    filters: [{
+//      matchMode: FilterMatchMode.CONTAINS,
+//      input: {
+//        $formkit: 'text',
+//        prefixIcon: "tools",
+//        outerClass: "col-12 sm:col-6 md:col-3",
+//        name: "userName",
+//        placeholder: t("userName")
+//      }
+//    }]
+//  }),
+//
+//  createdAt: new ColumnText('createdAt', {
+//    isSortable: true,
+//    isGlobalFilter: true,
+//    filters: [{
+//      matchMode: FilterMatchMode.CONTAINS,
+//      input: {
+//        $formkit: 'text',
+//        prefixIcon: "tools",
+//        outerClass: "col-12 sm:col-6 md:col-3",
+//        name: "userDescription",
+//        placeholder: t("userDescription")
+//      }
+//    }]
+//  }),
+//}
+const columns: DatalistColumnsBase<AccountsSchemaUser> = {
+  userId: new ColumnText("userId", {}),
+  userName: new ColumnText("userName", {}),
+};
+
+const tableProps: DatalistProps<
   typeof apiClient,
-  PartialCreateUpdateRequest,
-  PartialCreateUpdateRequest,
-  PartialCreateUpdateResponse
+  UserListRequest,
+  AccountsSchemaUser
 > = {
   context: {
-    formKey: "partial",
-    title: "partial",
-    submitHandler: {
-      endpoint: "partialCreateUpdate",
-    },
-    sections: {
-      partial_info: {
-        isTitleHidden: true,
-        isTransparent: true,
-        inputs: [
-          {
-            $formkit: "text",
-            prefixIcon: "edit",
-            outerClass: "col-12 sm:col-6 md:col-4",
-            name: "partialName",
-            validation: "required",
-            label: "partialName",
-          },
-          {
-            $formkit: "devkitDropdown",
-            prefixIcon: "list-ordered",
-            options: "partialTypeListInput",
-            optionValue: "value",
-            optionLabel: "label",
-            outerClass: "col-12 sm:col-6 md:col-4",
-            name: "partialTypeId",
-            validation: "required",
-            label: "partialTypeId",
-          },
-          {
-            $formkit: "devkitDropdown",
-            prefixIcon: "list-ordered",
-            options: apiClient.sectionListInpt,
-            optionValue: "value",
-            optionLabel: "label",
-            outerClass: "col-12 sm:col-6 md:col-4",
-            name: "sectionId",
-            validation: "required",
-            label: "sectionListInpt",
-          },
-          {
-            $formkit: "devkitUpload",
-            prefixIcon: "image",
-            auto: false,
-            outerClass: "col-12 sm:col-6 md:col-4",
-            multiple: false,
-            bucketName: "images",
-            name: "partialImage",
-            label: "partialImage",
-          },
-
-          {
-            $formkit: "devkitUpload",
-            prefixIcon: "image",
-            auto: true,
-            outerClass: "col-12 sm:col-6 md:col-4",
-            bucketName: "images",
-            name: "partialImages",
-            label: "partialImages",
-            multiple: true,
-          },
-          // Note: partialLinks is a map type and might need a custom component or different handling
-        ],
-      },
-    },
+    datalistKey: "user",
+    title: "users",
+    rowIdentifier: "userId",
+    //   columns,
+    columns,
+    records: apiClient.userList,
+    isExportable: true,
+    formSections,
+    displayType: "table",
+    options: { title: "asd", description: "asd" },
   },
 };
 </script>
 <template>
-  <AppForm :context="formProps.context" />
-  <!-- <FileManager /> -->
+  <Datalist :context="tableProps.context"> </Datalist>
 </template>

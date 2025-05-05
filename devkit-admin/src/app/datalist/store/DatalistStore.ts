@@ -29,7 +29,7 @@ export const useDatalistStore = <
 		const contextOptions: ApiListOptions = { title: context.datalistKey, ...context.options }
 		let initialCallbackFinished = false
 		const toast = useToast()
-    const dialogRef = inject('dialogRef')
+		const dialogRef = inject('dialogRef')
 		const apiClient = inject<TApi>('apiClient')
 		const debounceInMilliseconds = context.debounceInMilliseconds || 1000
 		const paginationParamsRef = ref<PaginationParams>()
@@ -74,11 +74,11 @@ export const useDatalistStore = <
 			const globalActions: ActionButtonProps<DatalistGlobalActions>[] = []
 			const rowActionsMap = {
 				'view': { hidden: !context.viewRouter, fn: (record: TRecord) => viewRecord(record) },
-				'update': { hidden: !optionsInUse.value.updateHandler, fn: (emitFn : (response : StringUnkownRecord) => void , record: TRecord) => createUpdateRecord(emitFn , record) },
+				'update': { hidden: !optionsInUse.value.updateHandler, fn: (emitFn: (response: StringUnkownRecord) => void, record: TRecord) => createUpdateRecord(emitFn, record) },
 			}
 			const globalActionsMap = {
-				'create': { hidden: !optionsInUse.value.createHandler, fn: (emitFn : (response : StringUnkownRecord) => void  ) => createUpdateRecord(emitFn) },
-				'export': { hidden: !context.viewRouter, fn: (  record: TRecord) => viewRecord(record ) },
+				'create': { hidden: !optionsInUse.value.createHandler, fn: (emitFn: (response: StringUnkownRecord) => void) => createUpdateRecord(emitFn) },
+				'export': { hidden: !context.viewRouter, fn: (record: TRecord) => viewRecord(record) },
 			}
 			for (const [k, v] of objectEntries(rowActionsMap)) {
 				if (!v.hidden) {
@@ -117,7 +117,6 @@ export const useDatalistStore = <
 					}
 				}
 			}
-			filtersFormSchema.push({ $formkit: 'hidden', name: 'global' })
 			allFiltersCombined.forEach((filter: DatalistFilterInput<TFiltersReq> | DatalistFilter<TFiltersReq>) => {
 				const inputField = 'input' in filter ? filter.input : filter
 				console.log('filters is', filter)
@@ -129,6 +128,8 @@ export const useDatalistStore = <
 				if ('matchMode' in filter) filtersMatchModesMap.set(inputField.name, filter.matchMode)
 				filtersFormSchema.push(inputField)
 			})
+
+			if (globalFilters.length) filtersFormSchema.push({ $formkit: 'hidden', name: 'global' })
 		}
 		// watch(filtersFormStore.formValueRef, async (newValue) => {
 		// 	console.log('formvaluechanged', newValue)
@@ -141,8 +142,14 @@ export const useDatalistStore = <
 		const filterFormValue = computed(() => {
 			const datalistFiltersModel: DatalistFiltersModel = {}
 			if (context.isServerSide) return datalistFiltersModel
+			let globalValue = ''
 			for (const [filterName, filterValue] of Object.entries(filtersFormStore.formValue)) {
-				datalistFiltersModel[filterName] = { value: filterValue, matchMode: filtersMatchModesMap.get(filterName) }
+				if (filterName == 'global') {
+					globalValue = filterValue as string
+					datalistFiltersModel[filterName] = { value: filterValue || null, matchMode: 'contains' }
+					continue
+				}
+				datalistFiltersModel[filterName] = { value: filterValue || null, matchMode: filtersMatchModesMap.get(filterName) }
 			}
 
 			return datalistFiltersModel
@@ -300,14 +307,14 @@ export const useDatalistStore = <
 
 		const currenData = computed(() => {
 			if (!datalistQueryResult.data.value) return [];
-      if(!isFiltersFormValid.value) return []
+			if (!isFiltersFormValid.value) return []
 			const { records, deletedRecords = [] } = datalistQueryResult.data.value;
 			if (isShowDeletedRef.value) return context.isServerSide ? records : deletedRecords;
 			return records;
 
 		})
 		const isFiltersFormValid = computed(() => {
-			return filtersFormStore?.formElementContext?.state?.valid || false
+			return filtersFormSchema.length > 0 ?  filtersFormStore?.formElementContext?.state?.valid || false : true
 		})
 
 		const datalistQueryResult = useQuery<ApiResponseList<TRecord>, Error>({
@@ -357,7 +364,7 @@ export const useDatalistStore = <
 			optionsInUse,
 			deleteRestoreVariants,
 			filtersFormKey,
-      dialogRef,
+			dialogRef,
 			// actions
 			init,
 		}

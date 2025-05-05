@@ -27,6 +27,14 @@ const adminConfig: DevkitAdminConfig<typeof apiClient> = {
 	apiClient,
 	locales: ['en', 'ar'],
 	iconFindApi: 'iconFind',
+	authHandler: {
+		login: 'authLogin',
+		allowedProviders: ['google'],
+		providerLogin: 'authLoginProvider',
+		providerLoginCallback: 'authLoginProviderCallback',
+		resetPasswordEmail: 'authResetPasswordEmail',
+		resetPassword: 'authResetPassword'
+	},
 	filesHandler: {
 		fileList: 'galleryList',
 		fileDelete: 'fileDelete',

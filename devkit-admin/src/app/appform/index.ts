@@ -1,5 +1,6 @@
 import AppForm from './AppForm.vue'
 export { default as FormBase } from './components/FormBase.vue';
+export {default as LoginForm} from './components/LoginForm.vue'
 export * from './inputs/index'
 export * from './types'
 export { OptionsGetterPlugin, DependencyManagerPlugin } from './plugins/OptionsGetter'

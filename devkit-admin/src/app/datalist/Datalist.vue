@@ -11,6 +11,7 @@
   "
 >
 import DataTable from "primevue/datatable";
+import Menu from "primevue/menu";
 
 import { useDatalistStoreWithProps } from "./store/DatalistStore";
 
@@ -30,7 +31,7 @@ import {
 import DatalistFiltersForm from "./components/DatalistFiltersForm.vue";
 import { AppBtn } from "devkit-base-components";
 import { objectEntries } from "@vueuse/core";
-import { computed, h } from "vue";
+import { computed, h, ref, VNode } from "vue";
 import { StringUnkownRecord } from "@/pkg/types/types";
 const emit = defineEmits<DatalistEmits<TRecord, TApiResponse>>();
 const props =
@@ -44,7 +45,7 @@ const props =
       TFormSectionsRequest
     >
   >();
-const { hideShowDeleted, isSelectionHidden } = props.context;
+const { hideShowDeleted, isActionsDropdown, isSelectionHidden } = props.context;
 const datalistStore: DatalistStore<
   TApi,
   TReq,
@@ -107,18 +108,89 @@ const renderGlobalActions = () => {
       : h(AppBtn, { action: () => actionBtn.actionFn(callback), ...actionBtn });
   });
 };
+const actionsMenuRef = ref();
+const renderActionsColumn = (data: TRecord): VNode | VNode[] => {
+  const children: any[] = [];
+  if (slots.actions) {
+    return slots.actions({ data });
+  }
+  if (slots.actionsPrepend) {
+    children[0] = slots.actionsPrepend({ data });
+  }
+  if (isDeleteVisibile) {
+    const deleteBtn = slots["rowActions.delete"]
+      ? slots["rowActions.delete"]({ data, store: datalistStore })
+      : h(AppBtn, {
+          action: () =>
+            datalistStore.deleteRestoreOpenDialog({
+              record: data,
+              isHardDelete: true,
+            }),
+          icon: "trash",
+          label: "hard_delete",
+          severity: "danger",
+        });
+    children.push(deleteBtn);
+  }
+  if (datalistStore.optionsInUse.deleteRestoreHandler) {
+    const deleteBtn = slots["rowActions.deleteRestore"]
+      ? slots["rowActions.deleteRestore"]({ data, store: datalistStore })
+      : h(AppBtn, {
+          ...deleteRestoreButtonProps.value,
+          action: () =>
+            datalistStore.deleteRestoreOpenDialog({
+              record: data,
+            }),
+        });
+
+    children.push(deleteBtn);
+  }
+
+  return isActionsDropdown
+    ? h("div", {}, [
+        h(AppBtn, {
+          icon: "menu",
+          ariaHasPopup: true,
+          label: "open",
+          ariaControls: "actions",
+          action: (event: Event) => {
+            if (!actionsMenuRef.value) return;
+            actionsMenuRef.value.toggle(event);
+          },
+        }),
+        h(
+          Menu,
+          {
+            ref: "actionsMenuRef",
+            id: "actions",
+            popup: true,
+          },
+          {
+            start: () => [
+              children,
+              ...renderRowActions(data),
+              slots.actionsAppend ? slots.actionsAppend({ data }) : undefined,
+            ],
+          },
+        ),
+      ])
+    : h("div", { class: "d-flex" }, [
+        children,
+        ...renderRowActions(data),
+        slots.actionsAppend ? slots.actionsAppend({ data }) : undefined,
+      ]);
+};
 </script>
 <template>
   <DataTable
     :dataKey="(context.rowIdentifier as string) || undefined"
     :rows="10"
     :value="datalistStore.currenData"
-    selection-mode="multiple"
     :max-height="200"
     :globalFilterFields="datalistStore.globalFilters"
     :filters="datalistStore.filterFormValue"
+    v-model:selection="datalistStore.modelSelectionRef"
     paginator
-    metaKeySelection
     paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
     :loading="
       datalistStore.datalistQueryResult.isLoading ||
@@ -137,11 +209,6 @@ const renderGlobalActions = () => {
                   :key="index"
                   :is="slotContent"
                 />
-                <!-- <slot v-for="actionBtn in datalistStore.permittedActions.globalActions" -->
-                <!--   :name="`globalActions.${actionBtn.actionKey}`" :store="datalistStore"> -->
-                <!--   <AppBtn v-bind="actionBtn" :action="() => actionBtn.actionFn()" :key="actionBtn.label" /> -->
-                <!-- </slot> -->
-
                 <slot name="globalActionsStartAppend" :store="datalistStore" />
               </div>
               <div class="global-actions__end">
@@ -178,7 +245,7 @@ const renderGlobalActions = () => {
             show deleted
             <ToggleSwitch v-model="datalistStore.isShowDeletedRef" />
           </div>
-          <IconField v-if="datalistStore.permittedActions.globalActions.length">
+          <IconField v-if="datalistStore.globalFilters.length">
             <InputIcon>
               <i class="pi pi-search" />
             </InputIcon>
@@ -198,7 +265,11 @@ const renderGlobalActions = () => {
             />
           </IconField>
         </div>
-        <slot name="filtersPanel" :store="datalistStore">
+        <slot
+          name="filtersPanel"
+          :store="datalistStore"
+          v-if="datalistStore.filtersFormSchema.length"
+        >
           <DatalistFiltersForm :datalistKey="context.datalistKey" />
         </slot>
       </slot>
@@ -211,7 +282,7 @@ const renderGlobalActions = () => {
     </template>
     <Column
       v-if="!isSelectionHidden"
-      selection-mode="multiple"
+      selectionMode="multiple"
       :pt="{ headerCell: 'transparent' }"
     >
     </Column>
@@ -253,52 +324,7 @@ const renderGlobalActions = () => {
       v-if="!context.hideActions"
     >
       <template #body="{ data: record }">
-        <slot name="actions" :data="record as TRecord">
-          <div class="d-flex">
-            <slot name="actionsPrepend" :data="record" />
-            <slot
-              name="rowActions.delete"
-              v-if="isDeleteVisibile"
-              :data="record as TRecord"
-              :store="datalistStore"
-            >
-              <AppBtn
-                :action="
-                  () =>
-                    datalistStore.deleteRestoreOpenDialog({
-                      record,
-                      isHardDelete: true,
-                    })
-                "
-                label="hard_delete"
-                severity="danger"
-              />
-            </slot>
-            <slot
-              name="rowActions.deleteRestore"
-              v-if="datalistStore.optionsInUse.deleteRestoreHandler"
-              :store="datalistStore"
-              :data="record as TRecord"
-            >
-              <AppBtn
-                v-bind="deleteRestoreButtonProps"
-                :action="
-                  () => datalistStore.deleteRestoreOpenDialog({ record })
-                "
-              />
-            </slot>
-            <component
-              v-for="(slotContent, index) in renderRowActions(record)"
-              :key="index"
-              :is="slotContent"
-            />
-            <!-- <slot v-for="actionBtn in datalistStore.permittedActions.rowActions" :key="actionBtn.label" -->
-            <!--   :name="`rowActions.${actionBtn.actionKey}`" :data="record"> -->
-            <!--   <AppBtn v-bind="actionBtn" :action="() => actionBtn.actionFn(record)" /> -->
-            <!-- </slot> -->
-            <slot name="actionsAppend" :data="record as TRecord" />
-          </div>
-        </slot>
+        <component :is="renderActionsColumn(record)" />
       </template>
     </Column>
   </DataTable>

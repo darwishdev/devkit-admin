@@ -175,22 +175,102 @@ export type DeleteRequest<TProp extends string = 'records', TRecord extends stri
 	[K in TProp]: TVariant extends 'single' ? TRecord : TRecord[]
 }
 export type GalleryListFilters = {
-  bucketId: string;
-  fileName?: string;
-  path?: string;
-  mimeType?: string;
-  queryPath?: string;
-  minSize?: number;
-  maxSize?: number;
-  createdAtBetween?: number[]; 
+	bucketId: string;
+	fileName?: string;
+	path?: string;
+	mimeType?: string;
+	queryPath?: string;
+	minSize?: number;
+	maxSize?: number;
+	createdAtBetween?: number[];
 }
 
 export type GalleryListRequest = {
-  filters: GalleryListFilters;
-  paginationParams?: PaginationParams;
+	filters: GalleryListFilters;
+	paginationParams?: PaginationParams;
 }
 
 export type GalleryListResponse = {
-  records: FileObject[];
-  options: ApiListOptions;
+	records: FileObject[];
+	options: ApiListOptions;
 }
+
+// Auth Login
+export type AccountsSchemaUser = {
+	userId: number;
+	userName: string;              // User's name, should be unique
+	tenantId: number;
+	userSecurityLevel: number;     // Security level of the user
+	userTypeId: number;            // Foreign key for user type
+	userPhone: string;             // Optional phone number
+	userEmail: string;             // User's email, unique in DB
+	userPassword: string;          // Password
+	createdAt: string;             // Creation timestamp (from google.protobuf.Timestamp)
+	updatedAt: string;             // Update timestamp
+	deletedAt: string;             // Deletion timestamp
+};
+export type NavigationBarItem = {
+	navigationBarItemId: number;
+	parentId: number;
+	key: string;
+	label: string;
+	labelAr: string;
+	icon: string;
+	route: string;
+	level: number;
+	items: NavigationBarItem[];
+};
+export type AuthLoginRequest = {
+	loginCode: string;        // minLength: 3, maxLength: 200
+	userPassword: string;     // minLength: 6, maxLength: 200
+};
+
+export type LoginInfo = {
+	accessToken: string;
+	accessTokenExpiresAt: string;
+};
+
+export type AuthLoginResponse = {
+	user: AccountsSchemaUser;
+	loginInfo: LoginInfo;
+	navigationBar: NavigationBarItem[];
+};
+
+// Login via Provider
+export type AuthLoginProviderCallbackRequest = {
+	accessToken: string;
+};
+
+export type AuthLoginProviderRequest = {
+	redirectUrl: string;
+	provider: string; // minLength: 3, maxLength: 20
+};
+
+export type AuthLoginProviderResponse = {
+	url: string;
+};
+
+// Reset Password (Request Email)
+export type AuthResetPasswordEmailRequest = {
+	email: string; // valid email, maxLength: 200
+};
+
+export type AuthResetPasswordEmailResponse = {
+	message: string;
+};
+
+// Reset Password (Actual Reset)
+export type AuthResetPasswordRequest = {
+	email: string;                     // valid email, maxLength: 200
+	newPassword: string;              // minLength: 6
+	newPasswordConfirmation: string;  // minLength: 6
+	resetToken: string;               // minLength: 6
+	redirectUrl: string;
+};
+
+export type AuthResetPasswordResponse = {
+	user: AccountsSchemaUser;
+	loginInfo: LoginInfo;
+	navigationBar: NavigationBarItem[];
+};
+

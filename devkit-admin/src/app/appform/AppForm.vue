@@ -23,6 +23,7 @@ import { useAppFormStoreWithProps } from "./store/AppFormStore";
 import { resolveApiEndpoint, StringUnkownRecord } from "devkit-apiclient";
 import { AppFormProps } from "@/pkg/types/types";
 import { AppFormSection } from "@/pkg/types/types";
+import { useI18n } from "vue-i18n";
 const dialogRef = inject("dialogRef") as any;
 const formkitSchemaComp = resolveComponent("FormKitSchema");
 const queryClient = useQueryClient();
@@ -44,7 +45,7 @@ const props =
   >();
 const { submitHandler, options, formKey, invalidateCaches } = props.context;
 const formStore = useAppFormStoreWithProps(props);
-
+const { t } = useI18n();
 const mutationFn = (req: TApiRequest) =>
   new Promise<TApiResponse>((resolve, reject) => {
     resolveApiEndpoint(submitHandler.endpoint, apiClient, req)
@@ -58,8 +59,10 @@ const mutationFn = (req: TApiRequest) =>
 const submitMutation = useMutation({
   mutationFn: mutationFn,
   onSuccess: () => {
-    if (submitHandler.redirectRoute) {
-      push(submitHandler.redirectRoute);
+    if (!isBulkCreateRef.value) {
+      if (submitHandler.redirectRoute) {
+        push(submitHandler.redirectRoute);
+      }
     }
     if (invalidateCaches) {
       db.dropdownHelper.bulkDelete(invalidateCaches);
@@ -137,14 +140,14 @@ const formSubmitHandler = (req: TFormRequest, formNode: FormKitNode) => {
   }
 
   const handler = props.context.submitHandler;
-  const apiRequest: TApiRequest = handler.mapFunction
+  const apiRequest = handler.mapFunction
     ? handler.mapFunction(req)
-    : (req as unknown as TApiRequest);
+    : (req as StringUnkownRecord);
 
   if (formNode.props.uploads) apiRequest["uploads"] = formNode.props.uploads;
   return new Promise((resolve) => {
     submitMutation
-      .mutateAsync(apiRequest)
+      .mutateAsync(apiRequest as TApiRequest)
       .then((response: TApiResponse) => {
         const defaultSummary = "api_success_summary";
         const defaultContent = "api_success_detail";
@@ -154,18 +157,16 @@ const formSubmitHandler = (req: TFormRequest, formNode: FormKitNode) => {
           if (!options.isSuccessNotificationHidden) {
             const summary = options.successMessageSummary ?? defaultSummary;
             const detail = options.successMessageDetail ?? defaultContent;
-            toast.add({ severity: "success", summary, detail, life: 3000 });
+            toast.add({
+              severity: "success",
+              summary: t(summary),
+              detail: t(detail),
+              life: 3000,
+            });
           }
         }
         if (submitHandler.callback) {
           submitHandler.callback(response);
-        }
-        if (!isBulkCreateRef.value) {
-          if (handler.redirectRoute) {
-            if (typeof handler.redirectRoute == "string") {
-              push({ name: handler.redirectRoute });
-            }
-          }
         }
         if (dialogRef) {
           dialogRef.value.close();
