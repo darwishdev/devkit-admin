@@ -1,16 +1,14 @@
 import { h } from "vue"
 import { ColumnBase } from "./ColumnBase"
 import { DatalistColumnBase } from "../types"
+import { AppIcon } from "devkit-base-components"
 
-export class ColumnText<TRecord extends Record<string, unknown>> extends ColumnBase<TRecord> implements DatalistColumnBase<TRecord> {
+export class ColumnIcon<TRecord extends Record<string, unknown>> extends ColumnBase<TRecord> implements DatalistColumnBase<TRecord> {
 	renderHtml = (value: TRecord) => {
 		try {
 			if (this.columnName in value) {
 				if (typeof value[this.columnName] == 'string') {
-					return h('span', value[this.columnName] as string)
-				}
-				if (typeof value[this.columnName] == 'number') {
-					return h('span', value[this.columnName] as string)
+					return h(AppIcon, { icon: value[this.columnName] as string })
 				}
 			}
 		} catch (e) {

@@ -8,6 +8,9 @@ export class ColumnDate<TRecord extends Record<string, unknown>> extends ColumnB
 		try {
 			if (this.columnName in value) {
 				const currentValue = value[this.columnName]
+				if (currentValue instanceof Date) {
+					return h('span', currentValue.toDateString())
+				}
 				if (!currentValue || typeof currentValue != 'object') {
 					return h('span', '')
 				}
