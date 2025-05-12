@@ -5,7 +5,7 @@ import { apiClient } from "@/apiClient";
 import { useRoute } from "vue-router";
 import { RouteQueryFind, RouteQueryRemove } from "@/pkg/utils/QueryUtils";
 
-export const FormDataGetter: FormKitPlugin = (node) => {
+export const FormDataGetterPlugin: FormKitPlugin = (node) => {
   if (!node.props) return
   if (node.props.type == 'form') {
     const { id: formKey, attrs } = node.props

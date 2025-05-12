@@ -1,4 +1,5 @@
 import { DatalistEmits, DatalistProps } from './types';
+import { VNode } from 'vue';
 import { StringUnkownRecord } from '../../pkg/types/types';
 declare const _default: <TApi extends Record<string, Function>, TReq extends Record<string, unknown>, TRecord extends Record<string, unknown>, TFiltersReq extends Record<string, unknown> | undefined = undefined, TApiResponse extends Record<string, unknown> | undefined = undefined, TFormSectionsRequest extends Record<string, unknown> | undefined = undefined>(__VLS_props: NonNullable<Awaited<typeof __VLS_setup>>["props"], __VLS_ctx?: __VLS_PrettifyLocal<Pick<NonNullable<Awaited<typeof __VLS_setup>>, "attrs" | "emit" | "slots">>, __VLS_expose?: NonNullable<Awaited<typeof __VLS_setup>>["expose"], __VLS_setup?: Promise<{
     props: __VLS_PrettifyLocal<Pick<Partial<{}> & Omit<{
@@ -9,16 +10,16 @@ declare const _default: <TApi extends Record<string, Function>, TReq extends Rec
     slots: Readonly<{
         card?: ((props: {
             data: TRecord;
-        }) => import('vue').VNode | import('vue').VNode[]) | undefined;
+        }) => VNode | VNode[]) | undefined;
         cardStart?: ((props: {
             data: TRecord;
-        }) => import('vue').VNode | import('vue').VNode[]) | undefined;
+        }) => VNode | VNode[]) | undefined;
         cardEnd?: ((props: {
             data: TRecord;
-        }) => import('vue').VNode | import('vue').VNode[]) | undefined;
+        }) => VNode | VNode[]) | undefined;
         expansion?: ((props: {
             data: TRecord;
-        }) => import('vue').VNode[] | import('vue').VNode) | undefined;
+        }) => VNode[] | VNode) | undefined;
         globalActions?: ((props: {
             store: import('pinia').Store<string, Pick<{
                 filtersFormSchema: import('@formkit/core').FormKitSchemaNode[];
@@ -249,7 +250,7 @@ declare const _default: <TApi extends Record<string, Function>, TReq extends Rec
                 dialogRef: unknown;
                 init: () => Promise<void>;
             }, "deleteRestoreOpenDialog" | "viewRecord" | "createUpdateRecord" | "debouncedRefetch" | "init">>;
-        }) => import('vue').VNode[] | import('vue').VNode) | undefined;
+        }) => VNode[] | VNode) | undefined;
         globalActionsStartPrepend?: ((props: {
             store: import('pinia').Store<string, Pick<{
                 filtersFormSchema: import('@formkit/core').FormKitSchemaNode[];
@@ -480,7 +481,7 @@ declare const _default: <TApi extends Record<string, Function>, TReq extends Rec
                 dialogRef: unknown;
                 init: () => Promise<void>;
             }, "deleteRestoreOpenDialog" | "viewRecord" | "createUpdateRecord" | "debouncedRefetch" | "init">>;
-        }) => import('vue').VNode[] | import('vue').VNode) | undefined;
+        }) => VNode[] | VNode) | undefined;
         globalActionsStartAppend?: ((props: {
             store: import('pinia').Store<string, Pick<{
                 filtersFormSchema: import('@formkit/core').FormKitSchemaNode[];
@@ -711,7 +712,7 @@ declare const _default: <TApi extends Record<string, Function>, TReq extends Rec
                 dialogRef: unknown;
                 init: () => Promise<void>;
             }, "deleteRestoreOpenDialog" | "viewRecord" | "createUpdateRecord" | "debouncedRefetch" | "init">>;
-        }) => import('vue').VNode[] | import('vue').VNode) | undefined;
+        }) => VNode[] | VNode) | undefined;
         globalActionsEndPrepend?: ((props: {
             store: import('pinia').Store<string, Pick<{
                 filtersFormSchema: import('@formkit/core').FormKitSchemaNode[];
@@ -942,7 +943,7 @@ declare const _default: <TApi extends Record<string, Function>, TReq extends Rec
                 dialogRef: unknown;
                 init: () => Promise<void>;
             }, "deleteRestoreOpenDialog" | "viewRecord" | "createUpdateRecord" | "debouncedRefetch" | "init">>;
-        }) => import('vue').VNode[] | import('vue').VNode) | undefined;
+        }) => VNode[] | VNode) | undefined;
         globalActionsEndAppend?: ((props: {
             store: import('pinia').Store<string, Pick<{
                 filtersFormSchema: import('@formkit/core').FormKitSchemaNode[];
@@ -1173,7 +1174,7 @@ declare const _default: <TApi extends Record<string, Function>, TReq extends Rec
                 dialogRef: unknown;
                 init: () => Promise<void>;
             }, "deleteRestoreOpenDialog" | "viewRecord" | "createUpdateRecord" | "debouncedRefetch" | "init">>;
-        }) => import('vue').VNode[] | import('vue').VNode) | undefined;
+        }) => VNode[] | VNode) | undefined;
         loading?: ((props: {
             store: import('pinia').Store<string, Pick<{
                 filtersFormSchema: import('@formkit/core').FormKitSchemaNode[];
@@ -1404,7 +1405,7 @@ declare const _default: <TApi extends Record<string, Function>, TReq extends Rec
                 dialogRef: unknown;
                 init: () => Promise<void>;
             }, "deleteRestoreOpenDialog" | "viewRecord" | "createUpdateRecord" | "debouncedRefetch" | "init">>;
-        }) => import('vue').VNode[] | import('vue').VNode) | undefined;
+        }) => VNode[] | VNode) | undefined;
         paginatorcontainer?: ((props: {
             store: import('pinia').Store<string, Pick<{
                 filtersFormSchema: import('@formkit/core').FormKitSchemaNode[];
@@ -1635,7 +1636,7 @@ declare const _default: <TApi extends Record<string, Function>, TReq extends Rec
                 dialogRef: unknown;
                 init: () => Promise<void>;
             }, "deleteRestoreOpenDialog" | "viewRecord" | "createUpdateRecord" | "debouncedRefetch" | "init">>;
-        }) => import('vue').VNode[] | import('vue').VNode) | undefined;
+        }) => VNode[] | VNode) | undefined;
         paginatorstart?: ((props: {
             store: import('pinia').Store<string, Pick<{
                 filtersFormSchema: import('@formkit/core').FormKitSchemaNode[];
@@ -1866,7 +1867,7 @@ declare const _default: <TApi extends Record<string, Function>, TReq extends Rec
                 dialogRef: unknown;
                 init: () => Promise<void>;
             }, "deleteRestoreOpenDialog" | "viewRecord" | "createUpdateRecord" | "debouncedRefetch" | "init">>;
-        }) => import('vue').VNode[] | import('vue').VNode) | undefined;
+        }) => VNode[] | VNode) | undefined;
         paginatorend?: ((props: {
             store: import('pinia').Store<string, Pick<{
                 filtersFormSchema: import('@formkit/core').FormKitSchemaNode[];
@@ -2097,8 +2098,8 @@ declare const _default: <TApi extends Record<string, Function>, TReq extends Rec
                 dialogRef: unknown;
                 init: () => Promise<void>;
             }, "deleteRestoreOpenDialog" | "viewRecord" | "createUpdateRecord" | "debouncedRefetch" | "init">>;
-        }) => import('vue').VNode[] | import('vue').VNode) | undefined;
-        empty?: () => import('vue').VNode | import('vue').VNode[];
+        }) => VNode[] | VNode) | undefined;
+        empty?: () => VNode | VNode[];
         filtersPanel?: ((props: {
             store: import('pinia').Store<string, Pick<{
                 filtersFormSchema: import('@formkit/core').FormKitSchemaNode[];
@@ -2329,7 +2330,7 @@ declare const _default: <TApi extends Record<string, Function>, TReq extends Rec
                 dialogRef: unknown;
                 init: () => Promise<void>;
             }, "deleteRestoreOpenDialog" | "viewRecord" | "createUpdateRecord" | "debouncedRefetch" | "init">>;
-        }) => import('vue').VNode[] | import('vue').VNode) | undefined;
+        }) => VNode[] | VNode) | undefined;
         filtersPresist?: ((props: {
             store: import('pinia').Store<string, Pick<{
                 filtersFormSchema: import('@formkit/core').FormKitSchemaNode[];
@@ -2560,7 +2561,7 @@ declare const _default: <TApi extends Record<string, Function>, TReq extends Rec
                 dialogRef: unknown;
                 init: () => Promise<void>;
             }, "deleteRestoreOpenDialog" | "viewRecord" | "createUpdateRecord" | "debouncedRefetch" | "init">>;
-        }) => import('vue').VNode[] | import('vue').VNode) | undefined;
+        }) => VNode[] | VNode) | undefined;
         filtersReset?: ((props: {
             store: import('pinia').Store<string, Pick<{
                 filtersFormSchema: import('@formkit/core').FormKitSchemaNode[];
@@ -2791,7 +2792,7 @@ declare const _default: <TApi extends Record<string, Function>, TReq extends Rec
                 dialogRef: unknown;
                 init: () => Promise<void>;
             }, "deleteRestoreOpenDialog" | "viewRecord" | "createUpdateRecord" | "debouncedRefetch" | "init">>;
-        }) => import('vue').VNode[] | import('vue').VNode) | undefined;
+        }) => VNode[] | VNode) | undefined;
         filtersForm?: ((props: {
             store: import('pinia').Store<string, Pick<{
                 filtersFormSchema: import('@formkit/core').FormKitSchemaNode[];
@@ -3022,7 +3023,7 @@ declare const _default: <TApi extends Record<string, Function>, TReq extends Rec
                 dialogRef: unknown;
                 init: () => Promise<void>;
             }, "deleteRestoreOpenDialog" | "viewRecord" | "createUpdateRecord" | "debouncedRefetch" | "init">>;
-        }) => import('vue').VNode[] | import('vue').VNode) | undefined;
+        }) => VNode[] | VNode) | undefined;
         filtersFormAppend?: ((props: {
             store: import('pinia').Store<string, Pick<{
                 filtersFormSchema: import('@formkit/core').FormKitSchemaNode[];
@@ -3253,7 +3254,7 @@ declare const _default: <TApi extends Record<string, Function>, TReq extends Rec
                 dialogRef: unknown;
                 init: () => Promise<void>;
             }, "deleteRestoreOpenDialog" | "viewRecord" | "createUpdateRecord" | "debouncedRefetch" | "init">>;
-        }) => import('vue').VNode[] | import('vue').VNode) | undefined;
+        }) => VNode[] | VNode) | undefined;
         filtersFormPrepend?: ((props: {
             store: import('pinia').Store<string, Pick<{
                 filtersFormSchema: import('@formkit/core').FormKitSchemaNode[];
@@ -3484,7 +3485,7 @@ declare const _default: <TApi extends Record<string, Function>, TReq extends Rec
                 dialogRef: unknown;
                 init: () => Promise<void>;
             }, "deleteRestoreOpenDialog" | "viewRecord" | "createUpdateRecord" | "debouncedRefetch" | "init">>;
-        }) => import('vue').VNode[] | import('vue').VNode) | undefined;
+        }) => VNode[] | VNode) | undefined;
         header?: ((props: {
             store: import('pinia').Store<string, Pick<{
                 filtersFormSchema: import('@formkit/core').FormKitSchemaNode[];
@@ -3715,19 +3716,19 @@ declare const _default: <TApi extends Record<string, Function>, TReq extends Rec
                 dialogRef: unknown;
                 init: () => Promise<void>;
             }, "deleteRestoreOpenDialog" | "viewRecord" | "createUpdateRecord" | "debouncedRefetch" | "init">>;
-        }) => import('vue').VNode[] | import('vue').VNode) | undefined;
+        }) => VNode[] | VNode) | undefined;
         dropdownActions?: ((props: {
             data: TRecord;
-        }) => import('vue').VNode[] | import('vue').VNode) | undefined;
+        }) => VNode[] | VNode) | undefined;
         actions?: ((props: {
             data: TRecord;
-        }) => import('vue').VNode[] | import('vue').VNode) | undefined;
+        }) => VNode[] | VNode) | undefined;
         actionsPrepend?: ((props: {
             data: TRecord;
-        }) => import('vue').VNode[] | import('vue').VNode) | undefined;
+        }) => VNode[] | VNode) | undefined;
         actionsAppend?: ((props: {
             data: TRecord;
-        }) => import('vue').VNode[] | import('vue').VNode) | undefined;
+        }) => VNode[] | VNode) | undefined;
     } & { [K in keyof TRecord as K extends string ? `column.${K}` : never]: (props: {
         store: import('pinia').Store<string, Pick<{
             filtersFormSchema: import('@formkit/core').FormKitSchemaNode[];
@@ -3959,7 +3960,7 @@ declare const _default: <TApi extends Record<string, Function>, TReq extends Rec
             init: () => Promise<void>;
         }, "deleteRestoreOpenDialog" | "viewRecord" | "createUpdateRecord" | "debouncedRefetch" | "init">>;
         data: TRecord;
-    }) => import('vue').VNode[] | import('vue').VNode | undefined; } & {
+    }) => VNode[] | VNode | undefined; } & {
         "globalActions.delete"?: ((props: {
             store: import('pinia').Store<string, Pick<{
                 filtersFormSchema: import('@formkit/core').FormKitSchemaNode[];
@@ -4190,7 +4191,7 @@ declare const _default: <TApi extends Record<string, Function>, TReq extends Rec
                 dialogRef: unknown;
                 init: () => Promise<void>;
             }, "deleteRestoreOpenDialog" | "viewRecord" | "createUpdateRecord" | "debouncedRefetch" | "init">>;
-        }) => import('vue').VNode[] | import('vue').VNode | undefined) | undefined;
+        }) => VNode[] | VNode | undefined) | undefined;
         "globalActions.deleteRestore"?: ((props: {
             store: import('pinia').Store<string, Pick<{
                 filtersFormSchema: import('@formkit/core').FormKitSchemaNode[];
@@ -4421,7 +4422,7 @@ declare const _default: <TApi extends Record<string, Function>, TReq extends Rec
                 dialogRef: unknown;
                 init: () => Promise<void>;
             }, "deleteRestoreOpenDialog" | "viewRecord" | "createUpdateRecord" | "debouncedRefetch" | "init">>;
-        }) => import('vue').VNode[] | import('vue').VNode | undefined) | undefined;
+        }) => VNode[] | VNode | undefined) | undefined;
         "globalActions.create"?: ((props: {
             store: import('pinia').Store<string, Pick<{
                 filtersFormSchema: import('@formkit/core').FormKitSchemaNode[];
@@ -4652,7 +4653,7 @@ declare const _default: <TApi extends Record<string, Function>, TReq extends Rec
                 dialogRef: unknown;
                 init: () => Promise<void>;
             }, "deleteRestoreOpenDialog" | "viewRecord" | "createUpdateRecord" | "debouncedRefetch" | "init">>;
-        }) => import('vue').VNode[] | import('vue').VNode | undefined) | undefined;
+        }) => VNode[] | VNode | undefined) | undefined;
         "globalActions.export"?: ((props: {
             store: import('pinia').Store<string, Pick<{
                 filtersFormSchema: import('@formkit/core').FormKitSchemaNode[];
@@ -4883,7 +4884,7 @@ declare const _default: <TApi extends Record<string, Function>, TReq extends Rec
                 dialogRef: unknown;
                 init: () => Promise<void>;
             }, "deleteRestoreOpenDialog" | "viewRecord" | "createUpdateRecord" | "debouncedRefetch" | "init">>;
-        }) => import('vue').VNode[] | import('vue').VNode | undefined) | undefined;
+        }) => VNode[] | VNode | undefined) | undefined;
     } & {
         "rowActions.delete"?: ((props: {
             store: import('pinia').Store<string, Pick<{
@@ -5116,7 +5117,7 @@ declare const _default: <TApi extends Record<string, Function>, TReq extends Rec
                 init: () => Promise<void>;
             }, "deleteRestoreOpenDialog" | "viewRecord" | "createUpdateRecord" | "debouncedRefetch" | "init">>;
             data: TRecord;
-        }) => import('vue').VNode[] | import('vue').VNode | undefined) | undefined;
+        }) => VNode[] | VNode | undefined) | undefined;
         "rowActions.deleteRestore"?: ((props: {
             store: import('pinia').Store<string, Pick<{
                 filtersFormSchema: import('@formkit/core').FormKitSchemaNode[];
@@ -5348,7 +5349,7 @@ declare const _default: <TApi extends Record<string, Function>, TReq extends Rec
                 init: () => Promise<void>;
             }, "deleteRestoreOpenDialog" | "viewRecord" | "createUpdateRecord" | "debouncedRefetch" | "init">>;
             data: TRecord;
-        }) => import('vue').VNode[] | import('vue').VNode | undefined) | undefined;
+        }) => VNode[] | VNode | undefined) | undefined;
         "rowActions.update"?: ((props: {
             store: import('pinia').Store<string, Pick<{
                 filtersFormSchema: import('@formkit/core').FormKitSchemaNode[];
@@ -5580,7 +5581,7 @@ declare const _default: <TApi extends Record<string, Function>, TReq extends Rec
                 init: () => Promise<void>;
             }, "deleteRestoreOpenDialog" | "viewRecord" | "createUpdateRecord" | "debouncedRefetch" | "init">>;
             data: TRecord;
-        }) => import('vue').VNode[] | import('vue').VNode | undefined) | undefined;
+        }) => VNode[] | VNode | undefined) | undefined;
         "rowActions.view"?: ((props: {
             store: import('pinia').Store<string, Pick<{
                 filtersFormSchema: import('@formkit/core').FormKitSchemaNode[];
@@ -5812,20 +5813,20 @@ declare const _default: <TApi extends Record<string, Function>, TReq extends Rec
                 init: () => Promise<void>;
             }, "deleteRestoreOpenDialog" | "viewRecord" | "createUpdateRecord" | "debouncedRefetch" | "init">>;
             data: TRecord;
-        }) => import('vue').VNode[] | import('vue').VNode | undefined) | undefined;
+        }) => VNode[] | VNode | undefined) | undefined;
     }> & {
         card?: ((props: {
             data: TRecord;
-        }) => import('vue').VNode | import('vue').VNode[]) | undefined;
+        }) => VNode | VNode[]) | undefined;
         cardStart?: ((props: {
             data: TRecord;
-        }) => import('vue').VNode | import('vue').VNode[]) | undefined;
+        }) => VNode | VNode[]) | undefined;
         cardEnd?: ((props: {
             data: TRecord;
-        }) => import('vue').VNode | import('vue').VNode[]) | undefined;
+        }) => VNode | VNode[]) | undefined;
         expansion?: ((props: {
             data: TRecord;
-        }) => import('vue').VNode[] | import('vue').VNode) | undefined;
+        }) => VNode[] | VNode) | undefined;
         globalActions?: ((props: {
             store: import('pinia').Store<string, Pick<{
                 filtersFormSchema: import('@formkit/core').FormKitSchemaNode[];
@@ -6056,7 +6057,7 @@ declare const _default: <TApi extends Record<string, Function>, TReq extends Rec
                 dialogRef: unknown;
                 init: () => Promise<void>;
             }, "deleteRestoreOpenDialog" | "viewRecord" | "createUpdateRecord" | "debouncedRefetch" | "init">>;
-        }) => import('vue').VNode[] | import('vue').VNode) | undefined;
+        }) => VNode[] | VNode) | undefined;
         globalActionsStartPrepend?: ((props: {
             store: import('pinia').Store<string, Pick<{
                 filtersFormSchema: import('@formkit/core').FormKitSchemaNode[];
@@ -6287,7 +6288,7 @@ declare const _default: <TApi extends Record<string, Function>, TReq extends Rec
                 dialogRef: unknown;
                 init: () => Promise<void>;
             }, "deleteRestoreOpenDialog" | "viewRecord" | "createUpdateRecord" | "debouncedRefetch" | "init">>;
-        }) => import('vue').VNode[] | import('vue').VNode) | undefined;
+        }) => VNode[] | VNode) | undefined;
         globalActionsStartAppend?: ((props: {
             store: import('pinia').Store<string, Pick<{
                 filtersFormSchema: import('@formkit/core').FormKitSchemaNode[];
@@ -6518,7 +6519,7 @@ declare const _default: <TApi extends Record<string, Function>, TReq extends Rec
                 dialogRef: unknown;
                 init: () => Promise<void>;
             }, "deleteRestoreOpenDialog" | "viewRecord" | "createUpdateRecord" | "debouncedRefetch" | "init">>;
-        }) => import('vue').VNode[] | import('vue').VNode) | undefined;
+        }) => VNode[] | VNode) | undefined;
         globalActionsEndPrepend?: ((props: {
             store: import('pinia').Store<string, Pick<{
                 filtersFormSchema: import('@formkit/core').FormKitSchemaNode[];
@@ -6749,7 +6750,7 @@ declare const _default: <TApi extends Record<string, Function>, TReq extends Rec
                 dialogRef: unknown;
                 init: () => Promise<void>;
             }, "deleteRestoreOpenDialog" | "viewRecord" | "createUpdateRecord" | "debouncedRefetch" | "init">>;
-        }) => import('vue').VNode[] | import('vue').VNode) | undefined;
+        }) => VNode[] | VNode) | undefined;
         globalActionsEndAppend?: ((props: {
             store: import('pinia').Store<string, Pick<{
                 filtersFormSchema: import('@formkit/core').FormKitSchemaNode[];
@@ -6980,7 +6981,7 @@ declare const _default: <TApi extends Record<string, Function>, TReq extends Rec
                 dialogRef: unknown;
                 init: () => Promise<void>;
             }, "deleteRestoreOpenDialog" | "viewRecord" | "createUpdateRecord" | "debouncedRefetch" | "init">>;
-        }) => import('vue').VNode[] | import('vue').VNode) | undefined;
+        }) => VNode[] | VNode) | undefined;
         loading?: ((props: {
             store: import('pinia').Store<string, Pick<{
                 filtersFormSchema: import('@formkit/core').FormKitSchemaNode[];
@@ -7211,7 +7212,7 @@ declare const _default: <TApi extends Record<string, Function>, TReq extends Rec
                 dialogRef: unknown;
                 init: () => Promise<void>;
             }, "deleteRestoreOpenDialog" | "viewRecord" | "createUpdateRecord" | "debouncedRefetch" | "init">>;
-        }) => import('vue').VNode[] | import('vue').VNode) | undefined;
+        }) => VNode[] | VNode) | undefined;
         paginatorcontainer?: ((props: {
             store: import('pinia').Store<string, Pick<{
                 filtersFormSchema: import('@formkit/core').FormKitSchemaNode[];
@@ -7442,7 +7443,7 @@ declare const _default: <TApi extends Record<string, Function>, TReq extends Rec
                 dialogRef: unknown;
                 init: () => Promise<void>;
             }, "deleteRestoreOpenDialog" | "viewRecord" | "createUpdateRecord" | "debouncedRefetch" | "init">>;
-        }) => import('vue').VNode[] | import('vue').VNode) | undefined;
+        }) => VNode[] | VNode) | undefined;
         paginatorstart?: ((props: {
             store: import('pinia').Store<string, Pick<{
                 filtersFormSchema: import('@formkit/core').FormKitSchemaNode[];
@@ -7673,7 +7674,7 @@ declare const _default: <TApi extends Record<string, Function>, TReq extends Rec
                 dialogRef: unknown;
                 init: () => Promise<void>;
             }, "deleteRestoreOpenDialog" | "viewRecord" | "createUpdateRecord" | "debouncedRefetch" | "init">>;
-        }) => import('vue').VNode[] | import('vue').VNode) | undefined;
+        }) => VNode[] | VNode) | undefined;
         paginatorend?: ((props: {
             store: import('pinia').Store<string, Pick<{
                 filtersFormSchema: import('@formkit/core').FormKitSchemaNode[];
@@ -7904,8 +7905,8 @@ declare const _default: <TApi extends Record<string, Function>, TReq extends Rec
                 dialogRef: unknown;
                 init: () => Promise<void>;
             }, "deleteRestoreOpenDialog" | "viewRecord" | "createUpdateRecord" | "debouncedRefetch" | "init">>;
-        }) => import('vue').VNode[] | import('vue').VNode) | undefined;
-        empty?: () => import('vue').VNode | import('vue').VNode[];
+        }) => VNode[] | VNode) | undefined;
+        empty?: () => VNode | VNode[];
         filtersPanel?: ((props: {
             store: import('pinia').Store<string, Pick<{
                 filtersFormSchema: import('@formkit/core').FormKitSchemaNode[];
@@ -8136,7 +8137,7 @@ declare const _default: <TApi extends Record<string, Function>, TReq extends Rec
                 dialogRef: unknown;
                 init: () => Promise<void>;
             }, "deleteRestoreOpenDialog" | "viewRecord" | "createUpdateRecord" | "debouncedRefetch" | "init">>;
-        }) => import('vue').VNode[] | import('vue').VNode) | undefined;
+        }) => VNode[] | VNode) | undefined;
         filtersPresist?: ((props: {
             store: import('pinia').Store<string, Pick<{
                 filtersFormSchema: import('@formkit/core').FormKitSchemaNode[];
@@ -8367,7 +8368,7 @@ declare const _default: <TApi extends Record<string, Function>, TReq extends Rec
                 dialogRef: unknown;
                 init: () => Promise<void>;
             }, "deleteRestoreOpenDialog" | "viewRecord" | "createUpdateRecord" | "debouncedRefetch" | "init">>;
-        }) => import('vue').VNode[] | import('vue').VNode) | undefined;
+        }) => VNode[] | VNode) | undefined;
         filtersReset?: ((props: {
             store: import('pinia').Store<string, Pick<{
                 filtersFormSchema: import('@formkit/core').FormKitSchemaNode[];
@@ -8598,7 +8599,7 @@ declare const _default: <TApi extends Record<string, Function>, TReq extends Rec
                 dialogRef: unknown;
                 init: () => Promise<void>;
             }, "deleteRestoreOpenDialog" | "viewRecord" | "createUpdateRecord" | "debouncedRefetch" | "init">>;
-        }) => import('vue').VNode[] | import('vue').VNode) | undefined;
+        }) => VNode[] | VNode) | undefined;
         filtersForm?: ((props: {
             store: import('pinia').Store<string, Pick<{
                 filtersFormSchema: import('@formkit/core').FormKitSchemaNode[];
@@ -8829,7 +8830,7 @@ declare const _default: <TApi extends Record<string, Function>, TReq extends Rec
                 dialogRef: unknown;
                 init: () => Promise<void>;
             }, "deleteRestoreOpenDialog" | "viewRecord" | "createUpdateRecord" | "debouncedRefetch" | "init">>;
-        }) => import('vue').VNode[] | import('vue').VNode) | undefined;
+        }) => VNode[] | VNode) | undefined;
         filtersFormAppend?: ((props: {
             store: import('pinia').Store<string, Pick<{
                 filtersFormSchema: import('@formkit/core').FormKitSchemaNode[];
@@ -9060,7 +9061,7 @@ declare const _default: <TApi extends Record<string, Function>, TReq extends Rec
                 dialogRef: unknown;
                 init: () => Promise<void>;
             }, "deleteRestoreOpenDialog" | "viewRecord" | "createUpdateRecord" | "debouncedRefetch" | "init">>;
-        }) => import('vue').VNode[] | import('vue').VNode) | undefined;
+        }) => VNode[] | VNode) | undefined;
         filtersFormPrepend?: ((props: {
             store: import('pinia').Store<string, Pick<{
                 filtersFormSchema: import('@formkit/core').FormKitSchemaNode[];
@@ -9291,7 +9292,7 @@ declare const _default: <TApi extends Record<string, Function>, TReq extends Rec
                 dialogRef: unknown;
                 init: () => Promise<void>;
             }, "deleteRestoreOpenDialog" | "viewRecord" | "createUpdateRecord" | "debouncedRefetch" | "init">>;
-        }) => import('vue').VNode[] | import('vue').VNode) | undefined;
+        }) => VNode[] | VNode) | undefined;
         header?: ((props: {
             store: import('pinia').Store<string, Pick<{
                 filtersFormSchema: import('@formkit/core').FormKitSchemaNode[];
@@ -9522,19 +9523,19 @@ declare const _default: <TApi extends Record<string, Function>, TReq extends Rec
                 dialogRef: unknown;
                 init: () => Promise<void>;
             }, "deleteRestoreOpenDialog" | "viewRecord" | "createUpdateRecord" | "debouncedRefetch" | "init">>;
-        }) => import('vue').VNode[] | import('vue').VNode) | undefined;
+        }) => VNode[] | VNode) | undefined;
         dropdownActions?: ((props: {
             data: TRecord;
-        }) => import('vue').VNode[] | import('vue').VNode) | undefined;
+        }) => VNode[] | VNode) | undefined;
         actions?: ((props: {
             data: TRecord;
-        }) => import('vue').VNode[] | import('vue').VNode) | undefined;
+        }) => VNode[] | VNode) | undefined;
         actionsPrepend?: ((props: {
             data: TRecord;
-        }) => import('vue').VNode[] | import('vue').VNode) | undefined;
+        }) => VNode[] | VNode) | undefined;
         actionsAppend?: ((props: {
             data: TRecord;
-        }) => import('vue').VNode[] | import('vue').VNode) | undefined;
+        }) => VNode[] | VNode) | undefined;
     } & { [K in keyof TRecord as K extends string ? `column.${K}` : never]: (props: {
         store: import('pinia').Store<string, Pick<{
             filtersFormSchema: import('@formkit/core').FormKitSchemaNode[];
@@ -9766,7 +9767,7 @@ declare const _default: <TApi extends Record<string, Function>, TReq extends Rec
             init: () => Promise<void>;
         }, "deleteRestoreOpenDialog" | "viewRecord" | "createUpdateRecord" | "debouncedRefetch" | "init">>;
         data: TRecord;
-    }) => import('vue').VNode[] | import('vue').VNode | undefined; } & {
+    }) => VNode[] | VNode | undefined; } & {
         "globalActions.delete"?: ((props: {
             store: import('pinia').Store<string, Pick<{
                 filtersFormSchema: import('@formkit/core').FormKitSchemaNode[];
@@ -9997,7 +9998,7 @@ declare const _default: <TApi extends Record<string, Function>, TReq extends Rec
                 dialogRef: unknown;
                 init: () => Promise<void>;
             }, "deleteRestoreOpenDialog" | "viewRecord" | "createUpdateRecord" | "debouncedRefetch" | "init">>;
-        }) => import('vue').VNode[] | import('vue').VNode | undefined) | undefined;
+        }) => VNode[] | VNode | undefined) | undefined;
         "globalActions.deleteRestore"?: ((props: {
             store: import('pinia').Store<string, Pick<{
                 filtersFormSchema: import('@formkit/core').FormKitSchemaNode[];
@@ -10228,7 +10229,7 @@ declare const _default: <TApi extends Record<string, Function>, TReq extends Rec
                 dialogRef: unknown;
                 init: () => Promise<void>;
             }, "deleteRestoreOpenDialog" | "viewRecord" | "createUpdateRecord" | "debouncedRefetch" | "init">>;
-        }) => import('vue').VNode[] | import('vue').VNode | undefined) | undefined;
+        }) => VNode[] | VNode | undefined) | undefined;
         "globalActions.create"?: ((props: {
             store: import('pinia').Store<string, Pick<{
                 filtersFormSchema: import('@formkit/core').FormKitSchemaNode[];
@@ -10459,7 +10460,7 @@ declare const _default: <TApi extends Record<string, Function>, TReq extends Rec
                 dialogRef: unknown;
                 init: () => Promise<void>;
             }, "deleteRestoreOpenDialog" | "viewRecord" | "createUpdateRecord" | "debouncedRefetch" | "init">>;
-        }) => import('vue').VNode[] | import('vue').VNode | undefined) | undefined;
+        }) => VNode[] | VNode | undefined) | undefined;
         "globalActions.export"?: ((props: {
             store: import('pinia').Store<string, Pick<{
                 filtersFormSchema: import('@formkit/core').FormKitSchemaNode[];
@@ -10690,7 +10691,7 @@ declare const _default: <TApi extends Record<string, Function>, TReq extends Rec
                 dialogRef: unknown;
                 init: () => Promise<void>;
             }, "deleteRestoreOpenDialog" | "viewRecord" | "createUpdateRecord" | "debouncedRefetch" | "init">>;
-        }) => import('vue').VNode[] | import('vue').VNode | undefined) | undefined;
+        }) => VNode[] | VNode | undefined) | undefined;
     } & {
         "rowActions.delete"?: ((props: {
             store: import('pinia').Store<string, Pick<{
@@ -10923,7 +10924,7 @@ declare const _default: <TApi extends Record<string, Function>, TReq extends Rec
                 init: () => Promise<void>;
             }, "deleteRestoreOpenDialog" | "viewRecord" | "createUpdateRecord" | "debouncedRefetch" | "init">>;
             data: TRecord;
-        }) => import('vue').VNode[] | import('vue').VNode | undefined) | undefined;
+        }) => VNode[] | VNode | undefined) | undefined;
         "rowActions.deleteRestore"?: ((props: {
             store: import('pinia').Store<string, Pick<{
                 filtersFormSchema: import('@formkit/core').FormKitSchemaNode[];
@@ -11155,7 +11156,7 @@ declare const _default: <TApi extends Record<string, Function>, TReq extends Rec
                 init: () => Promise<void>;
             }, "deleteRestoreOpenDialog" | "viewRecord" | "createUpdateRecord" | "debouncedRefetch" | "init">>;
             data: TRecord;
-        }) => import('vue').VNode[] | import('vue').VNode | undefined) | undefined;
+        }) => VNode[] | VNode | undefined) | undefined;
         "rowActions.update"?: ((props: {
             store: import('pinia').Store<string, Pick<{
                 filtersFormSchema: import('@formkit/core').FormKitSchemaNode[];
@@ -11387,7 +11388,7 @@ declare const _default: <TApi extends Record<string, Function>, TReq extends Rec
                 init: () => Promise<void>;
             }, "deleteRestoreOpenDialog" | "viewRecord" | "createUpdateRecord" | "debouncedRefetch" | "init">>;
             data: TRecord;
-        }) => import('vue').VNode[] | import('vue').VNode | undefined) | undefined;
+        }) => VNode[] | VNode | undefined) | undefined;
         "rowActions.view"?: ((props: {
             store: import('pinia').Store<string, Pick<{
                 filtersFormSchema: import('@formkit/core').FormKitSchemaNode[];
@@ -11619,7 +11620,7 @@ declare const _default: <TApi extends Record<string, Function>, TReq extends Rec
                 init: () => Promise<void>;
             }, "deleteRestoreOpenDialog" | "viewRecord" | "createUpdateRecord" | "debouncedRefetch" | "init">>;
             data: TRecord;
-        }) => import('vue').VNode[] | import('vue').VNode | undefined) | undefined;
+        }) => VNode[] | VNode | undefined) | undefined;
     };
     emit: DatalistEmits<TRecord, TApiResponse>;
 }>) => import('vue').VNode & {

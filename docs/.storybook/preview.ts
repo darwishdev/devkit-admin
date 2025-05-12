@@ -17,6 +17,8 @@ import { DialogService } from 'primevue';
 import { ToastService } from 'primevue';
 import { createPinia } from 'pinia'
 import { QueryClient, VueQueryPlugin } from '@tanstack/vue-query';
+import { h } from 'vue';
+import Datalist from '../src/views/Datalist.vue';
 // Register PrimeVue globally
 setup((app) => {
 
@@ -75,6 +77,10 @@ setup((app) => {
   })
   app.use(i18n)
   app.use(router)
+
+
+  app.component('Datalist', Datalist)
+  app
     .use(DevkitAdminPlugin, adminConfig)
     .mount('#app')
 });

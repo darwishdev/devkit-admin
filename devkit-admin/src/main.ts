@@ -15,7 +15,7 @@ import DevkitAdminPlugin, { DevkitAdminConfig } from '@/devkit_admin';
 import 'devkit-base-components/style';
 import { plugin } from '@formkit/vue'
 
-import formkitConfig from '@/pkg/plugins/formkit.config'
+import { formKitConfig } from '@/app/appform/index'
 import App from './App.vue';
 import { apiClient } from './apiClient';
 import DevkitBaseComponentsPlugin, { DevkitBaseConfig } from 'devkit-base-components';
@@ -64,7 +64,7 @@ const formktiConfig = {
 app.use(pinia)
 app.use(ToastService)
 app.use(DialogService)
-app.use(plugin, formkitConfig())
+app.use(plugin, formKitConfig({}))
 const i18n = createI18n({
 	locale: 'en',
 	fallbackLocale: 'en',

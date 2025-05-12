@@ -8,10 +8,10 @@ export declare class ColumnBase<TRecord extends Record<string, unknown>> {
     router?: DatalistRouter<TRecord>;
     editInput?: FormKitSchemaNode;
     slots?: ColumnSlots;
-    isGlobalFilter: boolean;
+    isGlobalFilter?: boolean;
     isSortable?: boolean;
     filters?: DatalistFilterInput<StringUnkownRecord>[] | DatalistFilter<StringUnkownRecord>[];
-    constructor(name: keyof TRecord, params: (DatalistColumnClientSide<StringUnkownRecord, StringUnkownRecord> | DatalistColumnServerSide<StringUnkownRecord, StringUnkownRecord>) & {
+    constructor(name: keyof TRecord, params?: (DatalistColumnClientSide<StringUnkownRecord, StringUnkownRecord> | DatalistColumnServerSide<StringUnkownRecord, StringUnkownRecord>) & {
         isSortable?: boolean;
         isGlobalFilter?: boolean;
     });

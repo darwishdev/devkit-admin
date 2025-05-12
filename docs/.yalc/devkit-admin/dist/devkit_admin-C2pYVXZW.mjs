@@ -10710,8 +10710,8 @@ function Vc(t) {
   return new Date(e).toLocaleString();
 }
 const Lc = new rc(), Kc = {
-  install(t, { apiClient: e, filesHandler: n, locales: i, iconFindApi: s }) {
-    t.provide("apiClient", e), n && t.provide("filesHandler", n), console.log("admin installed", t, e, i, s);
+  install(t, { apiClient: e, authHandler: n, filesHandler: i, locales: s, iconFindApi: u }) {
+    t.provide("apiClient", e), i && t.provide("filesHandler", i), n && t.provide("authHandler", n), console.log("admin installed", t, e, s, u);
   }
 };
 export {
@@ -10761,10 +10761,11 @@ export {
   yc as ae,
   vc as af,
   aa as ag,
-  yo as ah,
-  Fi as ai,
-  cc as aj,
-  Kc as ak,
+  nn as ah,
+  yo as ai,
+  Fi as aj,
+  cc as ak,
+  Kc as al,
   ls as b,
   ca as c,
   Lc as d,

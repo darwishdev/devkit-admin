@@ -1,11 +1,11 @@
 import AppForm from './AppForm.vue'
 export { default as FormBase } from './components/FormBase.vue';
-export {default as LoginForm} from './components/LoginForm.vue'
+export { default as LoginForm } from './components/LoginForm.vue'
 export * from './inputs/index'
 export * from './types'
 export { OptionsGetterPlugin, DependencyManagerPlugin } from './plugins/OptionsGetter'
-export {FormDataGetter} from './plugins/FormDataGetter'
-
-export type { AppFormProps, AppFormSections, SubmitHandlerFn, FindHandlerEndpointFn, FindHandlerEndpoint,  AppFormSection, AppFormOptions } from '../../pkg/types/types'
+export { FormDataGetterPlugin } from './plugins/FormDataGetter'
+export { default as formKitConfig } from './plugins/formkig.config'
+export type { AppFormProps, AppFormSections, SubmitHandlerFn, FindHandlerEndpointFn, FindHandlerEndpoint, AppFormSection, AppFormOptions } from '../../pkg/types/types'
 export * from './store/AppFormStore'
 export default AppForm

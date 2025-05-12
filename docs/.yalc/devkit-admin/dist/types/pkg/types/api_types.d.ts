@@ -185,3 +185,68 @@ export type GalleryListResponse = {
     records: FileObject[];
     options: ApiListOptions;
 };
+export type AccountsSchemaUser = {
+    userId: number;
+    userName: string;
+    tenantId: number;
+    userSecurityLevel: number;
+    userTypeId: number;
+    userPhone: string;
+    userEmail: string;
+    userPassword: string;
+    createdAt: string;
+    updatedAt: string;
+    deletedAt: string;
+};
+export type NavigationBarItem = {
+    navigationBarItemId: number;
+    parentId: number;
+    key: string;
+    label: string;
+    labelAr: string;
+    icon: string;
+    route: string;
+    level: number;
+    items: NavigationBarItem[];
+};
+export type AuthLoginRequest = {
+    loginCode: string;
+    userPassword: string;
+};
+export type LoginInfo = {
+    accessToken: string;
+    accessTokenExpiresAt: string;
+};
+export type AuthLoginResponse = {
+    user: AccountsSchemaUser;
+    loginInfo: LoginInfo;
+    navigationBar: NavigationBarItem[];
+};
+export type AuthLoginProviderCallbackRequest = {
+    accessToken: string;
+};
+export type AuthLoginProviderRequest = {
+    redirectUrl: string;
+    provider: string;
+};
+export type AuthLoginProviderResponse = {
+    url: string;
+};
+export type AuthResetPasswordEmailRequest = {
+    email: string;
+};
+export type AuthResetPasswordEmailResponse = {
+    message: string;
+};
+export type AuthResetPasswordRequest = {
+    email: string;
+    newPassword: string;
+    newPasswordConfirmation: string;
+    resetToken: string;
+    redirectUrl: string;
+};
+export type AuthResetPasswordResponse = {
+    user: AccountsSchemaUser;
+    loginInfo: LoginInfo;
+    navigationBar: NavigationBarItem[];
+};

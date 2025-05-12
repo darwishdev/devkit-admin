@@ -1,43 +1,43 @@
-var m = Object.defineProperty;
-var i = (t, s, e) => s in t ? m(t, s, { enumerable: !0, configurable: !0, writable: !0, value: e }) : t[s] = e;
-var a = (t, s, e) => i(t, typeof s != "symbol" ? s + "" : s, e);
-import { C as o, _ as f } from "./Datalist.vue_vue_type_script_setup_true_lang-DYcm5TLa.mjs";
-import { a as C, u as D, c as y, b as S } from "./Datalist.vue_vue_type_script_setup_true_lang-DYcm5TLa.mjs";
-import { h as r } from "vue";
-import { T as u } from "./devkit_admin-DO-pzuyi.mjs";
+var i = Object.defineProperty;
+var m = (r, e, t) => e in r ? i(r, e, { enumerable: !0, configurable: !0, writable: !0, value: t }) : r[e] = t;
+var a = (r, e, t) => m(r, typeof e != "symbol" ? e + "" : e, t);
+import { C as o, _ as l } from "./Datalist.vue_vue_type_script_setup_true_lang-D2aXan8r.mjs";
+import { a as x, u as C, c as S, b as y } from "./Datalist.vue_vue_type_script_setup_true_lang-D2aXan8r.mjs";
+import { h as n } from "vue";
+import { T as u } from "./devkit_admin-C2pYVXZW.mjs";
 import { AppImage as p } from "devkit-base-components";
-class _ extends o {
+class N extends o {
   constructor() {
     super(...arguments);
-    a(this, "renderHtml", (e) => {
+    a(this, "renderHtml", (t) => {
       try {
-        if (this.columnName in e) {
-          const n = e[this.columnName];
-          return !n || typeof n != "object" ? r("span", "") : "seconds" in n && "nanos" in n ? r(
+        if (this.columnName in t) {
+          const s = t[this.columnName];
+          return s instanceof Date ? n("span", s.toDateString()) : !s || typeof s != "object" ? n("span", "") : "seconds" in s && "nanos" in s ? n(
             "span",
-            u({ seconds: Number(n.seconds), nanos: Number(n.nanos) })
-          ) : r("span", "");
+            u({ seconds: Number(s.seconds), nanos: Number(s.nanos) })
+          ) : n("span", "");
         }
       } catch {
-        return r("span", "error_parsing_date");
+        return n("span", "error_parsing_date");
       }
-      return r("span", "");
+      return n("span", "");
     });
   }
 }
-class b extends o {
+class _ extends o {
   constructor() {
     super(...arguments);
-    a(this, "renderHtml", (e) => this.columnName in e && typeof e[this.columnName] == "string" ? r(p, { src: e[this.columnName], size: 150 }) : r("span", "unable_to_parse"));
+    a(this, "renderHtml", (t) => this.columnName in t && typeof t[this.columnName] == "string" ? n(p, { src: t[this.columnName], size: 150 }) : n("span", "unable_to_parse"));
   }
 }
 export {
   o as ColumnBase,
-  _ as ColumnDate,
-  b as ColumnImage,
-  C as ColumnText,
-  f as default,
-  D as useDatalistStore,
-  y as useDatalistStoreWithKey,
-  S as useDatalistStoreWithProps
+  N as ColumnDate,
+  _ as ColumnImage,
+  x as ColumnText,
+  l as default,
+  C as useDatalistStore,
+  S as useDatalistStoreWithKey,
+  y as useDatalistStoreWithProps
 };

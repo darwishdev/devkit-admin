@@ -64,47 +64,51 @@ const formSections: Record<string, AppFormSection> = {
     ],
   },
 };
-//const columns: DatalistColumns<AccountsSchemaUser> = {
-//  userId: new ColumnText<AccountsSchemaUser>('userId', {
-//    isSortable: true,
-//    isGlobalFilter: true,
-//    //router: viewRoute
-//  }),
-//  //
-//  userName: new ColumnText('userName', {
-//    isSortable: true,
-//    isGlobalFilter: true,
-//    filters: [{
-//      matchMode: FilterMatchMode.CONTAINS,
-//      input: {
-//        $formkit: 'text',
-//        prefixIcon: "tools",
-//        outerClass: "col-12 sm:col-6 md:col-3",
-//        name: "userName",
-//        placeholder: t("userName")
-//      }
-//    }]
-//  }),
-//
-//  createdAt: new ColumnText('createdAt', {
-//    isSortable: true,
-//    isGlobalFilter: true,
-//    filters: [{
-//      matchMode: FilterMatchMode.CONTAINS,
-//      input: {
-//        $formkit: 'text',
-//        prefixIcon: "tools",
-//        outerClass: "col-12 sm:col-6 md:col-3",
-//        name: "userDescription",
-//        placeholder: t("userDescription")
-//      }
-//    }]
-//  }),
-//}
 const columns: DatalistColumnsBase<AccountsSchemaUser> = {
-  userId: new ColumnText("userId", {}),
-  userName: new ColumnText("userName", {}),
+  userId: new ColumnText<AccountsSchemaUser>("userId", {
+    isSortable: true,
+    isGlobalFilter: true,
+    //router: viewRoute
+  }),
+  //
+  userName: new ColumnText("userName", {
+    isSortable: true,
+    isGlobalFilter: true,
+    filters: [
+      {
+        matchMode: "contains",
+        input: {
+          $formkit: "text",
+          prefixIcon: "tools",
+          outerClass: "col-12 sm:col-6 md:col-3",
+          name: "userName",
+          placeholder: t("userName"),
+        },
+      },
+    ],
+  }),
+
+  createdAt: new ColumnText("createdAt", {
+    isSortable: true,
+    isGlobalFilter: true,
+    filters: [
+      {
+        matchMode: "contains",
+        input: {
+          $formkit: "text",
+          prefixIcon: "tools",
+          outerClass: "col-12 sm:col-6 md:col-3",
+          name: "userDescription",
+          placeholder: t("userDescription"),
+        },
+      },
+    ],
+  }),
 };
+// const columns: DatalistColumnsBase<AccountsSchemaUser> = {
+//   userId: new ColumnText("userId", {}),
+//   userName: new ColumnText("userName", {}),
+// };
 
 const tableProps: DatalistProps<
   typeof apiClient,

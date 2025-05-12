@@ -55,8 +55,8 @@ export type DatepickerContext<TApi extends Record<string, Function>, TDisabledDa
 	convertToNumber?: boolean
 	disabledDatesRequestPropertyName?: string
 	disabledDatesResponsePropertyName?: string
-	dsiabledDatesRequestMapper: (req: unknown) => TDisabledDatesReq
-	dsiabledDatesResponseMapper: (resp: unknown) => TDisabledDatesResp
+	dsiabledDatesRequestMapper?: (req: unknown) => TDisabledDatesReq
+	dsiabledDatesResponseMapper?: (resp: unknown) => TDisabledDatesResp
 }
 export type InputDatepickerProps<TApi extends Record<string, Function>, TReq extends Record<string, unknown> = {}, TResp extends Record<string, unknown> = {}> = {
 	context: DatepickerContext<TApi, TReq, TResp>

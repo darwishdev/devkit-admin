@@ -1,7 +1,7 @@
 import { DBDropdownOptions } from '../../../pkg/database/DbTypes';
 import { CacheOptions, FilesHandler } from '../../../pkg/types/types';
 import { ApiEndpoint, StringUnkownRecord } from 'devkit-apiclient';
-import { DatePickerProps, MultiSelectProps, MultiSelectSlots, SelectButtonProps, SelectProps, SelectSlots } from 'primevue';
+import { DatePickerProps, FileUploadProps, MultiSelectProps, MultiSelectSlots, SelectButtonProps, SelectProps, SelectSlots } from 'primevue';
 import { FormKitInputContext } from '../types';
 export type DropdownOption<TValue = string | number> = {
     label: string;
@@ -46,7 +46,7 @@ export type DatepickerContext<TApi extends Record<string, Function>, TDisabledDa
 export type InputDatepickerProps<TApi extends Record<string, Function>, TReq extends Record<string, unknown> = {}, TResp extends Record<string, unknown> = {}> = {
     context: DatepickerContext<TApi, TReq, TResp>;
 };
-export type InputUploadContext = FormKitInputContext<string> & {
+export type InputUploadContext = FormKitInputContext<string> & FileUploadProps & {
     bucketName: string;
     filesHandler?: FilesHandler<any>;
 };

@@ -2,7 +2,7 @@
   "version": "v1",
   "packages": {
     "devkit-admin": {
-      "signature": "fd01323c4cdc34f1634f886f166ced96",
+      "signature": "7a3c7c1e0bd297e75866fa6e57fe0b07",
       "file": true
     }
   }

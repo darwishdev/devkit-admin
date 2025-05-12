@@ -157,8 +157,8 @@ packages:
     peerDependencies:
       '@bufbuild/protobuf': ^2.2.5
 
-  '@buf/ahmeddarwish_devkit-api.bufbuild_es@2.2.5-20250409230356-8091c2c5ab40.1':
-    resolution: {tarball: https://buf.build/gen/npm/v1/@buf/ahmeddarwish_devkit-api.bufbuild_es/-/ahmeddarwish_devkit-api.bufbuild_es-2.2.5-20250409230356-8091c2c5ab40.1.tgz}
+  '@buf/ahmeddarwish_devkit-api.bufbuild_es@2.2.5-20250501101752-78920ab3a77a.1':
+    resolution: {tarball: https://buf.build/gen/npm/v1/@buf/ahmeddarwish_devkit-api.bufbuild_es/-/ahmeddarwish_devkit-api.bufbuild_es-2.2.5-20250501101752-78920ab3a77a.1.tgz}
     peerDependencies:
       '@bufbuild/protobuf': ^2.2.5
 
@@ -1134,7 +1134,7 @@ packages:
       '@tanstack/vue-query': ^5.66.0
       '@vueuse/core': ^12.5.0
       devkit-apiclient: ^1.0.13
-      devkit-base-components: ^0.0.15
+      devkit-base-components: ^0.0.17
       dexie: ^4.0.11
       pinia: ^2.3.1
       primevue: ^4.2.2
@@ -2199,7 +2199,7 @@ snapshots:
       '@buf/bufbuild_protovalidate.bufbuild_es': 2.2.5-20240920164238-5a7b106cbb87.1(@bufbuild/protobuf@2.2.3)
       '@bufbuild/protobuf': 2.2.3
 
-  '@buf/ahmeddarwish_devkit-api.bufbuild_es@2.2.5-20250409230356-8091c2c5ab40.1(@bufbuild/protobuf@2.2.3)':
+  '@buf/ahmeddarwish_devkit-api.bufbuild_es@2.2.5-20250501101752-78920ab3a77a.1(@bufbuild/protobuf@2.2.3)':
     dependencies:
       '@buf/bufbuild_protovalidate.bufbuild_es': 2.2.5-20240920164238-5a7b106cbb87.1(@bufbuild/protobuf@2.2.3)
       '@bufbuild/protobuf': 2.2.3
@@ -3177,7 +3177,7 @@ snapshots:
 
   devkit-admin@file:.yalc/devkit-admin(6yhlso2rg7vpfygea5xkhynxzq):
     dependencies:
-      '@buf/ahmeddarwish_devkit-api.bufbuild_es': 2.2.5-20250409230356-8091c2c5ab40.1(@bufbuild/protobuf@2.2.3)
+      '@buf/ahmeddarwish_devkit-api.bufbuild_es': 2.2.5-20250501101752-78920ab3a77a.1(@bufbuild/protobuf@2.2.3)
       '@connectrpc/connect': 2.0.1(@bufbuild/protobuf@2.2.3)
       '@connectrpc/connect-web': 2.0.1(@bufbuild/protobuf@2.2.3)(@connectrpc/connect@2.0.1(@bufbuild/protobuf@2.2.3))
       '@formkit/core': 1.6.9

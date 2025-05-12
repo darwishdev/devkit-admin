@@ -1,10 +1,15 @@
 
 
-import { createInput, defaultConfig } from '@formkit/vue'
-import { Upload, Dropdown, Datepicker, DependencyManagerPlugin, OptionsGetterPlugin, FormDataGetter } from '@/app/appform/index'
-import { rootClasses } from '@/formkit.theme'
+import { createInput, defaultConfig, DefaultConfigOptions } from '@formkit/vue'
+
+import { rootClasses } from '../../../formkit.theme'
 
 import type { FormKitPlugin } from '@formkit/core';
+import { DependencyManagerPlugin, OptionsGetterPlugin } from './OptionsGetter';
+import { FormDataGetterPlugin } from './FormDataGetter';
+import Datepicker from '../inputs/Datepicker.vue';
+import { Upload } from '../inputs';
+import Dropdown from '../inputs/Dropdown.vue';
 const isCheckboxAndRadioMultiple: FormKitPlugin = (node: any) => (node.props.type === 'checkbox' || node.props.type === 'radio') && node.props.options
 const addAsteriskPlugin: FormKitPlugin = (node) => {
   node.on('created', () => {
@@ -33,11 +38,10 @@ const addAsteriskPlugin: FormKitPlugin = (node) => {
     }
   })
 }
-const formKitConfig = () => {
+const formKitConfig = (options: DefaultConfigOptions) => {
   const plugins: FormKitPlugin[] = [
-    addAsteriskPlugin,
     DependencyManagerPlugin,
-    FormDataGetter,
+    FormDataGetterPlugin,
     OptionsGetterPlugin,
   ]
   const fileUploadPropKeys = [
@@ -253,13 +257,6 @@ const formKitConfig = () => {
     props: singleDropdownProps,
   })
 
-  // const multDropdownInput = createInput(MultiDropdown, {
-  // 	props: multiDropdownProps,
-  // })
-
-  // const selectButtonInput = createInput(SelectButton, {
-  // 	props: singleDropdownProps,
-  // })
 
   const datePickerInput = createInput(Datepicker, {
     props: datepickerContextKeys,
@@ -268,9 +265,6 @@ const formKitConfig = () => {
   const uploadInput = createInput(Upload, {
     props: ['bucketName', 'filesHandler', ...fileUploadPropKeys],
   })
-  // const imageInput = createInput(InputImage, {
-  //   props: [''],
-  // })
 
   const inputs = {
     'devkitDropdown': dropdownInput,
@@ -278,10 +272,12 @@ const formKitConfig = () => {
     'devkitUpload': uploadInput,
   }
   return defaultConfig({
-    inputs,
-    plugins,
-    config: {
-      rootClasses,
+    ...options,
+    inputs: { ...inputs, ...options.inputs },
+    plugins: !options.plugins ? plugins :  { ...plugins, ...options.plugins },
+    config: !options.config ? { rootClasses } : {
+      rootClasses: options.config.rootClasses || rootClasses,
+      ...options.config
     }
   })
 }

@@ -1,5 +1,5 @@
 import { FormKitSchemaNode } from '@formkit/core';
-import { BucketCreateUpdateRequest, BucketListRequest, BucketListResponse, DeleteRequest, FileCreateBulkRequest, FileCreateRequest, FileCreateResponse, FileObject, GalleryListRequest, GalleryListResponse, IconFindRequest, IconFindResponse } from './api_types';
+import { AuthLoginProviderCallbackRequest, AuthLoginProviderRequest, AuthLoginProviderResponse, AuthLoginRequest, AuthLoginResponse, AuthResetPasswordEmailRequest, AuthResetPasswordEmailResponse, AuthResetPasswordRequest, AuthResetPasswordResponse, BucketCreateUpdateRequest, BucketListRequest, BucketListResponse, DeleteRequest, FileCreateBulkRequest, FileCreateRequest, FileCreateResponse, FileObject, GalleryListRequest, GalleryListResponse, IconFindRequest, IconFindResponse } from './api_types';
 import { RouteLocationRaw } from 'vue-router';
 import { ApiEndpoint } from 'devkit-apiclient';
 import { BucketCreateUpdateResponse } from '@buf/ahmeddarwish_devkit-api.bufbuild_es/devkit/v1/public_storage_pb';
@@ -10,6 +10,14 @@ export type CacheOptions = {
     bypassCache?: boolean;
     cacheTimeout?: number;
 };
+export type AuthHandler<TApi extends Record<string, Function>> = {
+    login: ApiEndpoint<TApi, AuthLoginRequest, AuthLoginResponse>;
+    allowedProviders?: string[];
+    providerLogin?: ApiEndpoint<TApi, AuthLoginProviderRequest, AuthLoginProviderResponse>;
+    providerLoginCallback?: ApiEndpoint<TApi, AuthLoginProviderCallbackRequest, AuthLoginResponse>;
+    resetPasswordEmail?: ApiEndpoint<TApi, AuthResetPasswordEmailRequest, AuthResetPasswordEmailResponse>;
+    resetPassword?: ApiEndpoint<TApi, AuthResetPasswordRequest, AuthResetPasswordResponse>;
+};
 export type FilesHandler<TApi extends Record<string, Function>> = {
     bucketList: ApiEndpoint<TApi, BucketListRequest, BucketListResponse>;
     fileCreate: ApiEndpoint<TApi, FileCreateRequest, FileCreateResponse>;
@@ -17,6 +25,10 @@ export type FilesHandler<TApi extends Record<string, Function>> = {
     fileBulkCreate?: ApiEndpoint<TApi, FileCreateBulkRequest, FileCreateResponse>;
     bucketCreateUpdate?: ApiEndpoint<TApi, BucketCreateUpdateRequest, BucketCreateUpdateResponse>;
     fileDelete?: ApiEndpoint<TApi, DeleteRequest<'records', string, 'bulk'>, any>;
+    fileDeleteByBucket?: ApiEndpoint<TApi, {
+        records: string[];
+        bucketName: string;
+    }, any>;
     bucketDelete?: ApiEndpoint<TApi, DeleteRequest<'records', string, 'bulk'>, any>;
 };
 export type DevkitAdminConfig<TApi extends Record<string, Function>> = {
@@ -24,6 +36,7 @@ export type DevkitAdminConfig<TApi extends Record<string, Function>> = {
     locales: string[];
     iconFindApi?: ApiEndpoint<TApi, IconFindRequest, IconFindResponse>;
     filesHandler?: FilesHandler<TApi>;
+    authHandler?: AuthHandler<TApi>;
 };
 export type AppFormSections<TFormRequest> = Record<string, (AppFormSection<TFormRequest> | (FormKitSchemaNode & {
     name: keyof TFormRequest;

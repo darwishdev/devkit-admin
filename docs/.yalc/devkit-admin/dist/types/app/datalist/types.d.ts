@@ -151,6 +151,7 @@ export type DatalistContext<TApi extends Record<string, Function>, TReq extends 
     formSections?: AppFormSections<TFormSectionsRequest extends undefined ? StringUnkownRecord : TFormSectionsRequest>;
     execludedColumns?: (keyof TRecord)[];
     displayType?: DisplayType;
+    isSelectionHidden?: boolean;
     debounceInMilliseconds?: number;
     rowIdentifier?: keyof TRecord;
     viewRouter?: DatalistRouter<TRecord>;
