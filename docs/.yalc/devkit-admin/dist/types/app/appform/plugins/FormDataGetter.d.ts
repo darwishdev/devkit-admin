@@ -1,2 +1,2 @@
 import { FormKitPlugin } from '@formkit/core';
-export declare const FormDataGetter: FormKitPlugin;
+export declare const FormDataGetterPlugin: FormKitPlugin;

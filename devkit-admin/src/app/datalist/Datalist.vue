@@ -13,6 +13,7 @@
 import DataTable from "primevue/datatable";
 import Menu from "primevue/menu";
 
+import { Dialog } from "primevue";
 import { useDatalistStoreWithProps } from "./store/DatalistStore";
 
 import {
@@ -182,6 +183,7 @@ const renderActionsColumn = (data: TRecord): VNode | VNode[] => {
 };
 </script>
 <template>
+  <Dialog />
   <DataTable
     :dataKey="(context.rowIdentifier as string) || undefined"
     :rows="10"

@@ -10710,8 +10710,8 @@ function Vc(t) {
   return new Date(e).toLocaleString();
 }
 const Lc = new rc(), Kc = {
-  install(t, { apiClient: e, authHandler: n, filesHandler: i, locales: s, iconFindApi: u }) {
-    t.provide("apiClient", e), i && t.provide("filesHandler", i), n && t.provide("authHandler", n), console.log("admin installed", t, e, s, u);
+  install(t, { useDialog: e, apiClient: n, authHandler: i, filesHandler: s, locales: u, iconFindApi: f }) {
+    t.provide("apiClient", n), s && t.provide("filesHandler", s), i && t.provide("authHandler", i), e && t.provide("useDialog", e), console.log("admin installed", t, n, u, f);
   }
 };
 export {

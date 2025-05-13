@@ -1,5 +1,6 @@
+import { DefaultConfigOptions } from '@formkit/vue';
 import { FormKitPlugin } from '@formkit/core';
-declare const formKitConfig: () => Partial<Omit<import('@formkit/core').FormKitContext, "config" | "children" | "hook" | "plugins"> & {
+declare const formKitConfig: (options: DefaultConfigOptions) => Partial<Omit<import('@formkit/core').FormKitContext, "config" | "children" | "hook" | "plugins"> & {
     config: Partial<import('@formkit/core').FormKitConfig>;
     props: Partial<import('@formkit/core').FormKitProps>;
     children: import('@formkit/core').FormKitNode[] | Set<import('@formkit/core').FormKitNode>;

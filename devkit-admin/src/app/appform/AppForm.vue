@@ -145,6 +145,7 @@ const formSubmitHandler = (req: TFormRequest, formNode: FormKitNode) => {
     : (req as StringUnkownRecord);
 
   if (formNode.props.uploads) apiRequest["uploads"] = formNode.props.uploads;
+  // console.log(formNode.props.uploads, "uploadss");
   return new Promise((resolve) => {
     submitMutation
       .mutateAsync(apiRequest as TApiRequest)

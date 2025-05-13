@@ -1,6 +1,6 @@
-import { FileObject } from "@/pkg/types/api_types";
+import { FileCreateBulkRequest, FileObject } from "@/pkg/types/api_types";
 
-export const createFileRequestFromFile = async (file: File , bucketName  :string) => {
+export const createFileRequestFromFile = async (file: File, bucketName: string) => {
   const arrayBuffer = await file.arrayBuffer();
   return {
     path: `${file.name}`,
@@ -9,15 +9,15 @@ export const createFileRequestFromFile = async (file: File , bucketName  :string
     fileType: file.type,
   };
 };
-export const createFileBulkRequestFromFiles = async (files: File[] , bucketName  :string) => {
+export const createFileBulkRequestFromFiles = async (files: File[], bucketName: string): Promise<FileCreateBulkRequest> => {
   const fileRequests = await Promise.all(
-    files.map((file) => createFileRequestFromFile(file , bucketName)),
+    files.map((file) => createFileRequestFromFile(file, bucketName)),
   );
   return {
     files: fileRequests,
   };
 };
-export const fileObjectFromFile = (file: File, bucketName  :string) : FileObject => {
+export const fileObjectFromFile = (file: File, bucketName: string): FileObject => {
   return {
     name: file.name,
     bucketId: bucketName,
@@ -29,7 +29,7 @@ export const fileObjectFromFile = (file: File, bucketName  :string) : FileObject
 
   };
 }
-export const fileObjectFromFiles = (files: File[] , bucketName  :string) : FileObject[] => {
-  return files.map((file) => fileObjectFromFile(file , bucketName))
+export const fileObjectFromFiles = (files: File[], bucketName: string): FileObject[] => {
+  return files.map((file) => fileObjectFromFile(file, bucketName))
 };
 

@@ -41,6 +41,7 @@ const addAsteriskPlugin: FormKitPlugin = (node) => {
 const formKitConfig = (options: DefaultConfigOptions) => {
   const plugins: FormKitPlugin[] = [
     DependencyManagerPlugin,
+    addAsteriskPlugin,
     FormDataGetterPlugin,
     OptionsGetterPlugin,
   ]
@@ -274,7 +275,7 @@ const formKitConfig = (options: DefaultConfigOptions) => {
   return defaultConfig({
     ...options,
     inputs: { ...inputs, ...options.inputs },
-    plugins: !options.plugins ? plugins :  { ...plugins, ...options.plugins },
+    plugins: !options.plugins ? plugins : { ...plugins, ...options.plugins },
     config: !options.config ? { rootClasses } : {
       rootClasses: options.config.rootClasses || rootClasses,
       ...options.config

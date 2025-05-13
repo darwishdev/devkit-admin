@@ -15,9 +15,13 @@ import { plugin } from '@formkit/vue'
 import formkitConfig from './formkit.config'
 import DevkitAdminPlugin, { type DevkitAdminConfig } from 'devkit-admin';
 import DevkitBaseComponentsPlugin, { type DevkitBaseConfig } from 'devkit-base-components';
-const pinia = createPinia()
+import { useDialog } from 'primevue';
 const app = createApp(App)
 
+
+app.use(DialogService)
+
+const pinia = createPinia()
 const baseConfig: DevkitBaseConfig<typeof apiClient> = {
   apiClient,
   baseImageUrl: 'http://192.168.1.40:54321/storage/v1/object/public/',
@@ -27,14 +31,16 @@ const baseConfig: DevkitBaseConfig<typeof apiClient> = {
 }
 const adminConfig: DevkitAdminConfig<typeof apiClient> = {
   apiClient,
+  useDialog,
   locales: ['en', 'ar'],
   iconFindApi: 'iconFind',
   filesHandler: {
     fileList: 'galleryList',
+    fileDelete: 'fileDelete',
     bucketList: 'bucketList',
+    fileBulkCreate: 'fileCreateBulk',
     bucketCreateUpdate: 'bucketCreateUpdate',
     fileCreate: 'fileCreate',
-    fileBulkCreate: 'fileCreateBulk'
   }
 }
 const queryClient = new QueryClient({
@@ -50,7 +56,6 @@ app.use(VueQueryPlugin, {
 })
 app.use(pinia)
 app.use(ToastService)
-app.use(DialogService)
 app.use(PrimeVue, {
   theme: 'none'
 })

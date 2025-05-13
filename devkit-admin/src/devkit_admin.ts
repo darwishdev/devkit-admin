@@ -10,10 +10,12 @@ const db = new DevkitAdminDB()
 
 export { db, NumberToDate, DateToNumber, Datepicker, adminTypes }
 const DevkitAdminPlugin: Plugin<DevkitAdminConfig<any>> = {
-	install<TApi extends Record<string, Function>>(app: App, { apiClient, authHandler, filesHandler, locales, iconFindApi }: DevkitAdminConfig<TApi>) {
+		install<TApi extends Record<string, Function>>(app: App, {useDialog , apiClient, authHandler, filesHandler, locales, iconFindApi }: DevkitAdminConfig<TApi>) {
+
 		app.provide('apiClient', apiClient)
 		if (filesHandler) app.provide('filesHandler', filesHandler)
 		if (authHandler) app.provide('authHandler', authHandler)
+		if (useDialog) app.provide('useDialog', useDialog)
 		console.log("admin installed", app, apiClient, locales, iconFindApi)
 	}
 }

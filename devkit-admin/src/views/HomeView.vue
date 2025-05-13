@@ -1,134 +1,230 @@
 <script setup lang="ts">
-import { useI18n } from "vue-i18n";
-import type {
-  AccountsSchemaUser,
-  UserListRequest,
-} from "@buf/ahmeddarwish_devkit-api.bufbuild_es/devkit/v1/accounts_user_pb";
 import Datalist, {
-  DatalistColumnsBase,
   ColumnText,
-  DatalistProps,
+  type DatalistColumnsBase,
+  type DatalistProps,
+  ColumnImage,
 } from "@/app/datalist";
-import { apiClient } from "@/apiClient";
-import { AppFormSection } from "@/app/appform";
-const { t } = useI18n();
 
-const formSections: Record<string, AppFormSection> = {
-  user_info: {
+import { AppFormSection, AppFormSections } from "@/app/appform";
+import { useI18n } from "vue-i18n";
+import { apiClient } from "@/apiClient";
+import {
+  type PartialCreateUpdateRequest,
+  type PartialListRequest,
+  type TenantsSchemaPartial,
+} from "@buf/ahmeddarwish_devkit-api.community_timostamm-protobuf-ts/devkit/v1/tenant_partial_pb";
+const callCreate = () => {
+  const reqss: Partial<PartialCreateUpdateRequest> = {
+    partialId: 1,
+    sectionId: 1,
+    uploads: {
+      files: [{}],
+    },
+    partialTypeId: 1,
+    partialName: "new",
+  };
+  apiClient.partialCreateUpdate(reqss).then(console.log);
+};
+const { t } = useI18n();
+const formSections: AppFormSections<PartialCreateUpdateRequest> = {
+  partial_info: {
     isTitleHidden: true,
     isTransparent: true,
     inputs: [
       {
         $formkit: "text",
-        prefixIcon: "tools",
-        outerClass: "col-12 sm:col-6 md:col-5",
-        name: "userName",
+        prefixIcon: "edit",
+        outerClass: "col-12 sm:col-6 md:col-4",
+        name: "partialName",
         validation: "required",
-        placeholder: t("userName"),
-        label: t("userName"),
+        label: t("partialName"),
+        placeholder: t("partialName"),
+      },
+      {
+        $formkit: "devkitDropdown",
+        prefixIcon: "list-ordered",
+        options: "partialTypeListInput",
+        optionValue: "value",
+        optionLabel: "label",
+        outerClass: "col-12 sm:col-6 md:col-4",
+        name: "partialTypeId",
+        validation: "required",
+        label: t("partialTypeId"),
+        placeholder: t("partialTypeId"),
+      },
+      {
+        $formkit: "devkitDropdown",
+        prefixIcon: "list-ordered",
+        options: apiClient.sectionListInpt,
+        optionValue: "value",
+        optionLabel: "label",
+        outerClass: "col-12 sm:col-6 md:col-4",
+        name: "sectionId",
+        validation: "required",
+        label: t("sectionListInpt"),
+        placeholder: t("sectionListInpt"),
+      },
+      {
+        $formkit: "devkitUpload",
+        bucketName: "images",
+        outerClass: "col-12 sm:col-6 md:col-4",
+        name: "partialImage",
+        auto: true,
+        label: t("partialImage"),
+        placeholder: t("partialImage"),
+      },
+      {
+        $formkit: "devkitUpload",
+        prefixIcon: "image",
+        auto: true,
+        multiple: true,
+        outerClass: "col-12 sm:col-6 md:col-4",
+        name: "partialImages",
+        label: t("partialImages"),
+        placeholder: t("partialImages"),
+      },
+      // {
+      //   $formkit: "devkitEditor",
+      //   prefixIcon: "file-text",
+      //   outerClass: "col-12 sm:col-6 md:col-4",
+      //   name: "partialBrief",
+      //   label: t("partialBrief"),
+      //   placeholder: t("partialBrief"),
+      // },
+      // {
+      //   $formkit: "devkitEditor",
+      //   prefixIcon: "file-text",
+      //   outerClass: "col-12 sm:col-6 md:col-4",
+      //   name: "partialContent",
+      //   label: t("partialContent"),
+      //   placeholder: t("partialContent"),
+      // },
+      {
+        $formkit: "text",
+        prefixIcon: "tag",
+        outerClass: "col-12 sm:col-6 md:col-4",
+        name: "partialButtonLabel",
+        label: t("partialButtonLabel"),
+        placeholder: t("partialButtonLabel"),
       },
       {
         $formkit: "text",
-        prefixIcon: "tools",
-        outerClass: "col-12 sm:col-6 md:col-5",
-        name: "userEmail",
-        validation: "required",
-        placeholder: t("userEmail"),
-        label: t("userEmail"),
+        prefixIcon: "link",
+        outerClass: "col-12 sm:col-6 md:col-4",
+        name: "partialButtonLink",
+        label: t("partialButtonLink"),
+        placeholder: t("partialButtonLink"),
       },
       {
         $formkit: "text",
-        prefixIcon: "tools",
-        outerClass: "col-12 sm:col-6 md:col-5",
-        name: "userPhone",
-        placeholder: t("userPhone"),
-        label: t("userPhone"),
+        prefixIcon: "map-pin",
+        outerClass: "col-12 sm:col-6 md:col-4",
+        name: "address",
+        label: t("address"),
+        placeholder: t("address"),
       },
       {
-        $formkit: "textarea",
-        prefixIcon: "text",
-        outerClass: "col-12 sm:col-6 md:col-7",
-        name: "userDescription",
-        placeholder: t("userDescription"),
-        label: t("userDescription"),
+        $formkit: "text",
+        prefixIcon: "link",
+        outerClass: "col-12 sm:col-6 md:col-4",
+        name: "partialLink",
+        label: t("partialLink"),
+        placeholder: t("partialLink"),
       },
-      {
-        $formkit: "number",
-        prefixIcon: "text",
-        outerClass: "col-12 sm:col-6 md:col-7",
-        name: "userSecurityLevel",
-        number: "integer",
-        placeholder: t("securityLevel"),
-        label: t("userSecurityLevel"),
-      },
+      // Note: partialLinks is a map type and might need a custom component or different handling
     ],
   },
 };
-const columns: DatalistColumnsBase<AccountsSchemaUser> = {
-  userId: new ColumnText<AccountsSchemaUser>("userId", {
+
+const columns: DatalistColumnsBase<TenantsSchemaPartial> = {
+  partialId: new ColumnText("partialId", {
     isSortable: true,
-    isGlobalFilter: true,
-    //router: viewRoute
   }),
-  //
-  userName: new ColumnText("userName", {
+  partialName: new ColumnText("partialName", {
     isSortable: true,
     isGlobalFilter: true,
     filters: [
       {
+        isGlobal: true,
         matchMode: "contains",
         input: {
           $formkit: "text",
-          prefixIcon: "tools",
+          prefixIcon: "search",
           outerClass: "col-12 sm:col-6 md:col-3",
-          name: "userName",
-          placeholder: t("userName"),
+          name: "partialName",
+          label: t("partialName"),
+          placeholder: t("partialName"),
         },
       },
     ],
   }),
 
-  createdAt: new ColumnText("createdAt", {
-    isSortable: true,
-    isGlobalFilter: true,
-    filters: [
-      {
-        matchMode: "contains",
-        input: {
-          $formkit: "text",
-          prefixIcon: "tools",
-          outerClass: "col-12 sm:col-6 md:col-3",
-          name: "userDescription",
-          placeholder: t("userDescription"),
-        },
-      },
-    ],
-  }),
+  partialImage: new ColumnImage("partialImage", {}),
 };
-// const columns: DatalistColumnsBase<AccountsSchemaUser> = {
-//   userId: new ColumnText("userId", {}),
-//   userName: new ColumnText("userName", {}),
-// };
+
+const rowIdentifier = "partialId" as const;
 
 const tableProps: DatalistProps<
   typeof apiClient,
-  UserListRequest,
-  AccountsSchemaUser
+  PartialListRequest,
+  TenantsSchemaPartial,
+  undefined,
+  undefined,
+  PartialCreateUpdateRequest
 > = {
   context: {
-    datalistKey: "user",
-    title: "users",
-    rowIdentifier: "userId",
-    //   columns,
+    datalistKey: "tenant-partials",
+    title: t("tenantPartials"),
+    rowIdentifier,
     columns,
-    records: apiClient.userList,
-    isExportable: true,
+    records: apiClient.partialList,
+    filters: [
+      {
+        matchMode: "in",
+        input: {
+          $formkit: "devkitDropdown",
+          prefixIcon: "list-ordered",
+          multiple: true,
+          useButtons: true,
+          options: "partialTypeListInput",
+          optionValue: "value",
+          optionLabel: "label",
+          cacheKey: "partialTypeId",
+          outerClass: "col-12 sm:col-6 md:col-4",
+          name: "partialTypeId",
+          label: t("partialTypeId"),
+          placeholder: t("partialTypeId"),
+        },
+      },
+    ],
+    isLazyFilters: true,
     formSections,
-    displayType: "table",
-    options: { title: "asd", description: "asd" },
+    options: {
+      title: t("tenantPartials"),
+      description: t("Manage all tenant section partials"),
+    },
   },
 };
 </script>
+
 <template>
-  <Datalist :context="tableProps.context"> </Datalist>
+  <h1 @click="callCreate">create</h1>
+  <Datalist :context="tableProps.context" />
 </template>
+<style>
+.p-datatable img {
+  max-width: 200px !important;
+}
+
+.p-datatable-header .d-flex {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: var(--gap);
+}
+
+.global-actions {
+  display: flex;
+  gap: var(--gap);
+}
+</style>

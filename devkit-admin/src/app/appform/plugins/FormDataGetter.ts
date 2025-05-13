@@ -14,6 +14,7 @@ export const FormDataGetterPlugin: FormKitPlugin = (node) => {
     const getDataFromFindHandler = (handler: FindHandler<any, any, any>) => {
       const route = useRoute()
       if (!handler) return
+      if (!handler.endpoint) return
       const findHandlerRequest: any = {};
       const requestValue = handler.requestValue
         ? handler.requestValue
@@ -21,6 +22,7 @@ export const FormDataGetterPlugin: FormKitPlugin = (node) => {
       findHandlerRequest[handler.requestPropertyName] = requestValue;
       resolveApiEndpoint<any, any, any>(handler.endpoint, apiClient, findHandlerRequest)
         .then((resp) => {
+          if(!resp) return
           if (handler.responsePropertyName) {
             if (handler.responsePropertyName in resp) {
               const formValue = resp[handler.responsePropertyName];
@@ -30,6 +32,7 @@ export const FormDataGetterPlugin: FormKitPlugin = (node) => {
               }
             }
           }
+
           node.input(resp)
         })
         .catch((e: Error) => {

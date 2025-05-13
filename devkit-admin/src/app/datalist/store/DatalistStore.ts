@@ -1,4 +1,4 @@
-import { ref, computed, h, inject, type Ref, watch } from 'vue'
+import { ref, computed, h, inject, type Ref, watch, Suspense } from 'vue'
 import { defineStore, getActivePinia } from 'pinia'
 import { ActionButtonProps, ApiListOptions, ApiResponseList, DatalistColumnsBase, DatalistFilter, DatalistFilterInput, DatalistFiltersModel, DatalistGlobalActions, DatalistProps, DatalistRowActions, FilterMatchModeValues, PaginationParams } from '../types'
 import { FormKitSchemaNode } from '@formkit/core'
@@ -13,6 +13,7 @@ import { useDialog, useToast } from 'primevue'
 import AppForm from '@/app/appform/AppForm.vue'
 import { AppFormProps, FindHandler } from '@/pkg/types/types'
 import { DeleteRestoreVariant } from '../types'
+import { defaultIcon } from '@formkit/inputs'
 
 export const useDatalistStore = <
 	TApi extends Record<string, Function>,
@@ -314,7 +315,7 @@ export const useDatalistStore = <
 
 		})
 		const isFiltersFormValid = computed(() => {
-			return filtersFormSchema.length > 0 ?  filtersFormStore?.formElementContext?.state?.valid || false : true
+			return filtersFormSchema.length > 0 ? filtersFormStore?.formElementContext?.state?.valid || false : true
 		})
 
 		const datalistQueryResult = useQuery<ApiResponseList<TRecord>, Error>({

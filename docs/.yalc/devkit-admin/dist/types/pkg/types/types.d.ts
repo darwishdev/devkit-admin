@@ -4,6 +4,7 @@ import { RouteLocationRaw } from 'vue-router';
 import { ApiEndpoint } from 'devkit-apiclient';
 import { BucketCreateUpdateResponse } from '@buf/ahmeddarwish_devkit-api.bufbuild_es/devkit/v1/public_storage_pb';
 import { DatalistRecords } from '../../app/datalist';
+import { useDialog } from 'primevue';
 export type StringUnkownRecord = Record<string, unknown>;
 export type CacheOptions = {
     cacheKey: string;
@@ -33,6 +34,7 @@ export type FilesHandler<TApi extends Record<string, Function>> = {
 };
 export type DevkitAdminConfig<TApi extends Record<string, Function>> = {
     apiClient: TApi;
+    useDialog?: typeof useDialog;
     locales: string[];
     iconFindApi?: ApiEndpoint<TApi, IconFindRequest, IconFindResponse>;
     filesHandler?: FilesHandler<TApi>;

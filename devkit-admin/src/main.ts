@@ -15,10 +15,11 @@ import DevkitAdminPlugin, { DevkitAdminConfig } from '@/devkit_admin';
 import 'devkit-base-components/style';
 import { plugin } from '@formkit/vue'
 
-import { formKitConfig } from '@/app/appform/index'
+import { formKitConfig } from '@/app/appform'
 import App from './App.vue';
 import { apiClient } from './apiClient';
 import DevkitBaseComponentsPlugin, { DevkitBaseConfig } from 'devkit-base-components';
+import { useDialog } from 'primevue';
 const pinia = createPinia()
 const app = createApp(App)
 app.use(router)
@@ -27,6 +28,7 @@ const adminConfig: DevkitAdminConfig<typeof apiClient> = {
 	apiClient,
 	locales: ['en', 'ar'],
 	iconFindApi: 'iconFind',
+	useDialog,
 	authHandler: {
 		login: 'authLogin',
 		allowedProviders: ['google'],
