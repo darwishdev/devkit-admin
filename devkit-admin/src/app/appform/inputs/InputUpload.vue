@@ -9,7 +9,7 @@ import FileUpload, {
 import { h, inject, ref } from "vue";
 import InputUploadDialog from "./InputUploadDialog.vue";
 import { FilesHandler } from "@/pkg/types/types";
-import { useDialog } from "primevue/usedialog";
+import { useDialog } from "primevue";
 import { AppBtn, AppImage } from "devkit-base-components";
 import { createFileBulkRequestFromFiles } from "./InputUploadAdapter";
 const { context } = defineProps<InputUploadProps>();
@@ -24,15 +24,15 @@ const totalFilesLength = () => {
   return selectedFilesRef.value.length + galleryFilesRef.value.length;
 };
 const inputValue = (): string[] | string => {
-  if (!galleryFilesRef.value.length) return multiple ? [] : "";
+  const currentFiles = [
+    ...galleryFilesRef.value.map((f) => `${f.name}`),
+    ...selectedFilesRef.value.map((f) => `${bucketName}/${f.name}`),
+  ];
+  if (!currentFiles.length) return multiple ? [] : "";
   if (multiple) {
-    return [
-      ...galleryFilesRef.value.map((f) => `${f.bucketId}/${f.name}`),
-      ...selectedFilesRef.value.map((f) => `${bucketName}/${f.name}`),
-    ];
+    return currentFiles;
   }
-  const file = galleryFilesRef.value[0];
-  return `${file.bucketId}/${file.name}`;
+  return currentFiles[0];
 };
 // Emit types
 // When files are selected
@@ -57,6 +57,7 @@ const onSelectedFiles = async (event: FileUploadSelectEvent) => {
     }
   }
   if (!auto) {
+    console.log("emiting innput val", inputValue());
     node.input(inputValue());
     if (node.parent) {
       if (node.parent.props.type == "form") {
@@ -76,9 +77,11 @@ const openGallery = () => {
       isSelectionHidden: !multiple,
       onChoose: async (files) => {
         if (!multiple) {
-          galleryFilesRef.value = [files[0]];
-          fileUploadElementRef.value.uploadedFiles = [files[0]];
+          console.log("choosing");
+          console.log("choossssing", files);
 
+          console.log("choossssing", files);
+          galleryFilesRef.value = files;
           selectedFilesRef.value = [];
           node.input(inputValue());
           return;
@@ -94,7 +97,18 @@ const openGallery = () => {
     }),
   );
 };
+const clearInput = () => {
+  galleryFilesRef.value = [];
+  galleryFilesRef.value = [];
+  selectedFilesRef.value = [];
+  node.input("");
+  fileUploadElementRef.value.files = [];
+};
 const removeSelectedFile = (file: File) => {
+  if (!multiple) {
+    clearInput();
+  }
+
   const index = selectedFilesRef.value.indexOf(file);
   if (index !== -1) {
     selectedFilesRef.value.splice(index, 1);
@@ -105,6 +119,10 @@ const removeSelectedFile = (file: File) => {
   }
 };
 const removeGalleryFile = (file: FileObject) => {
+  console.log("removing", file);
+  if (!multiple) {
+    clearInput();
+  }
   const index = galleryFilesRef.value.indexOf(file);
   if (index !== -1) {
     galleryFilesRef.value.splice(index, 1);
@@ -190,6 +208,7 @@ const renderFileUpload = () => {
             class: "flex",
           },
           [
+            h("h2", JSON.stringify(galleryFilesRef.value)),
             selectedFilesRef.value.map((f) =>
               h(
                 "div",

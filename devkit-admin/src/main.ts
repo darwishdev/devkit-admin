@@ -20,6 +20,8 @@ import App from './App.vue';
 import { apiClient } from './apiClient';
 import DevkitBaseComponentsPlugin, { DevkitBaseConfig } from 'devkit-base-components';
 import { useDialog } from 'primevue';
+import { create } from '@bufbuild/protobuf';
+import { FileCreateBulkRequestSchema, FileCreateRequestSchema } from '@buf/ahmeddarwish_devkit-api.bufbuild_es/devkit/v1/public_storage_pb';
 const pinia = createPinia()
 const app = createApp(App)
 app.use(router)
@@ -41,6 +43,8 @@ const adminConfig: DevkitAdminConfig<typeof apiClient> = {
 		fileList: 'galleryList',
 		fileDelete: 'fileDelete',
 		bucketList: 'bucketList',
+    bulkRequestMapper: (req) => create(FileCreateBulkRequestSchema , req),
+    requestMapper: (req) => create(FileCreateRequestSchema , req),
 		fileBulkCreate: 'fileCreateBulk',
 		fileDeleteByBucket: 'fileDeleteByBucket',
 		bucketCreateUpdate: 'bucketCreateUpdate',

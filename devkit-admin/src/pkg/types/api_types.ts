@@ -128,9 +128,9 @@ export type FileObject = {
 	bucketId: string;
 	owner: string;
 	id: string;
-	updatedAt: string;
-	createdAt: string;
-	lastAccessedAt: string;
+	updatedAt?: string;
+	createdAt?: string;
+	lastAccessedAt?: string;
 	metadata?: FileMetadata; // Assuming FileMetadata is another defined type
 	buckets?: StorageBucket; // Assuming StorageBucket is another defined type
 }

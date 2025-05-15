@@ -74,7 +74,7 @@ const datalistProps:
         isPresistFilters: true,
         displayType: "card",
         isLazyFilters: false,
-        isActionsDropdown: true,
+        isActionsDropdown: false,
         options: { title: "asd", description: "asd" },
       },
     };

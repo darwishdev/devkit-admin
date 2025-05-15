@@ -1,6 +1,13 @@
 import { FileCreateBulkRequest, FileObject } from "@/pkg/types/api_types";
 
 export const createFileRequestFromFile = async (file: File, bucketName: string) => {
+      if (filesHandler) {
+        if (filesHandler.bulkRequestMapper) {
+          apiRequest.uploads = filesHandler.bulkRequestMapper(
+            formNode.props.uploads,
+          );
+        }
+      }
   const arrayBuffer = await file.arrayBuffer();
   return {
     path: `${file.name}`,
@@ -11,7 +18,7 @@ export const createFileRequestFromFile = async (file: File, bucketName: string) 
 };
 export const createFileBulkRequestFromFiles = async (files: File[], bucketName: string): Promise<FileCreateBulkRequest> => {
   const fileRequests = await Promise.all(
-    files.map((file) => createFileRequestFromFile(file, bucketName)),
+    files.map(async (file) => await createFileRequestFromFile(file, bucketName)),
   );
   return {
     files: fileRequests,
