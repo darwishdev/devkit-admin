@@ -1,4 +1,5 @@
 <script lang="ts" setup generic="TApi extends Record<string, Function>">
+import { FileCreateBulkRequest, FileObject } from "@/pkg/types/api_types";
 import { resolveApiEndpoint } from "devkit-apiclient";
 import { InputUploadProps } from "./types";
 import FileUpload, {
@@ -7,31 +8,39 @@ import FileUpload, {
 } from "primevue/fileupload";
 import { h, inject, ref } from "vue";
 import InputUploadDialog from "./InputUploadDialog.vue";
+import { FilePreview, FilesHandler } from "@/pkg/types/types";
 import { useDialog } from "primevue";
 import { AppBtn, AppImage } from "devkit-base-components";
 import { createFileBulkRequestFromFiles } from "./InputUploadAdapter";
-import { FilePreview, FilesHandler } from "@/pkg/types/types";
-import { FileCreateBulkRequest } from "@buf/ahmeddarwish_devkit-api.community_timostamm-protobuf-ts/devkit/v1/public_storage_pb";
-
-const { context } = defineProps<InputUploadProps & { multiple: false }>();
-const { bucketName, auto, node } = context;
+const { context } = defineProps<InputUploadProps & { multiple: true }>();
+const { bucketName, auto, fileLimit, node } = context;
 const apiClient = inject<TApi>("apiClient");
-const previewFileRef = ref<{ src: string; value: string }>({
-  value: node.value || "",
-  src: node.value || "",
-});
+const previewFilesRef = ref<FilePreview[]>([]);
+// const selectedFilesRef = ref<File[]>([]);
+// const galleryFilesRef = ref<FileObject[]>([]);
 const dialog = useDialog();
 const filesHandler = inject<FilesHandler<TApi>>("filesHandler");
 const fileUploadElementRef = ref();
-// When files are selected
-const emitInput = (preview: FilePreview) => {
-  previewFileRef.value = preview;
-  node.input(preview.value.value);
+// const totalFilesLength = () => {
+//   return selectedFilesRef.value.length + galleryFilesRef.value.length;
+// };
+const inputValue = (): string[] | string => {
+  if (!previewFilesRef.value.length) return [];
+  return previewFilesRef.value.map((i) => i.value);
 };
+// Emit types
+// When files are selected
 const onSelectedFiles = async (event: FileUploadSelectEvent) => {
   if (!event.files.length || auto) return;
-  const [file] = event.files;
-  emitInput({ src: URL.createObjectURL(file), value: file });
+  if (fileLimit) {
+    if (previewFilesRef.value.length + event.files.length > fileLimit) {
+      alert("exceeded max files");
+      return;
+    }
+  }
+  // const files = [...previewFilesRef.value, ...event.files];
+  // previewFilesRef.value = files;
+  node.input(inputValue());
   if (node.parent) {
     if (node.parent.props.type == "form") {
       const request = await createFileBulkRequestFromFiles(
@@ -46,42 +55,47 @@ const openGallery = () => {
   dialog.open(
     h(InputUploadDialog, {
       bucketName,
-      isSelectionHidden: true,
       onChoose: async (files) => {
-        console.log("choossssing", files);
-        if (files.length || auto) return;
-        const [file] = files;
-        emitInput({ src: file.name, value: file.name });
+        // previewFilesRef.value = [...previewFilesRef.value, ...files];
+        // node.input(inputValue());
       },
     }),
   );
 };
-const clearInput = () => {
-  fileUploadElementRef.value.files = [];
-  fileUploadElementRef.value.uploads = [];
-  emitInput({ src: "", value: "" });
+const removeSelectedFile = (file: FilePreview) => {
+  // const index = previewFilesRef.value.indexOf(file);
+  // if (index !== -1) {
+  //   previewFilesRef.value.splice(index, 1);
+  //   node.input(inputValue());
+  //   if (auto) {
+  //     removeUploadedFile(file);
+  //   }
+  // }
 };
-const removeUploadedFile = async () => {
-  if (!filesHandler) return;
-  if (!filesHandler.fileDeleteByBucket) return;
-  await resolveApiEndpoint(filesHandler.fileDeleteByBucket, apiClient, {
-    bucketName: bucketName,
-    records: [previewFileRef.value.value],
-  });
+
+const removeUploadedFile = async (file: FileObject) => {
+  // if (!filesHandler) return;
+  // if (!filesHandler.fileDeleteByBucket) return;
+  // await resolveApiEndpoint(filesHandler.fileDeleteByBucket, apiClient, {
+  //   bucketName: file.bucketName,
+  //   records: Array.isArray(file) ? file.map((f) => f.name) : [file.name],
+  // });
 };
-const uploadSingleFile = async (request: FileCreateBulkRequest) => {
+const uploadMultipleFiles = async (request: FileCreateBulkRequest) => {
   if (!filesHandler) return;
-  if (filesHandler.fileCreate) {
-    const { path } = await resolveApiEndpoint(
-      filesHandler.fileCreate,
-      apiClient,
-      request.files[0],
-    );
-    emitInput({ src: path, value: path });
-    return;
-  }
   if (filesHandler.fileBulkCreate) {
     await resolveApiEndpoint(filesHandler.fileBulkCreate, apiClient, request);
+    return;
+  }
+
+  if (filesHandler.fileCreate) {
+    for (let i = 0; i < request.files.length; i++) {
+      await resolveApiEndpoint(
+        filesHandler.fileCreate,
+        apiClient,
+        request.files[i],
+      );
+    }
     return;
   }
 };
@@ -93,9 +107,10 @@ const uploader = async (e: FileUploadUploaderEvent) => {
   if (!e.files) return;
   if (Array.isArray(e.files) && e.files.length == 0) return;
   const filesArr = Array.isArray(e.files) ? e.files : [e.files];
-  const request = await createFileBulkRequestFromFiles(filesArr, bucketName);
+  let request = await createFileBulkRequestFromFiles(filesArr, bucketName);
   if (!request.files.length) return;
-  await uploadSingleFile(request);
+  await uploadMultipleFiles(request);
+  node.input(inputValue());
 };
 const renderFileUpload = () => {
   return h(
@@ -105,7 +120,6 @@ const renderFileUpload = () => {
       ref: (r) => (fileUploadElementRef.value = r),
       onSelect: onSelectedFiles,
       onUploader: uploader,
-      fileLimit: 1,
       customUpload: true,
     },
     {
@@ -116,33 +130,28 @@ const renderFileUpload = () => {
             class: "flex",
           },
           [
-            !previewFileRef.value
-              ? undefined
-              : h(
-                  "div",
-                  {
-                    class: "card",
-                  },
-                  [
-                    h(AppImage, {
-                      width: "150px",
-                      src: previewFileRef.value.src,
-                    }),
-                    h(AppBtn, {
-                      label: "remove",
-                      icon: "trash",
-                      action: () => {
-                        clearInput();
-                        if (auto) {
-                          removeUploadedFile();
-                        }
-                      },
-                    }),
-                  ],
-                ),
+            previewFilesRef.value.map((f) =>
+              h(
+                "div",
+                {
+                  class: "card",
+                },
+                [
+                  h(AppImage, {
+                    width: "150px",
+                    src: f.src,
+                  }),
+                  h(AppBtn, {
+                    label: "remove",
+                    icon: "trash",
+                    action: () => removeSelectedFile(f),
+                  }),
+                ],
+              ),
+            ),
           ],
         ),
-      empty: () => h("h2", `drop files hear`),
+      empty: () => h("h2", "drop files hear"),
       header: ({
         chooseCallback,
         clearCallback,
@@ -160,11 +169,9 @@ const renderFileUpload = () => {
               icon: "images",
               label: "select from files",
               rounded: true,
-              disabled: previewFileRef.value.value.length > 0,
               outlined: true,
               severity: "info",
               action: () => {
-                clearInput();
                 chooseCallback();
                 console.log("choose");
               },
@@ -187,9 +194,10 @@ const renderFileUpload = () => {
               severity: "danger",
               action: async () => {
                 if (auto) {
-                  //await removeUploadedFile(previewFileRef.value);
+                  // await removeUploadedFile();
                 }
-                clearInput();
+                previewFilesRef.value = [];
+                node.input(inputValue());
                 clearCallback();
               },
             }),

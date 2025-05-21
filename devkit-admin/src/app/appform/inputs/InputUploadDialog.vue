@@ -45,15 +45,15 @@ const chooseFiles = (
 <template>
   <Suspense>
     <FileManager v-bind="props">
+      <template #actions> </template>
       <template #globalActions="{ store }">
         <AppBtn :action="() => chooseFiles(store)" label="choose" />
       </template>
 
       <template #card="{ data }">
-        {{ data.name }}
-
-        <AppBtn :action="() => chooseFile(data)" label="choose" />
         <AppImage :width="150" :src="data.name" />
+        {{ data.name }}
+        <AppBtn :action="() => chooseFile(data)" label="choose" />
       </template>
     </FileManager>
   </Suspense>

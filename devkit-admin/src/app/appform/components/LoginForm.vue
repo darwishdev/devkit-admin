@@ -1,5 +1,4 @@
 <script setup lang="ts" generic="TApi extends Record<string, Function>">
-import { apiClient } from "@/apiClient";
 import AppForm, { AppFormProps } from "@/app/appform";
 import {
   AuthLoginProviderRequest,
@@ -7,11 +6,10 @@ import {
   AuthLoginResponse,
 } from "@/pkg/types/api_types";
 import { AuthHandler } from "@/pkg/types/types";
-import { useQuery } from "@tanstack/vue-query";
 import { resolveApiEndpoint } from "devkit-apiclient";
 import { AppBtn } from "devkit-base-components";
 import { inject, onMounted } from "vue";
-import { useRoute } from "vue-router";
+
 const authHandler = inject<AuthHandler<TApi>>("authHandler");
 const apiClient = inject<TApi>("apiClient");
 const removeTimestamps = (key: string, value: any) => {
@@ -87,7 +85,6 @@ const loginFormProps: AppFormProps<
     },
   },
 };
-const route = useRoute();
 onMounted(() => {
   if (!authHandler) return;
   const hash = window.location.hash.substring(1); // remove the leading '#'
@@ -108,7 +105,7 @@ const providerLogin = async (provider: string) => {
   if (!authHandler?.providerLogin) return;
   const request: AuthLoginProviderRequest = {
     provider,
-    redirectUrl: "http://localhost:5173/provider-login",
+    redirectUrl: authHandler.redirectRoute || "/",
   };
   const { url } = await resolveApiEndpoint(
     authHandler.providerLogin,
@@ -117,7 +114,6 @@ const providerLogin = async (provider: string) => {
   );
 
   window.open(url, "_blank");
-  console.log("url is ", url);
 };
 </script>
 <template>

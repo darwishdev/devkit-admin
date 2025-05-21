@@ -13,11 +13,12 @@ export type CacheOptions = {
 	cacheTimeout?: number
 }
 
-
+export type FilePreview = { value: string; src: string }
 export type AuthHandler<TApi extends Record<string, Function>> = {
 	login: ApiEndpoint<TApi, AuthLoginRequest, AuthLoginResponse>
 	allowedProviders?: string[]
 	providerLogin?: ApiEndpoint<TApi, AuthLoginProviderRequest, AuthLoginProviderResponse>
+	redirectRoute?: string
 	providerLoginCallback?: ApiEndpoint<TApi, AuthLoginProviderCallbackRequest, AuthLoginResponse>
 	resetPasswordEmail?: ApiEndpoint<TApi, AuthResetPasswordEmailRequest, AuthResetPasswordEmailResponse>
 	resetPassword?: ApiEndpoint<TApi, AuthResetPasswordRequest, AuthResetPasswordResponse>
@@ -27,8 +28,8 @@ export type AuthHandler<TApi extends Record<string, Function>> = {
 export type FilesHandler<TApi extends Record<string, Function>> = {
 	bucketList: ApiEndpoint<TApi, BucketListRequest, BucketListResponse>
 	fileCreate: ApiEndpoint<TApi, FileCreateRequest, FileCreateResponse>
-  bulkRequestMapper?: (req : FileCreateBulkRequest) => FileCreateBulkRequest 
-  requestMapper?: (req : FileCreateRequest) => FileCreateRequest 
+	bulkRequestMapper?: (req: FileCreateBulkRequest) => FileCreateBulkRequest
+	requestMapper?: (req: FileCreateRequest) => FileCreateRequest
 	fileList: DatalistRecords<TApi, GalleryListRequest, FileObject, GalleryListRequest, GalleryListResponse>
 	fileBulkCreate?: ApiEndpoint<TApi, FileCreateBulkRequest, FileCreateResponse>
 	bucketCreateUpdate?: ApiEndpoint<TApi, BucketCreateUpdateRequest, BucketCreateUpdateResponse>

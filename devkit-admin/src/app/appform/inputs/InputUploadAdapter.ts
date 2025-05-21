@@ -1,13 +1,6 @@
 import { FileCreateBulkRequest, FileObject } from "@/pkg/types/api_types";
 
 export const createFileRequestFromFile = async (file: File, bucketName: string) => {
-      if (filesHandler) {
-        if (filesHandler.bulkRequestMapper) {
-          apiRequest.uploads = filesHandler.bulkRequestMapper(
-            formNode.props.uploads,
-          );
-        }
-      }
   const arrayBuffer = await file.arrayBuffer();
   return {
     path: `${file.name}`,
