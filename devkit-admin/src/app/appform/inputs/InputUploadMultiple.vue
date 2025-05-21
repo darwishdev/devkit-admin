@@ -38,8 +38,13 @@ const onSelectedFiles = async (event: FileUploadSelectEvent) => {
       return;
     }
   }
-  // const files = [...previewFilesRef.value, ...event.files];
-  // previewFilesRef.value = files;
+  console.log("changed");
+  event.files.forEach((f: File) => {
+    const name = `${bucketName}/${f.name}`;
+    previewFilesRef.value.push({ src: name, value: name });
+  });
+
+  console.log("changed", previewFilesRef.value);
   node.input(inputValue());
   if (node.parent) {
     if (node.parent.props.type == "form") {
@@ -63,23 +68,23 @@ const openGallery = () => {
   );
 };
 const removeSelectedFile = (file: FilePreview) => {
-  // const index = previewFilesRef.value.indexOf(file);
-  // if (index !== -1) {
-  //   previewFilesRef.value.splice(index, 1);
-  //   node.input(inputValue());
-  //   if (auto) {
-  //     removeUploadedFile(file);
-  //   }
-  // }
+  const index = previewFilesRef.value.indexOf(file);
+  if (index !== -1) {
+    previewFilesRef.value.splice(index, 1);
+    node.input(inputValue());
+    if (auto) {
+      removeUploadedFile(file);
+    }
+  }
 };
 
-const removeUploadedFile = async (file: FileObject) => {
-  // if (!filesHandler) return;
-  // if (!filesHandler.fileDeleteByBucket) return;
-  // await resolveApiEndpoint(filesHandler.fileDeleteByBucket, apiClient, {
-  //   bucketName: file.bucketName,
-  //   records: Array.isArray(file) ? file.map((f) => f.name) : [file.name],
-  // });
+const removeUploadedFile = async (file: FilePreview) => {
+  if (!filesHandler) return;
+  if (!filesHandler.fileDeleteByBucket) return;
+  await resolveApiEndpoint(filesHandler.fileDeleteByBucket, apiClient, {
+    bucketName: bucketName,
+    records: Array.isArray(file) ? file.map((f) => f.name) : [file.value],
+  });
 };
 const uploadMultipleFiles = async (request: FileCreateBulkRequest) => {
   if (!filesHandler) return;

@@ -70,14 +70,14 @@ const formSections: AppFormSections<PartialCreateUpdateRequest> = {
         bucketName: "images",
         outerClass: "col-12 sm:col-6 md:col-4",
         name: "partialImage",
-        auto: true,
+        auto: false,
         label: t("partialImage"),
         placeholder: t("partialImage"),
       },
       {
         $formkit: "devkitUpload",
         prefixIcon: "image",
-        auto: true,
+        auto: false,
 
         bucketName: "images",
         multiple: true,

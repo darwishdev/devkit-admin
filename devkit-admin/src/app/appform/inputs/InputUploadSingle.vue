@@ -116,7 +116,7 @@ const renderFileUpload = () => {
             class: "flex",
           },
           [
-            !previewFileRef.value
+            !previewFileRef.value.value
               ? undefined
               : h(
                   "div",
