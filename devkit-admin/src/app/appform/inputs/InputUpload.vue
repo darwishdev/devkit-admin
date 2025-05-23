@@ -161,9 +161,13 @@ const removeSelectedFile = (key: string) => {
 };
 const renderEmptySlot = () => h("h2", `drop files hear`);
 const renderHeaderSlot = ({
+  files = [],
+  uploadedFiles = [],
   chooseCallback,
   clearCallback,
 }: {
+  files: File[];
+  uploadedFiles: File[];
   chooseCallback: Function;
   clearCallback: Function;
 }) =>
@@ -181,6 +185,15 @@ const renderHeaderSlot = ({
         outlined: true,
         severity: "info",
         action: () => {
+          const limit = multiple ? fileLimit : 1;
+          console.log("limit is", limit);
+          if (limit) {
+            console.log("limit is", files, "uppp", uploadedFiles);
+            if (limit < files.length + uploadedFiles.length) {
+              handleFileLimitExceeded();
+            }
+          }
+
           chooseCallback();
         },
       }),
@@ -266,11 +279,12 @@ const renderInputUpload = () => {
       ...context,
       url: "http://localhost:9090/upload",
       onSelect: onSlectedFilesEvent,
+      fileLimit: multiple ? fileLimit : 1,
       onUploader: uploader,
     },
     {
       empty: renderEmptySlot,
-      content: renderContentSlot,
+      // content: renderContentSlot,
       header: renderHeaderSlot,
     },
   );
