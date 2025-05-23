@@ -19,7 +19,7 @@ const callCreate = () => {
     partialId: 1,
     sectionId: 1,
     uploads: {
-      files: [{}],
+      // files: [{}],
     },
     partialTypeId: 1,
     partialName: "new",
@@ -70,7 +70,7 @@ const formSections: AppFormSections<PartialCreateUpdateRequest> = {
         bucketName: "images",
         outerClass: "col-12 sm:col-6 md:col-4",
         name: "partialImage",
-        auto: false,
+        auto: true,
         label: t("partialImage"),
         placeholder: t("partialImage"),
       },

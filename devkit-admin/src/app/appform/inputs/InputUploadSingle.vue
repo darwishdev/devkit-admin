@@ -26,12 +26,18 @@ const fileUploadElementRef = ref();
 // When files are selected
 const emitInput = (preview: FilePreview) => {
   previewFileRef.value = preview;
-  node.input(preview.value.value);
+  node.input(preview.value);
+};
+const filePreviewFromFile = (file: File): FilePreview => {
+  return {
+    src: URL.createObjectURL(file),
+    value: file.name,
+  };
 };
 const onSelectedFiles = async (event: FileUploadSelectEvent) => {
   if (!event.files.length || auto) return;
   const [file] = event.files;
-  emitInput({ src: URL.createObjectURL(file), value: file });
+  emitInput(filePreviewFromFile(file));
   if (node.parent) {
     if (node.parent.props.type == "form") {
       const request = await createFileBulkRequestFromFiles(

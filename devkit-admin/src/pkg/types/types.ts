@@ -31,6 +31,7 @@ export type FilesHandler<TApi extends Record<string, Function>> = {
 	bulkRequestMapper?: (req: FileCreateBulkRequest) => FileCreateBulkRequest
 	requestMapper?: (req: FileCreateRequest) => FileCreateRequest
 	fileList: DatalistRecords<TApi, GalleryListRequest, FileObject, GalleryListRequest, GalleryListResponse>
+	defauleBucketName?: string
 	fileBulkCreate?: ApiEndpoint<TApi, FileCreateBulkRequest, FileCreateResponse>
 	bucketCreateUpdate?: ApiEndpoint<TApi, BucketCreateUpdateRequest, BucketCreateUpdateResponse>
 	fileDelete?: ApiEndpoint<TApi, DeleteRequest<'records', string, 'bulk'>, any>
