@@ -8,7 +8,7 @@ import {
 import { AuthHandler } from "@/pkg/types/types";
 import { resolveApiEndpoint } from "devkit-apiclient";
 import { AppBtn } from "devkit-base-components";
-import { inject, onMounted } from "vue";
+import { inject, onMounted, provide } from "vue";
 
 const authHandler = inject<AuthHandler<TApi>>("authHandler");
 const apiClient = inject<TApi>("apiClient");
@@ -72,7 +72,7 @@ const loginFormProps: AppFormProps<
             label: "userName",
           },
           {
-            $formkit: "text",
+            $formkit: "password",
             prefixIcon: "tools",
             outerClass: "col-12 sm:col-6 md:col-5",
             name: "userPassword",
@@ -117,16 +117,19 @@ const providerLogin = async (provider: string) => {
 };
 </script>
 <template>
-  <h2>hello authHandler {{ authHandler }}</h2>
   <Message v-if="!authHandler" severity="error">{{
     $t("provide auth handler")
   }}</Message>
-  <AppForm :context="loginFormProps.context" />
-  <AppBtn
-    icon="google"
-    label="login by google"
-    :action="() => providerLogin('google')"
-  />
+  <div class="form" v-else>
+    <AppForm :context="loginFormProps.context" />
+    <AppBtn
+      v-for="provider in authHandler.allowedProviders"
+      class="glass"
+      :key="provider"
+      :icon="provider"
+      :action="() => providerLogin(provider)"
+    />
+  </div>
   <!-- <AppForm :context="formProps.context" /> -->
   <!-- <FileManager /> -->
 </template>

@@ -188,7 +188,6 @@ const tableProps: DatalistProps<
           $formkit: "devkitDropdown",
           prefixIcon: "list-ordered",
           multiple: true,
-          useButtons: true,
           options: "partialTypeListInput",
           optionValue: "value",
           optionLabel: "label",

@@ -27,6 +27,7 @@ export type AuthHandler<TApi extends Record<string, Function>> = {
 
 export type FilesHandler<TApi extends Record<string, Function>> = {
 	bucketList: ApiEndpoint<TApi, BucketListRequest, BucketListResponse>
+	uploadUrl: string,
 	fileCreate: ApiEndpoint<TApi, FileCreateRequest, FileCreateResponse>
 	bulkRequestMapper?: (req: FileCreateBulkRequest) => FileCreateBulkRequest
 	requestMapper?: (req: FileCreateRequest) => FileCreateRequest

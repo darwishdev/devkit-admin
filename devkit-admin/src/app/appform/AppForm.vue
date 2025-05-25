@@ -47,6 +47,9 @@ const props =
   >();
 const { submitHandler, options, formKey, invalidateCaches } = props.context;
 const formStore = useAppFormStoreWithProps(props);
+const emit = defineEmits<{
+  (e: "input", req: TFormRequest): void;
+}>();
 const { t } = useI18n();
 const mutationFn = (req: TApiRequest) =>
   new Promise<TApiResponse>((resolve, reject) => {
@@ -235,21 +238,32 @@ const renderAppForm = () => {
       type: "form",
       id: props.context.formKey,
       name: formKey,
-      onInput:
-        props.context.invalidateCachesOnChage ||
-        (props.context.syncWithUrl && !props.context.isLazy)
-          ? (req: StringUnkownRecord) => {
-              if (props.context.syncWithUrl) {
-                formStore.debouncedRouteQueryAppend(req);
-              }
-              if (props.context.invalidateCachesOnChage) {
-                queryClient.invalidateQueries({
-                  queryKey: props.context.invalidateCachesOnChage,
-                });
-              }
-              console.log("form updated");
-            }
-          : undefined,
+      onInput: (req: TFormRequest) => {
+        if (props.context.syncWithUrl) {
+          formStore.debouncedRouteQueryAppend(req);
+        }
+        if (props.context.invalidateCachesOnChage) {
+          queryClient.invalidateQueries({
+            queryKey: props.context.invalidateCachesOnChage,
+          });
+        }
+        emit("input", req);
+        console.log("form updated");
+      },
+      // props.context.invalidateCachesOnChage ||
+      // (props.context.syncWithUrl && !props.context.isLazy)
+      //   ? (req: StringUnkownRecord) => {
+      //       if (props.context.syncWithUrl) {
+      //         formStore.debouncedRouteQueryAppend(req);
+      //       }
+      //       if (props.context.invalidateCachesOnChage) {
+      //         queryClient.invalidateQueries({
+      //           queryKey: props.context.invalidateCachesOnChage,
+      //         });
+      //       }
+      //       console.log("form updated");
+      //     }
+      //   : undefined,
       actions: false,
       findHandler: props.context.findHandler,
       syncWithUrl: props.context.syncWithUrl,

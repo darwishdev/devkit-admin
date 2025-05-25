@@ -42,9 +42,10 @@ const adminConfig: DevkitAdminConfig<typeof apiClient> = {
 	filesHandler: {
 		fileList: 'galleryList',
 		fileDelete: 'fileDelete',
+		uploadUrl: `${import.meta.env.VITE_API_URL}/upload`,
 		bucketList: 'bucketList',
-    bulkRequestMapper: (req) => create(FileCreateBulkRequestSchema , req),
-    requestMapper: (req) => create(FileCreateRequestSchema , req),
+		bulkRequestMapper: (req) => create(FileCreateBulkRequestSchema, req),
+		requestMapper: (req) => create(FileCreateRequestSchema, req),
 		fileBulkCreate: 'fileCreateBulk',
 		fileDeleteByBucket: 'fileDeleteByBucket',
 		bucketCreateUpdate: 'bucketCreateUpdate',

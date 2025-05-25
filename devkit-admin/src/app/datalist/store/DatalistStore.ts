@@ -23,13 +23,14 @@ export const useDatalistStore = <
 	TApiResponse extends StringUnkownRecord | undefined = undefined,
 	TFormSectionsRequest extends StringUnkownRecord | undefined = undefined>
 	({ context }: DatalistProps<TApi, TReq, TRecord, TFiltersReq, TApiResponse, TFormSectionsRequest>) => defineStore(`datalist-${context.datalistKey}` as string, () => {
-		const filtersFormSchema: FormKitSchemaNode[] = []
+		const filtersFormSchema: (FormKitSchemaNode & { name: any })[] = []
 		const filtersMatchModesMap: Map<string, FilterMatchModeValues> = new Map()
 		const isShowDeletedRef = ref(false)
 		const modelSelectionRef = ref<TRecord[]>(context.initiallySelectedItems || [])
 		const contextOptions: ApiListOptions = { title: context.datalistKey, ...context.options }
 		let initialCallbackFinished = false
 		const toast = useToast()
+		const filtersFormValueRef = ref({})
 		const dialogRef = inject('dialogRef')
 		const apiClient = inject<TApi>('apiClient')
 		const debounceInMilliseconds = context.debounceInMilliseconds || 1000
@@ -42,6 +43,21 @@ export const useDatalistStore = <
 		const errorRef = ref('')
 		const filtersFormKey = `${context.datalistKey}-filter-form`
 		const { datalistKey, rowIdentifier, isServerSide } = context
+		const filtersValueFromReq = (req: StringUnkownRecord) => {
+			const datalistFiltersModel: DatalistFiltersModel = {}
+			if (context.isServerSide) return datalistFiltersModel
+			let globalValue = ''
+			for (const [filterName, filterValue] of Object.entries(req)) {
+				if (filterName == 'global') {
+					globalValue = filterValue as string
+					datalistFiltersModel[filterName] = { value: filterValue || null, matchMode: 'contains' }
+					continue
+				}
+				datalistFiltersModel[filterName] = { value: filterValue || null, matchMode: filtersMatchModesMap.get(filterName) }
+			}
+
+			return datalistFiltersModel
+		}
 		const filtersFormProps: AppFormProps<TApi, Record<string, unknown>, Record<string, unknown>> = {
 			context: {
 				title: filtersFormKey,
@@ -52,11 +68,12 @@ export const useDatalistStore = <
 				invalidateCaches: isServerSide ? [datalistKey] : undefined,
 				useReset: true,
 				isLazy: context.isLazyFilters,
-				sections: {},
 				formKey: filtersFormKey,
+				sections: {},
 				submitHandler: {
 					hideActions: !context.isLazyFilters,
 					endpoint: async (req: StringUnkownRecord) => {
+						filtersFormValueRef.value = filtersValueFromReq(req)
 						return req
 					}
 				},
@@ -348,6 +365,7 @@ export const useDatalistStore = <
 			//state
 			filtersFormSchema,
 			datatableColumnsRef,
+			filtersValueFromReq,
 			filterFormValue,
 			currenData,
 			globalFilters,
@@ -362,6 +380,7 @@ export const useDatalistStore = <
 			isShowDeletedRef,
 			debouncedRefetch,
 			permittedActions,
+			filtersFormValueRef,
 			optionsInUse,
 			deleteRestoreVariants,
 			filtersFormKey,

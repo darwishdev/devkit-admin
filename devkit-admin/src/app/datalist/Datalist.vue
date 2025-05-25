@@ -190,7 +190,7 @@ const renderActionsColumn = (data: TRecord): VNode | VNode[] => {
     :value="datalistStore.currenData"
     :max-height="200"
     :globalFilterFields="datalistStore.globalFilters"
-    :filters="datalistStore.filterFormValue"
+    :filters="datalistStore.filtersFormValueRef"
     v-model:selection="datalistStore.modelSelectionRef"
     paginator
     paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
