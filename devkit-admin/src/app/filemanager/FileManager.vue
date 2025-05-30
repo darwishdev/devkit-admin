@@ -1,5 +1,6 @@
 <script setup lang="ts" generic="TApi extends Record<string, Function>">
 import { ref, inject, computed, VNode } from "vue";
+import { AppImage } from "devkit-base-components";
 import Datalist, {
   DatalistStore,
   useDatalistStoreWithProps,
@@ -169,10 +170,7 @@ const createSubmitted = (value: StringUnkownRecord) => {
       @change="handleFileChange"
       style="display: none"
     />
-    <Datalist
-      :context="datalistProps.context"
-      @create:submited="createSubmitted"
-    >
+    <Datalist v-bind="datalistProps" @create:submited="createSubmitted">
       <template #card="{ data }">
         <slot name="card" :data="data">
           <AppImage :src="data.name" class="w-150" />

@@ -61,6 +61,18 @@ const mutationFn = (req: TApiRequest) =>
         reject(error);
       });
   });
+const runAllUploadsBeforeSubmit = async (formNode: FormKitNode) => {
+  const uploadTasks: Promise<unknown>[] = [];
+
+  formNode.walk((child) => {
+    const prepare = child.context?._uppyPrepareUpload;
+    if (typeof prepare === "function") {
+      uploadTasks.push(prepare());
+    }
+  });
+
+  await Promise.all(uploadTasks);
+};
 const submitMutation = useMutation({
   mutationFn: mutationFn,
   onSuccess: () => {
@@ -135,7 +147,7 @@ const handleError = (node: FormKitNode, error: any) => {
   }
 };
 
-const formSubmitHandler = (req: TFormRequest, formNode: FormKitNode) => {
+const formSubmitHandler = async (req: TFormRequest, formNode: FormKitNode) => {
   console.log("submit handler is here", req);
   console.log("submit handler is here", req);
   console.log("submit handler is here", req);
@@ -144,56 +156,12 @@ const formSubmitHandler = (req: TFormRequest, formNode: FormKitNode) => {
     formStore.debouncedRouteQueryAppend(req);
   }
 
+  await runAllUploadsBeforeSubmit(formNode);
   const handler = props.context.submitHandler;
 
   const apiRequest = handler.mapFunction
     ? handler.mapFunction(req)
     : (req as StringUnkownRecord);
-  if (formNode.props.uploads) {
-    if (filesHandler) {
-      if (filesHandler.bulkRequestMapper) {
-        apiRequest.uploads = filesHandler.bulkRequestMapper(
-          formNode.props.uploads,
-        );
-      }
-    }
-  }
-  //   return new Promise((resolve) => {
-  //     submitMutation
-  //       .mutateAsync(apiRequest as TApiRequest)
-  //       .then((response: TApiResponse) => {
-  //         const defaultSummary = "api_success_summary";
-  //         const defaultContent = "api_success_detail";
-  //         if (props.context.resetOnSuccess) formNode.reset();
-
-  //         if (options) {
-  //           if (!options.isSuccessNotificationHidden) {
-  //             const summary = options.successMessageSummary ?? defaultSummary;
-  //             const detail = options.successMessageDetail ?? defaultContent;
-  //             toast.add({
-  //               severity: "success",
-  //               summary: t(summary),
-  //               detail: t(detail),
-  //               life: 3000,
-  //             });
-  //           }
-  //         }
-  //         if (submitHandler.callback) {
-  //           submitHandler.callback(response);
-  //         }
-  //         if (dialogRef) {
-  //           dialogRef.value.close();
-  //         }
-  //         resolve(null);
-  //       })
-  //       .catch((e: Error) => {
-  //         console.log("error from the sbmithandler", e);
-  //         handleError(formNode, e);
-  //         resolve(null);
-  //       });
-  //     return;
-  //   });
-  // }
 
   return new Promise((resolve) => {
     submitMutation

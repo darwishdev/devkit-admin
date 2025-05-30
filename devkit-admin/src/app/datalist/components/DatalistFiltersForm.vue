@@ -19,7 +19,9 @@ import { StringUnkownRecord } from "devkit-apiclient";
 
 const props = defineProps<{ datalistKey: string }>();
 const datalistStore = useDatalistStoreWithKey(props.datalistKey);
-const formkCtx = useFormKitContextById(`files-filter-form`);
+const formkCtx = useFormKitContextById(
+  datalistStore.filtersFormProps.context.formKey,
+);
 const pannelPassThrough = {
   root: "transparent",
   header: "relative glass",
@@ -31,8 +33,8 @@ const pannelPassThrough = {
   <Panel toggleable :pt="pannelPassThrough">
     <template #header>
       <div v-if="formkCtx" class="filters-header flex gap-4">
-        <strong>Filters</strong>
-        <div v-for="[key, value] in objectEntries(formkCtx.value)" :key="key">
+        <strong>Filters </strong>
+        <div v-for="[key, value] in objectEntries(formkCtx._value)" :key="key">
           <Chip
             v-if="value"
             removable

@@ -1,6 +1,6 @@
 
 import type { FormKitSchemaNode } from '@formkit/core'
-import type { AuthLoginProviderCallbackRequest, AuthLoginProviderRequest, AuthLoginProviderResponse, AuthLoginRequest, AuthLoginResponse, AuthResetPasswordEmailRequest, AuthResetPasswordEmailResponse, AuthResetPasswordRequest, AuthResetPasswordResponse, BucketCreateUpdateRequest, BucketListRequest, BucketListResponse, DeleteRequest, FileCreateBulkRequest, FileCreateRequest, FileCreateResponse, FileListRequest, FileListResponse, FileObject, GalleryListRequest, GalleryListResponse, IconFindRequest, IconFindResponse } from './api_types'
+import type { AuthLoginProviderCallbackRequest, AuthLoginProviderRequest, AuthLoginProviderResponse, AuthLoginRequest, AuthLoginResponse, AuthResetPasswordEmailRequest, AuthResetPasswordEmailResponse, AuthResetPasswordRequest, AuthResetPasswordResponse, BucketCreateUpdateRequest, BucketListRequest, BucketListResponse, DeleteRequest, FileCreateBulkRequest, FileCreateRequest, FileCreateResponse, FileListRequest, FileListResponse, FileObject, FileUploadUrlFindRequest, FileUploadUrlFindResponse, GalleryListRequest, GalleryListResponse, IconFindRequest, IconFindResponse } from './api_types'
 import type { RouteLocationRaw } from 'vue-router'
 import { ApiEndpoint } from 'devkit-apiclient'
 import { BucketCreateUpdateResponse } from '@buf/ahmeddarwish_devkit-api.bufbuild_es/devkit/v1/public_storage_pb'
@@ -27,7 +27,9 @@ export type AuthHandler<TApi extends Record<string, Function>> = {
 
 export type FilesHandler<TApi extends Record<string, Function>> = {
 	bucketList: ApiEndpoint<TApi, BucketListRequest, BucketListResponse>
+	fileUploadUrlFind: ApiEndpoint<TApi, FileUploadUrlFindRequest, FileUploadUrlFindResponse>,
 	uploadUrl: string,
+	uploadTokenGetter: () => string
 	fileCreate: ApiEndpoint<TApi, FileCreateRequest, FileCreateResponse>
 	bulkRequestMapper?: (req: FileCreateBulkRequest) => FileCreateBulkRequest
 	requestMapper?: (req: FileCreateRequest) => FileCreateRequest
@@ -42,6 +44,7 @@ export type FilesHandler<TApi extends Record<string, Function>> = {
 }
 export type DevkitAdminConfig<TApi extends Record<string, Function>> = {
 	apiClient: TApi
+	baseFilesUrl: string,
 	useDialog?: typeof useDialog,
 	locales: string[]
 	iconFindApi?: ApiEndpoint<TApi, IconFindRequest, IconFindResponse>

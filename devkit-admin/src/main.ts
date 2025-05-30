@@ -26,9 +26,13 @@ const pinia = createPinia()
 const app = createApp(App)
 app.use(router)
 
+const baseStorage = import.meta.env.VITE_BASE_STORAGE;
+const baseImage = import.meta.env.VITE_BASE_IMAGE_URL;
 const adminConfig: DevkitAdminConfig<typeof apiClient> = {
 	apiClient,
 	locales: ['en', 'ar'],
+
+	baseFilesUrl: baseImage,
 	iconFindApi: 'iconFind',
 	useDialog,
 	authHandler: {
@@ -42,10 +46,10 @@ const adminConfig: DevkitAdminConfig<typeof apiClient> = {
 	filesHandler: {
 		fileList: 'galleryList',
 		fileDelete: 'fileDelete',
-		uploadUrl: `${import.meta.env.VITE_API_URL}/upload`,
+		uploadUrl: `${baseStorage}/upload/resumable`,
+		uploadTokenGetter: () => localStorage.getItem('supabase_token') as string,
+		fileUploadUrlFind: 'fileUploadUrlFind',
 		bucketList: 'bucketList',
-		bulkRequestMapper: (req) => create(FileCreateBulkRequestSchema, req),
-		requestMapper: (req) => create(FileCreateRequestSchema, req),
 		fileBulkCreate: 'fileCreateBulk',
 		fileDeleteByBucket: 'fileDeleteByBucket',
 		bucketCreateUpdate: 'bucketCreateUpdate',
@@ -84,7 +88,6 @@ const i18n = createI18n({
 		}
 	}
 })
-const baseImage = import.meta.env.VITE_BASE_IMAGE_URL;
 const baseConfig: DevkitBaseConfig<typeof apiClient> = {
 	apiClient,
 	locales: ['en', 'ar'],

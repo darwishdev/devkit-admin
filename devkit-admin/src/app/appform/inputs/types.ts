@@ -61,7 +61,7 @@ export type DatepickerContext<TApi extends Record<string, Function>, TDisabledDa
 export type InputDatepickerProps<TApi extends Record<string, Function>, TReq extends Record<string, unknown> = {}, TResp extends Record<string, unknown> = {}> = {
 	context: DatepickerContext<TApi, TReq, TResp>
 }
-export type InputUploadContext = FormKitInputContext<string> & FileUploadProps & {
+export type InputUploadContext = FormKitInputContext<string | string[]> & FileUploadProps & {
 	bucketName: string,
 	filesHandler?: FilesHandler<any>
 }

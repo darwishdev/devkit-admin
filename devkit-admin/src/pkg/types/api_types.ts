@@ -161,6 +161,16 @@ export type BucketListRequest = {
 export type BucketListResponse = {
 	buckets: StorageBucket[]
 }
+
+export type FileUploadUrlFindRequest = {
+	bucketName: string,
+	fileName: string,
+	contentType: string,
+}
+
+export type FileUploadUrlFindResponse = {
+	uploadUrl: string
+}
 export type BucketCreateUpdateRequest = {
 	bucketName: string;
 	isPulic: boolean;

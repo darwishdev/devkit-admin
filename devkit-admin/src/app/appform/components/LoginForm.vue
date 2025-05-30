@@ -8,7 +8,7 @@ import {
 import { AuthHandler } from "@/pkg/types/types";
 import { resolveApiEndpoint } from "devkit-apiclient";
 import { AppBtn } from "devkit-base-components";
-import { inject, onMounted, provide } from "vue";
+import { inject, onMounted } from "vue";
 
 const authHandler = inject<AuthHandler<TApi>>("authHandler");
 const apiClient = inject<TApi>("apiClient");

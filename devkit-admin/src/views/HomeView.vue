@@ -14,6 +14,30 @@ import {
   type PartialListRequest,
   type TenantsSchemaPartial,
 } from "@buf/ahmeddarwish_devkit-api.community_timostamm-protobuf-ts/devkit/v1/tenant_partial_pb";
+import LoginForm from "@/app/appform/components/LoginForm.vue";
+import FileManager from "@/app/filemanager/FileManager.vue";
+import { AppBtn } from "devkit-base-components";
+const login = () => {
+  apiClient
+    .authLogin({
+      userPassword: "123456",
+      loginCode: "heba@abchotels-eg.com",
+    })
+    .then((r) => {
+      console.log(r);
+    });
+};
+
+const logout = () => {
+  apiClient.authLogout({}).then((r) => {
+    console.log(r);
+  });
+};
+const refresh = () => {
+  apiClient.authRefreshToken({}).then((r) => {
+    console.log(r);
+  });
+};
 const callCreate = () => {
   const reqss: Partial<PartialCreateUpdateRequest> = {
     partialId: 1,
@@ -67,10 +91,10 @@ const formSections: AppFormSections<PartialCreateUpdateRequest> = {
       },
       {
         $formkit: "devkitUpload",
-        bucketName: "images",
+        bucketName: "abchotels",
         outerClass: "col-12 sm:col-6 md:col-4",
         name: "partialImage",
-        auto: true,
+        auto: false,
         label: t("partialImage"),
         placeholder: t("partialImage"),
       },
@@ -79,7 +103,7 @@ const formSections: AppFormSections<PartialCreateUpdateRequest> = {
         prefixIcon: "image",
         auto: false,
         fileLimit: 3,
-        bucketName: "images",
+        bucketName: "abchotels",
         multiple: true,
         outerClass: "col-12 sm:col-6 md:col-4",
         name: "partialImages",
@@ -210,22 +234,10 @@ const tableProps: DatalistProps<
 </script>
 
 <template>
-  <h1 @click="callCreate">create</h1>
-  <Datalist :context="tableProps.context" />
+  <!-- <Datalist :context="tableProps.context" /> -->
+  <FileManager />
+  <AppBtn :action="login" label="re" />
+  <!-- <AppBtn :action="refresh" label="lo" /> -->
+  <!-- <AppBtn :action="refresh" label="loo" /> -->
+  <!-- <LoginForm /> -->
 </template>
-<style>
-.p-datatable img {
-  max-width: 200px !important;
-}
-
-.p-datatable-header .d-flex {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: var(--gap);
-}
-
-.global-actions {
-  display: flex;
-  gap: var(--gap);
-}
-</style>

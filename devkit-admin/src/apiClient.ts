@@ -32,6 +32,12 @@ const interceptor: Interceptor = (next) => async (req) => {
 }
 const transport = createConnectTransport({
 	baseUrl: import.meta.env.VITE_API_URL,
+	fetch: (input, init) => {
+		return fetch(input, {
+			...init,
+			credentials: "include", // 👈 inject credentials here
+		});
+	},
 	interceptors: [interceptor],
 	useHttpGet: true,
 });

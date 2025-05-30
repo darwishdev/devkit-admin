@@ -1,7 +1,13 @@
 <script lang="ts" setup generic="TApi extends Record<string, Function>">
 import { InputUploadProps } from "./types";
-import { h, inject, onMounted, ref } from "vue";
-import { Badge, FileUpload, useDialog, useToast } from "primevue";
+import { computed, h, inject, onMounted, ref, watch, watchEffect } from "vue";
+import {
+  Badge,
+  FileUpload,
+  FileUploadSelectEvent,
+  useDialog,
+  useToast,
+} from "primevue";
 import { FilesHandler } from "@/pkg/types/types";
 import { ObjectKeys } from "devkit-apiclient";
 import InputUploadDialog from "./InputUploadDialog.vue";
@@ -33,23 +39,6 @@ const onSlectedFilesEvent = async (event: FileUploadSelectEvent) => {
     node.parent.props.uploads = request;
   }
 };
-onMounted(() => {
-  console.log("node value", node.value);
-  setTimeout(() => {
-    console.log("node value", node.value);
-    if (node.value) {
-      if (Array.isArray(node.value)) {
-        node.value.forEach((v: string) => {
-          if (v) {
-            previewFilesRef.value[v] = `${v}`;
-          }
-        });
-      } else {
-        previewFilesRef.value[node.value] = node.value;
-      }
-    }
-  }, 1000);
-});
 const emitValue = () => {
   const allFiles: string[] = [];
   console.log("allfiles");
@@ -97,6 +86,32 @@ const reflectValues = ({
   const fileName = `${bucket}${name}`;
   previewFilesRef.value[fileName] = src || fileName;
 };
+
+onMounted(() => {
+  // In case context._value is already available on mount
+  handleValueChange(context._value);
+});
+
+// Watch for changes to context._value
+watch(
+  () => context._value,
+  (newValue) => {
+    handleValueChange(newValue);
+  },
+);
+function handleValueChange(value: any) {
+  if (!value || ObjectKeys(previewFilesRef.value).length) return;
+
+  if (Array.isArray(value)) {
+    value.forEach((v: string) => {
+      if (v) {
+        previewFilesRef.value[v] = `${v}`;
+      }
+    });
+  } else {
+    previewFilesRef.value[value] = value;
+  }
+}
 const openGallery = (filesLength: number, uploadedFilesLength: number) => {
   dialog.open(
     h(InputUploadDialog, {
@@ -250,6 +265,65 @@ const renderHeaderSlot = ({
         ),
       ],
     ),
+    // h(
+    //   "div",
+    //   {
+    //     class: "flex",
+    //   },
+    //   [
+    //     Array.isArray(context._value)
+    //       ? context._value.map((key) =>
+    //           h(
+    //             "div",
+    //             {
+    //               class: "p-fileupload-file",
+    //             },
+    //             [
+    //               h(AppImage, {
+    //                 width: "50",
+    //                 src: key,
+    //               }),
+    //               h(
+    //                 "div",
+    //                 {
+    //                   class: "p-fileupload-file-info",
+    //                   "data-pc-section": "fileinfo",
+    //                 },
+    //                 [
+    //                   h(
+    //                     "div",
+    //                     {
+    //                       class: "p-fileupload-file-name",
+    //                       "data-pc-section": "filename",
+    //                     },
+    //                     key,
+    //                   ),
+    //                 ],
+    //               ),
+    //               h(Badge, { severity: "success" }, "Completed"),
+    //               h(
+    //                 "div",
+    //                 {
+    //                   class: "p-fileupload-file-actions",
+    //                   "data-pc-section": "fileactions",
+    //                 },
+    //                 [
+    //                   h(AppBtn, {
+    //                     icon: "close_red",
+    //                     iconOnly: true,
+    //                     variant: "text",
+    //                     action: () => {
+    //                       removeSelectedFile(key);
+    //                     },
+    //                   }),
+    //                 ],
+    //               ),
+    //             ],
+    //           ),
+    //         )
+    //       : h("div", "hi"),
+    //   ],
+    // ),
   ]);
 const fileUploadElementRef = ref();
 const renderInputUpload = () => {

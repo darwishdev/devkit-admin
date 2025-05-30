@@ -33,3 +33,21 @@ export const fileObjectFromFiles = (files: File[], bucketName: string): FileObje
   return files.map((file) => fileObjectFromFile(file, bucketName))
 };
 
+export const fileFromFileObject = async (baseUrl: string, fileObj: FileObject): Promise<File | null> => {
+  try {
+    const fileUrl = `${baseUrl}/${fileObj.name}`;
+    const response = await fetch(fileUrl);
+    if (!response.ok) {
+      console.error("Failed to fetch file from Supabase:", response.statusText);
+      return null;
+    }
+
+    const blob = await response.blob();
+    const contentType = blob.type || "application/octet-stream";
+
+    return new File([blob], fileObj.name, { type: contentType });
+  } catch (error) {
+    console.error("Error converting FileObject to File:", error);
+    return null;
+  }
+};

@@ -332,7 +332,8 @@ export const useDatalistStore = <
 
 		})
 		const isFiltersFormValid = computed(() => {
-			return filtersFormSchema.length > 0 ? filtersFormStore?.formElementContext?.state?.valid || false : true
+			console.log("chec", filtersFormStore?.formElementContext?.state?.valid || false)
+			return filtersFormSchema.length > 0 ? filtersFormStore?.formElementContext?.state?.valid || false : false
 		})
 
 		const datalistQueryResult = useQuery<ApiResponseList<TRecord>, Error>({
