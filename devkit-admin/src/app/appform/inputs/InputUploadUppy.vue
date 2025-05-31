@@ -1,27 +1,23 @@
 <template>
   <div id="app">
     <AppBtn label="choose from gallery" :action="openGallery" />
-    <Dashboard
-      :uppy="uppy"
-      :props="{
-        metaFields: [
-          { id: 'name', name: 'Name', placeholder: 'file name' },
-          { id: 'objectName', name: 'objectName', placeholder: 'objectName' },
-          {
-            id: 'contentType',
-            name: 'contentType',
-            placeholder: 'contentType',
-          },
-          { id: 'bucketName', name: 'bucketName', placeholder: 'bucketName' },
-          {
-            id: 'caption',
-            name: 'Caption',
-            placeholder: 'describe what the image is about',
-          },
-        ],
-      }"
-      :plugins="['Webcam', 'ImageEditor']"
-    />
+    <Dashboard :uppy="uppy" :props="{
+      metaFields: [
+        { id: 'name', name: 'Name', placeholder: 'file name' },
+        { id: 'objectName', name: 'objectName', placeholder: 'objectName' },
+        {
+          id: 'contentType',
+          name: 'contentType',
+          placeholder: 'contentType',
+        },
+        { id: 'bucketName', name: 'bucketName', placeholder: 'bucketName' },
+        {
+          id: 'caption',
+          name: 'Caption',
+          placeholder: 'describe what the image is about',
+        },
+      ],
+    }" :plugins="['Webcam', 'ImageEditor']" />
   </div>
 </template>
 
@@ -40,17 +36,19 @@ import "@uppy/webcam/dist/style.css";
 import "@uppy/image-editor/dist/style.css";
 import { InputUploadProps } from "./types";
 import { FilesHandler } from "@/pkg/types/types";
-import { StringUnkownRecord } from "devkit-apiclient";
 import InputUploadDialog from "./InputUploadDialog.vue";
 import { useDialog } from "primevue";
 import { AppBtn } from "devkit-base-components";
-import { fileFromFileObject } from "./InputUploadAdapter";
+import { resolveApiEndpoint } from "devkit-apiclient";
+import { FileUploadUrlFindResponse } from "@/pkg/types/api_types";
 
 const { context } = defineProps<InputUploadProps>();
 // Retrieve token from local storage or another auth source
-const token = localStorage.getItem("supabase_token") || "";
 const filesHandler = inject<FilesHandler<TApi>>("filesHandler");
-
+const apiClient = inject<TApi>("apiClient");
+const urlFindResponse: FileUploadUrlFindResponse | undefined = !filesHandler
+  ? undefined
+  : await resolveApiEndpoint(filesHandler?.fileUploadUrlFind, apiClient);
 const {
   multiple = false,
   fileLimit,
@@ -63,73 +61,73 @@ const {
 const dialog = useDialog();
 
 onMounted(async () => {
-  setTimeout(async () => {
-    if (!node || !node._value) return;
-    const initialFiles = Array.isArray(node._value)
-      ? node._value
-      : [node._value];
-
-    for (const path of initialFiles) {
-      const [bucket, ...rest] = path.split("/");
-      const fileName = rest.join("/");
-
-      const fileBlob = await fileFromFileObject(
-        filesHandler!.uploadUrl.replace(
-          "/upload/resumable",
-          "object/public/abchotels",
-        ),
-        {
-          name: fileName,
-          bucketId: bucket,
-          owner: "",
-          id: "",
-          createdAt: "",
-          updatedAt: "",
-          lastAccessedAt: "",
-        },
-      );
-
-      if (!fileBlob) continue;
-
-      try {
-        const fileId = uppy.addFile({
-          name: fileName,
-          type: fileBlob.type,
-          data: fileBlob,
-          source: "initial",
-          isRemote: false,
-          meta: {
-            bucketName: bucket,
-            objectName: fileName,
-            contentType: fileBlob.type,
-          },
-        });
-
-        uppy.setFileState(fileId, {
-          progress: {
-            uploadStarted: Date.now(),
-            uploadComplete: true,
-            percentage: 100,
-            bytesUploaded: fileBlob.size,
-            bytesTotal: fileBlob.size,
-          },
-          uploadURL: `${filesHandler?.uploadUrl.replace("/upload/resumable", "public/v1")}/${fileName}`,
-          response: {
-            status: 200,
-            body: {},
-            uploadURL: `${filesHandler?.uploadUrl.replace("/upload/resumable", "public/v1")}/${fileName}`,
-          },
-          isPaused: false,
-        });
-
-        uppy.emit("upload-success", uppy.getFile(fileId), {
-          uploadURL: `${filesHandler?.uploadUrl.replace("/upload/resumable", "public/v1")}/${fileName}`,
-        });
-      } catch (err) {
-        console.error("Error injecting initial file:", err);
-      }
-    }
-  }, 1000);
+  //  setTimeout(async () => {
+  //    if (!node || !node._value) return;
+  //    const initialFiles = Array.isArray(node._value)
+  //      ? node._value
+  //      : [node._value];
+  //
+  //    for (const path of initialFiles) {
+  //      const [bucket, ...rest] = path.split("/");
+  //      const fileName = rest.join("/");
+  //
+  //      const fileBlob = await fileFromFileObject(
+  //        filesHandler!.uploadUrl.replace(
+  //          "/upload/resumable",
+  //          "object/public/abchotels",
+  //        ),
+  //        {
+  //          name: fileName,
+  //          bucketId: bucket,
+  //          owner: "",
+  //          id: "",
+  //          createdAt: "",
+  //          updatedAt: "",
+  //          lastAccessedAt: "",
+  //        },
+  //      );
+  //
+  //      if (!fileBlob) continue;
+  //
+  //      try {
+  //        const fileId = uppy.addFile({
+  //          name: fileName,
+  //          type: fileBlob.type,
+  //          data: fileBlob,
+  //          source: "initial",
+  //          isRemote: false,
+  //          meta: {
+  //            bucketName: bucket,
+  //            objectName: fileName,
+  //            contentType: fileBlob.type,
+  //          },
+  //        });
+  //
+  //        uppy.setFileState(fileId, {
+  //          progress: {
+  //            uploadStarted: Date.now(),
+  //            uploadComplete: true,
+  //            percentage: 100,
+  //            bytesUploaded: fileBlob.size,
+  //            bytesTotal: fileBlob.size,
+  //          },
+  //          uploadURL: `${filesHandler?.uploadUrl.replace("/upload/resumable", "public/v1")}/${fileName}`,
+  //          response: {
+  //            status: 200,
+  //            body: {},
+  //            uploadURL: `${filesHandler?.uploadUrl.replace("/upload/resumable", "public/v1")}/${fileName}`,
+  //          },
+  //          isPaused: false,
+  //        });
+  //
+  //        uppy.emit("upload-success", uppy.getFile(fileId), {
+  //          uploadURL: `${filesHandler?.uploadUrl.replace("/upload/resumable", "public/v1")}/${fileName}`,
+  //        });
+  //      } catch (err) {
+  //        console.error("Error injecting initial file:", err);
+  //      }
+  //    }
+  //  }, 1000);
 });
 const openGallery = () => {
   dialog.open(
@@ -137,55 +135,55 @@ const openGallery = () => {
       bucketName,
       onChoose: async (files) => {
         for (const file of files) {
-          // You must have a utility like fileFromFileObject to get the File/Blob
-          const fileBlob = await fileFromFileObject(
-            filesHandler!.uploadUrl.replace(
-              "/upload/resumable",
-              "object/public",
-            ),
-            file,
-          );
-          if (!fileBlob) continue;
-
-          try {
-            const fileId = uppy.addFile({
-              name: file.name,
-              type: fileBlob.type,
-              data: fileBlob,
-              source: "gallery",
-              isRemote: false,
-              meta: {
-                bucketName: file.bucketId,
-                objectName: file.name,
-                contentType: fileBlob.type,
-              },
-            });
-
-            // Mark the file as already uploaded
-            uppy.setFileState(fileId, {
-              progress: {
-                uploadStarted: Date.now(),
-                uploadComplete: true,
-                percentage: 100,
-                bytesUploaded: fileBlob.size,
-                bytesTotal: fileBlob.size,
-              },
-              uploadURL: `${filesHandler?.uploadUrl.replace("/upload/resumable", "public/v1")}/${file.name}`,
-              response: {
-                status: 200,
-                body: {},
-                uploadURL: `${filesHandler?.uploadUrl.replace("/upload/resumable", "public/v1")}/${file.name}`,
-              },
-              isPaused: false,
-            });
-
-            // Let Uppy/Dashboard know the file upload "succeeded"
-            uppy.emit("upload-success", uppy.getFile(fileId), {
-              uploadURL: `${filesHandler?.uploadUrl.replace("/upload/resumable", "public/v1")}/${file.name}`,
-            });
-          } catch (err) {
-            console.error("Error adding already-uploaded file:", err);
-          }
+          //  // You must have a utility like fileFromFileObject to get the File/Blob
+          //  const fileBlob = await fileFromFileObject(
+          //    filesHandler!.uploadUrl.replace(
+          //      "/upload/resumable",
+          //      "object/public",
+          //    ),
+          //    file,
+          //  );
+          //  if (!fileBlob) continue;
+          //
+          //  try {
+          //    const fileId = uppy.addFile({
+          //      name: file.name,
+          //      type: fileBlob.type,
+          //      data: fileBlob,
+          //      source: "gallery",
+          //      isRemote: false,
+          //      meta: {
+          //        bucketName: file.bucketId,
+          //        objectName: file.name,
+          //        contentType: fileBlob.type,
+          //      },
+          //    });
+          //
+          //    // Mark the file as already uploaded
+          //    uppy.setFileState(fileId, {
+          //      progress: {
+          //        uploadStarted: Date.now(),
+          //        uploadComplete: true,
+          //        percentage: 100,
+          //        bytesUploaded: fileBlob.size,
+          //        bytesTotal: fileBlob.size,
+          //      },
+          //      uploadURL: `${filesHandler?.uploadUrl.replace("/upload/resumable", "public/v1")}/${file.name}`,
+          //      response: {
+          //        status: 200,
+          //        body: {},
+          //        uploadURL: `${filesHandler?.uploadUrl.replace("/upload/resumable", "public/v1")}/${file.name}`,
+          //      },
+          //      isPaused: false,
+          //    });
+          //
+          //    // Let Uppy/Dashboard know the file upload "succeeded"
+          //    uppy.emit("upload-success", uppy.getFile(fileId), {
+          //      uploadURL: `${filesHandler?.uploadUrl.replace("/upload/resumable", "public/v1")}/${file.name}`,
+          //    });
+          //  } catch (err) {
+          //    console.error("Error adding already-uploaded file:", err);
+          //  }
         }
       },
     }),
@@ -239,13 +237,13 @@ uppy.on("file-added", (file) => {
 });
 // Supabase TUS upload configuration
 uppy.use(Tus, {
-  endpoint: filesHandler!.uploadUrl,
+  endpoint: urlFindResponse ? urlFindResponse.uploadUrl : "",
   chunkSize: 6 * 1024 * 1024, // Required: 6MB chunks
   uploadDataDuringCreation: true,
   removeFingerprintOnSuccess: true,
   retryDelays: [0, 3000, 5000, 10000, 20000],
   headers: {
-    Authorization: `Bearer ${filesHandler?.uploadTokenGetter()}`,
+    Authorization: `Bearer ${urlFindResponse ? urlFindResponse.token : ""}`,
     "x-upsert": "true",
   },
   onProgress: (bytesUploaded, bytesTotal) => {

@@ -163,13 +163,12 @@ export type BucketListResponse = {
 }
 
 export type FileUploadUrlFindRequest = {
-	bucketName: string,
-	fileName: string,
-	contentType: string,
 }
 
 export type FileUploadUrlFindResponse = {
 	uploadUrl: string
+  token: string
+  refreshToken?: string
 }
 export type BucketCreateUpdateRequest = {
 	bucketName: string;

@@ -41,16 +41,16 @@ const slots = defineSlots<{
 }>();
 const datalistProps:
   | DatalistProps<
-      TApi,
-      GalleryListRequest,
-      FileObject,
-      GalleryListRequest,
-      GalleryListResponse,
-      BucketCreateUpdateRequest
-    >
+    TApi,
+    GalleryListRequest,
+    FileObject,
+    GalleryListRequest,
+    GalleryListResponse,
+    BucketCreateUpdateRequest
+  >
   | undefined = !filesHandler
-  ? undefined
-  : {
+    ? undefined
+    : {
       context: {
         datalistKey: "files",
         hideShowDeleted: true,
@@ -61,14 +61,14 @@ const datalistProps:
         isSelectionHidden: props.isSelectionHidden,
         requestMapper: props.bucketName
           ? (req) => {
-              return {
-                filters: {
-                  ...req.filters,
-                  bucketId: props.bucketName as string,
-                },
-                paginationParams: req.paginationParams,
-              };
-            }
+            return {
+              filters: {
+                ...req.filters,
+                bucketId: props.bucketName as string,
+              },
+              paginationParams: req.paginationParams,
+            };
+          }
           : undefined,
         records: filesHandler.fileList,
         isServerSide: true,
@@ -164,12 +164,7 @@ const createSubmitted = (value: StringUnkownRecord) => {
     files handler is not passed on config
   </div>
   <div v-else class="buckets">
-    <input
-      type="file"
-      ref="fileInput"
-      @change="handleFileChange"
-      style="display: none"
-    />
+    <input type="file" ref="fileInput" @change="handleFileChange" style="display: none" />
     <Datalist v-bind="datalistProps" @create:submited="createSubmitted">
       <template #card="{ data }">
         <slot name="card" :data="data">

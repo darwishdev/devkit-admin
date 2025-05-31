@@ -234,10 +234,11 @@ const tableProps: DatalistProps<
 </script>
 
 <template>
-  <!-- <Datalist :context="tableProps.context" /> -->
-  <FileManager />
-  <AppBtn :action="login" label="re" />
+  <Datalist :context="tableProps.context" />
+
+  <!-- <LoginForm /> -->
+  <!-- <FileManager /> -->
+  <!-- <AppBtn :action="login" label="re" /> -->
   <!-- <AppBtn :action="refresh" label="lo" /> -->
   <!-- <AppBtn :action="refresh" label="loo" /> -->
-  <!-- <LoginForm /> -->
 </template>

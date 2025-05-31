@@ -28,19 +28,12 @@ export type AuthHandler<TApi extends Record<string, Function>> = {
 export type FilesHandler<TApi extends Record<string, Function>> = {
 	bucketList: ApiEndpoint<TApi, BucketListRequest, BucketListResponse>
 	fileUploadUrlFind: ApiEndpoint<TApi, FileUploadUrlFindRequest, FileUploadUrlFindResponse>,
-	uploadUrl: string,
-	uploadTokenGetter: () => string
-	fileCreate: ApiEndpoint<TApi, FileCreateRequest, FileCreateResponse>
-	bulkRequestMapper?: (req: FileCreateBulkRequest) => FileCreateBulkRequest
-	requestMapper?: (req: FileCreateRequest) => FileCreateRequest
 	fileList: DatalistRecords<TApi, GalleryListRequest, FileObject, GalleryListRequest, GalleryListResponse>
 	defauleBucketName?: string
-	fileBulkCreate?: ApiEndpoint<TApi, FileCreateBulkRequest, FileCreateResponse>
 	bucketCreateUpdate?: ApiEndpoint<TApi, BucketCreateUpdateRequest, BucketCreateUpdateResponse>
 	fileDelete?: ApiEndpoint<TApi, DeleteRequest<'records', string, 'bulk'>, any>
 	fileDeleteByBucket?: ApiEndpoint<TApi, { records: string[], bucketName: string }, any>
 	bucketDelete?: ApiEndpoint<TApi, DeleteRequest<'records', string, 'bulk'>, any>
-
 }
 export type DevkitAdminConfig<TApi extends Record<string, Function>> = {
 	apiClient: TApi
